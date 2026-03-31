@@ -105,8 +105,9 @@ def get_data_loaders(dataset_root=DEFAULT_DATASET_ROOT, batch_size=32, num_worke
 def main():
     train_dataset, val_dataset, train_loader, val_loader = get_data_loaders(
         dataset_root=DEFAULT_DATASET_ROOT,
-        batch_size=32,
-        num_workers=0,
+        batch_size=16,
+        num_workers=2,
+        pin_memory=True,
     )
 
     print_dataset_info(train_dataset, val_dataset)
