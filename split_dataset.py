@@ -22,7 +22,6 @@ CLASS_NAME_MAP = {
     "e.coli on BH": "e_coli",
     "Klebsiella on BH": "k_pneumoniae",
     "Pseudomonas aeruginosa": "p_aeruginosa",
-    "Staph On BH": "s_aureus",
 }
 
 
@@ -41,80 +40,93 @@ def list_plate_directories(class_dir: str) -> List[str]:
     return plates
 
 
-def allocate_split_counts(num_plates: int) -> Tuple[int, int, int]:
+def collect_all_images_from_plates(plate_dirs: List[str]) -> List[Tuple[str, str]]:
     """
-    Allocate plate counts for train/val/test with ratios 70/15/15.
-
-    Edge-case policy:
-    - 0 plates -> (0, 0, 0)
-    - 1 plate  -> (1, 0, 0)
-    - 2 plates -> (1, 1, 0)
-    - >=3 plates -> at least 1 plate in each split
-    """
-    if num_plates <= 0:
-        return 0, 0, 0
-    if num_plates == 1:
-        return 1, 0, 0
-    if num_plates == 2:
-        return 1, 1, 0
-
-    # Initial ratio-based counts
-    train_count = int(num_plates * TRAIN_RATIO)
-    val_count = int(num_plates * VAL_RATIO)
-    test_count = num_plates - train_count - val_count
-
-    # Ensure minimum one plate in each split for n >= 3
-    train_count = max(train_count, 1)
-    val_count = max(val_count, 1)
-    test_count = max(test_count, 1)
-
-    counts = [train_count, val_count, test_count]
-    targets = [num_plates * TRAIN_RATIO, num_plates * VAL_RATIO, num_plates * TEST_RATIO]
-
-    # If total is too high, remove from split with largest surplus while keeping min 1
-    while sum(counts) > num_plates:
-        surpluses = [(counts[i] - targets[i], i) for i in range(3) if counts[i] > 1]
-        if not surpluses:
-            break
-        _, idx = max(surpluses, key=lambda x: x[0])
-        counts[idx] -= 1
-
-    # If total is too low, add to split with largest deficit
-    while sum(counts) < num_plates:
-        deficits = [(targets[i] - counts[i], i) for i in range(3)]
-        _, idx = max(deficits, key=lambda x: x[0])
-        counts[idx] += 1
-
-    return counts[0], counts[1], counts[2]
-
-
-def copy_plate_images(plate_src_dir: str, class_dest_dir: str) -> int:
-    """
-    Copy allowed image files from a single plate directory into class destination,
-    preserving plate folder name and any nested relative folder structure.
-
+    Collect all image file paths from plate directories.
+    
     Returns:
-        Number of copied image files.
+        List of tuples (plate_dir, image_relative_path)
     """
-    copied_images = 0
+    all_images = []
+    for plate_dir in plate_dirs:
+        for root, _, files in os.walk(plate_dir):
+            for filename in files:
+                if is_image_file(filename):
+                    rel_path = os.path.relpath(os.path.join(root, filename), plate_dir)
+                    all_images.append((plate_dir, rel_path))
+    return all_images
+
+
+def allocate_image_splits(images: List[Tuple[str, str]]) -> Tuple[List, List, List]:
+    """
+    Split images into train/val/test ensuring minimum 1 image in train and val.
+    
+    Args:
+        images: List of (plate_dir, relative_path) tuples
+        
+    Returns:
+        (train_images, val_images, test_images)
+    """
+    num_images = len(images)
+    
+    if num_images == 0:
+        return [], [], []
+    
+    if num_images == 1:
+        # Only 1 image: put in train, leave val/test empty (will warn user)
+        return [images[0]], [], []
+    
+    if num_images == 2:
+        # 2 images: 1 train, 1 val, 0 test
+        return [images[0]], [images[1]], []
+    
+    # For 3+ images, ensure at least 1 in train and 1 in val
+    # Step 1: Compute train count (at least 1, respect ratio)
+    train_count = max(1, int(num_images * TRAIN_RATIO))
+    
+    # Step 2: Compute val count (at least 1, respect ratio)
+    val_count = max(1, int(num_images * VAL_RATIO))
+    
+    # Step 3: Check if train + val exceeds total
+    remaining = num_images - train_count - val_count
+
+    if remaining < 0:
+        val_count = max(1, num_images - train_count - 1)
+        remaining = num_images - train_count - val_count
+
+    test_count = remaining
+    
+    # Step 4: Assign remaining to test (guaranteed non-negative)
+    test_count = num_images - train_count - val_count
+    
+    train_images = images[:train_count]
+    val_images = images[train_count:train_count + val_count]
+    test_images = images[train_count + val_count:]
+    
+    return train_images, val_images, test_images
+
+
+def copy_single_image(plate_src_dir: str, rel_path: str, class_dest_dir: str) -> None:
+    """
+    Copy a single image file preserving its relative structure.
+    
+    Args:
+        plate_src_dir: Source plate directory
+        rel_path: Relative path of image within plate directory
+        class_dest_dir: Destination class directory
+    """
     plate_name = os.path.basename(plate_src_dir)
-    plate_dest_root = os.path.join(class_dest_dir, plate_name)
+    src_file = os.path.join(plate_src_dir, rel_path)
+    
+    # Preserve plate folder structure
+    dest_file = os.path.join(class_dest_dir, plate_name, rel_path)
+    dest_dir = os.path.dirname(dest_file)
+    
+    os.makedirs(dest_dir, exist_ok=True)
+    shutil.copy2(src_file, dest_file)
 
-    for root, _, files in os.walk(plate_src_dir):
-        rel_path = os.path.relpath(root, plate_src_dir)
-        dest_dir = plate_dest_root if rel_path == "." else os.path.join(plate_dest_root, rel_path)
 
-        for filename in files:
-            if not is_image_file(filename):
-                continue
 
-            os.makedirs(dest_dir, exist_ok=True)
-            src_file = os.path.join(root, filename)
-            dst_file = os.path.join(dest_dir, filename)
-            shutil.copy2(src_file, dst_file)
-            copied_images += 1
-
-    return copied_images
 
 
 def prepare_output_structure(output_root: str, normalized_classes: List[str]) -> None:
@@ -133,7 +145,7 @@ def prepare_output_structure(output_root: str, normalized_classes: List[str]) ->
 
 
 def split_dataset(input_root: str, output_root: str, seed: int) -> None:
-    """Split dataset at PLATE level and copy images to train/val/test structure."""
+    """Split dataset at IMAGE level and copy images to train/val/test structure."""
     random.seed(seed)
 
     normalized_classes = list(CLASS_NAME_MAP.values())
@@ -141,7 +153,6 @@ def split_dataset(input_root: str, output_root: str, seed: int) -> None:
 
     # Tracking logs
     per_class_stats: Dict[str, Dict[str, Dict[str, int]]] = {}
-    total_split_plates = {"train": 0, "val": 0, "test": 0}
     total_split_images = {"train": 0, "val": 0, "test": 0}
 
     for src_class_name, out_class_name in CLASS_NAME_MAP.items():
@@ -157,56 +168,68 @@ def split_dataset(input_root: str, output_root: str, seed: int) -> None:
             }
             continue
 
-        random.shuffle(plate_dirs)
-
-        n_train, n_val, n_test = allocate_split_counts(len(plate_dirs))
-        train_plates = plate_dirs[:n_train]
-        val_plates = plate_dirs[n_train:n_train + n_val]
-        test_plates = plate_dirs[n_train + n_val:n_train + n_val + n_test]
-
+        # Collect all images from all plates for this class
+        all_images = collect_all_images_from_plates(plate_dirs)
+        
+        if not all_images:
+            print(f"[WARNING] No images found for class '{src_class_name}'")
+            per_class_stats[out_class_name] = {
+                "train": {"plates": 0, "images": 0},
+                "val": {"plates": 0, "images": 0},
+                "test": {"plates": 0, "images": 0},
+            }
+            continue
+        
+        # Shuffle images for random split
+        random.shuffle(all_images)
+        
+        # Split images ensuring minimum requirements
+        train_images, val_images, test_images = allocate_image_splits(all_images)
+        
+        # Warn if validation is empty (only happens with 1 image total)
+        if len(all_images) == 1:
+            print(f"[WARNING] Class '{src_class_name}' has only 1 image. Placing in train only.")
+        
         class_stats = {
-            "train": {"plates": len(train_plates), "images": 0},
-            "val": {"plates": len(val_plates), "images": 0},
-            "test": {"plates": len(test_plates), "images": 0},
+            "train": {"plates": 0, "images": len(train_images)},
+            "val": {"plates": 0, "images": len(val_images)},
+            "test": {"plates": 0, "images": len(test_images)},
         }
 
-        for split_name, selected_plates in (
-            ("train", train_plates),
-            ("val", val_plates),
-            ("test", test_plates),
+        # Copy images to respective splits
+        for split_name, split_images in (
+            ("train", train_images),
+            ("val", val_images),
+            ("test", test_images),
         ):
             class_dest_dir = os.path.join(output_root, split_name, out_class_name)
-
-            for plate_dir in selected_plates:
-                copied_count = copy_plate_images(plate_dir, class_dest_dir)
-                class_stats[split_name]["images"] += copied_count
-                total_split_images[split_name] += copied_count
-
-            total_split_plates[split_name] += class_stats[split_name]["plates"]
+            
+            for plate_dir, rel_path in split_images:
+                copy_single_image(plate_dir, rel_path, class_dest_dir)
+            
+            total_split_images[split_name] += len(split_images)
 
         per_class_stats[out_class_name] = class_stats
 
     # =========================
     # Logs
     # =========================
-    print("\n=== Per-class split summary (plate-level, no leakage) ===")
+    print("\n=== Per-class split summary (image-level splitting) ===")
     for class_name in sorted(per_class_stats.keys()):
         stats = per_class_stats[class_name]
         print(f"\nClass: {class_name}")
-        print(f"  Train -> plates: {stats['train']['plates']}, images: {stats['train']['images']}")
-        print(f"  Val   -> plates: {stats['val']['plates']}, images: {stats['val']['images']}")
-        print(f"  Test  -> plates: {stats['test']['plates']}, images: {stats['test']['images']}")
+        print(f"  Train -> images: {stats['train']['images']}")
+        print(f"  Val   -> images: {stats['val']['images']}")
+        print(f"  Test  -> images: {stats['test']['images']}")
 
-    total_plates = sum(total_split_plates.values())
     total_images = sum(total_split_images.values())
 
     print("\n=== Split totals ===")
-    print(f"Train -> plates: {total_split_plates['train']}, images: {total_split_images['train']}")
-    print(f"Val   -> plates: {total_split_plates['val']}, images: {total_split_images['val']}")
-    print(f"Test  -> plates: {total_split_plates['test']}, images: {total_split_images['test']}")
+    print(f"Train -> images: {total_split_images['train']}")
+    print(f"Val   -> images: {total_split_images['val']}")
+    print(f"Test  -> images: {total_split_images['test']}")
 
     print("\n=== Dataset total ===")
-    print(f"Total plates: {total_plates}")
     print(f"Total images copied: {total_images}")
     print(f"\nOutput directory: {output_root}")
 
@@ -214,7 +237,7 @@ def split_dataset(input_root: str, output_root: str, seed: int) -> None:
 def parse_args() -> argparse.Namespace:
     """Parse command-line arguments."""
     parser = argparse.ArgumentParser(
-        description="Split image dataset at PLATE level into train/val/test without leakage."
+        description="Split image dataset at IMAGE level into train/val/test ensuring minimum images per split."
     )
     parser.add_argument(
         "--input-root",

@@ -3,6 +3,8 @@ import csv
 import torch
 import torch.nn as nn
 import torch.optim as optim
+import data_loader
+print(data_loader.__file__)
 
 from data_loader import get_data_loaders
 from efficientnet_setup import build_efficientnet_b0
@@ -131,7 +133,7 @@ def main():
     log_path = os.path.join(save_dir, "efficientnet_log.csv")
     save_training_log(training_log, log_path)
     print(f"Training log saved to: {log_path}")
-    print(f"Model weights saved to: {model_path}")
+    print(f"Model weights saved to: {best_model_path}")
 
 
 if __name__ == "__main__":

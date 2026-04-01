@@ -41,13 +41,13 @@ def create_datasets(dataset_root=DEFAULT_DATASET_ROOT):
     return train_dataset, val_dataset
 
 
-def create_dataloaders(train_dataset, val_dataset, batch_size=32, num_workers=0):
+def create_dataloaders(train_dataset, val_dataset, batch_size=16, num_workers=2, pin_memory=True):
     """
     Create DataLoaders for train and validation datasets.
     - train_loader: shuffled
     - val_loader: not shuffled
     """
-    pin_memory = torch.cuda.is_available()
+    
 
     train_loader = DataLoader(
         train_dataset,
@@ -76,7 +76,7 @@ def print_dataset_info(train_dataset, val_dataset):
     print(f"Class names: {train_dataset.classes}")
 
 
-def get_data_loaders(dataset_root=DEFAULT_DATASET_ROOT, batch_size=32, num_workers=0):
+def get_data_loaders(dataset_root=DEFAULT_DATASET_ROOT, batch_size=16, num_workers=2, pin_memory=None):
     """
     Reusable helper to build datasets and dataloaders.
     Returns:
@@ -97,6 +97,7 @@ def get_data_loaders(dataset_root=DEFAULT_DATASET_ROOT, batch_size=32, num_worke
         val_dataset=val_dataset,
         batch_size=batch_size,
         num_workers=num_workers,
+        pin_memory=pin_memory,
     )
 
     return train_dataset, val_dataset, train_loader, val_loader
