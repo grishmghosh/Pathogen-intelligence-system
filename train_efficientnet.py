@@ -96,7 +96,7 @@ def main():
     scaler = GradScaler()
 
     # 5) Training configuration
-    num_epochs = 5
+    num_epochs = 10
     training_log = []
     best_acc = 0.0
     save_dir = os.path.join(os.getcwd(), "checkpoints")

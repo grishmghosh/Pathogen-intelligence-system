@@ -94,7 +94,7 @@ def main():
     scaler = GradScaler()
 
     # Training config
-    num_epochs = 5
+    num_epochs = 10
     training_log = []
     best_acc = 0.0
 
