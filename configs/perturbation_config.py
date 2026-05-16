@@ -10,6 +10,7 @@ PERTURBATION_CONFIG = {
     "contrast_decrease_factor": 0.85,
     "gaussian_noise_sigma": 8,
     "gaussian_blur_kernel_size": 5,
+    "random_seed": 42,
 }
 
 ENABLED_PERTURBATIONS = [

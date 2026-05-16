@@ -1,19 +1,20 @@
 import os
+import sys
 import csv
 import torch
 import torch.nn as nn
 import torch.optim as optim
-import data_loader
-print(data_loader.__file__)
 
-from data_loader import get_data_loaders
-from efficientnet_setup import build_efficientnet_b0
+# Add parent directory to path for imports
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
+from loaders.data_loader import get_data_loaders
+from models.resnet_setup import build_resnet50
 
 from torch.cuda.amp import autocast, GradScaler
 
+
 def train_one_epoch(model, loader, criterion, optimizer, device, scaler):
-    """Run one training epoch and return average training loss."""
     model.train()
     running_loss = 0.0
     total_samples = 0
@@ -23,9 +24,11 @@ def train_one_epoch(model, loader, criterion, optimizer, device, scaler):
         labels = labels.to(device, non_blocking=True)
 
         optimizer.zero_grad()
+
         with autocast():
             outputs = model(inputs)
             loss = criterion(outputs, labels)
+
         scaler.scale(loss).backward()
         scaler.step(optimizer)
         scaler.update()
@@ -34,12 +37,10 @@ def train_one_epoch(model, loader, criterion, optimizer, device, scaler):
         running_loss += loss.item() * batch_size
         total_samples += batch_size
 
-    avg_loss = running_loss / total_samples if total_samples > 0 else 0.0
-    return avg_loss
+    return running_loss / total_samples if total_samples > 0 else 0.0
 
 
 def validate(model, loader, criterion, device):
-    """Run validation and return average loss and accuracy percentage."""
     model.eval()
     running_loss = 0.0
     total_samples = 0
@@ -49,6 +50,7 @@ def validate(model, loader, criterion, device):
         for inputs, labels in loader:
             inputs = inputs.to(device, non_blocking=True)
             labels = labels.to(device, non_blocking=True)
+
             with autocast():
                 outputs = model(inputs)
                 loss = criterion(outputs, labels)
@@ -60,13 +62,13 @@ def validate(model, loader, criterion, device):
             _, preds = torch.max(outputs, dim=1)
             correct += (preds == labels).sum().item()
 
-    avg_loss = running_loss / total_samples if total_samples > 0 else 0.0
-    accuracy = (correct / total_samples) * 100.0 if total_samples > 0 else 0.0
-    return avg_loss, accuracy
+    val_loss = running_loss / total_samples if total_samples > 0 else 0.0
+    val_accuracy = (correct / total_samples) * 100 if total_samples > 0 else 0.0
+
+    return val_loss, val_accuracy
 
 
 def save_training_log(log_rows, csv_path):
-    """Save epoch-wise metrics to a CSV file."""
     fieldnames = ["epoch", "train_loss", "val_loss", "accuracy"]
 
     with open(csv_path, mode="w", newline="", encoding="utf-8") as file:
@@ -76,34 +78,35 @@ def save_training_log(log_rows, csv_path):
 
 
 def main():
-    print("Training EfficientNet-B0")
-    # 1) Device setup
+    print("Training ResNet-50")
+
+    # Device setup
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     print(f"Using device: {device}")
 
-    # 2) Load train/validation data
+    # Load data
     _, _, train_loader, val_loader = get_data_loaders(
         batch_size=16, num_workers=2, pin_memory=True
     )
 
-    # 3) Build and move model
-    model = build_efficientnet_b0(num_classes=4)
-    model = model.to(device)
+    # Model
+    model = build_resnet50(num_classes=4).to(device)
 
-    # 4) Loss and optimizer
+    # Loss + optimizer
     criterion = nn.CrossEntropyLoss()
     optimizer = optim.Adam(model.parameters(), lr=0.0003)
     scaler = GradScaler()
 
-    # 5) Training configuration
+    # Training config
     num_epochs = 10
     training_log = []
     best_acc = 0.0
+
     save_dir = os.path.join(os.getcwd(), "checkpoints")
     os.makedirs(save_dir, exist_ok=True)
-    best_model_path = os.path.join(save_dir, "efficientnet_b0_best.pth")
+    best_model_path = os.path.join(save_dir, "resnet50_best.pth")
 
-    # 6) Train + validate loop
+    # Training loop
     for epoch in range(1, num_epochs + 1):
         train_loss = train_one_epoch(model, train_loader, criterion, optimizer, device, scaler)
         val_loss, val_accuracy = validate(model, val_loader, criterion, device)
@@ -129,9 +132,10 @@ def main():
             torch.save(model.state_dict(), best_model_path)
             print(f"Best model saved at epoch {epoch} with accuracy {val_accuracy:.2f}%")
 
-    # 7) Save training log
-    log_path = os.path.join(save_dir, "efficientnet_log.csv")
+    # Save logs
+    log_path = os.path.join(save_dir, "resnet_log.csv")
     save_training_log(training_log, log_path)
+
     print(f"Training log saved to: {log_path}")
     print(f"Model weights saved to: {best_model_path}")
 
