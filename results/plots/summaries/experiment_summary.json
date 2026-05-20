@@ -1,0 +1,90 @@
+{
+  "per_model_stats": {
+    "efficientnet_b0": {
+      "robustness_score": 56.204895002762555,
+      "interpretation": "Poor robustness",
+      "consistency_score": 71.42857142857143,
+      "stability_score": 35.75033274500162,
+      "resistance_score": 66.66666666666666,
+      "consistency_rate": 71.42857142857143,
+      "original_confidence": 0.92,
+      "mean_confidence": 0.7614285714285715,
+      "confidence_drop": 0.47000000000000003,
+      "confidence_std": 0.17249667254998377,
+      "prediction_flips": 2,
+      "most_damaging": "gaussian_blur"
+    },
+    "resnet50": {
+      "robustness_score": 70.09847346065568,
+      "interpretation": "Moderate robustness",
+      "consistency_score": 85.71428571428571,
+      "stability_score": 47.86523127068683,
+      "resistance_score": 83.33333333333334,
+      "consistency_rate": 85.71428571428571,
+      "original_confidence": 0.89,
+      "mean_confidence": 0.727142857142857,
+      "confidence_drop": 0.37,
+      "confidence_std": 0.15134768729313172,
+      "prediction_flips": 1,
+      "most_damaging": "gaussian_noise"
+    }
+  },
+  "best_robustness": {
+    "model": "resnet50",
+    "score": 70.09847346065568,
+    "interpretation": "Moderate robustness"
+  },
+  "worst_robustness": {
+    "model": "efficientnet_b0",
+    "score": 56.204895002762555,
+    "interpretation": "Poor robustness"
+  },
+  "calibration_summary": {
+    "efficientnet_b0": {
+      "ece": 0.238571,
+      "num_samples": 7
+    },
+    "resnet50": {
+      "ece": 0.13,
+      "num_samples": 7
+    }
+  },
+  "degradation_summary": {
+    "bright": {
+      "mean_drop": 0.035,
+      "std_drop": 0.007071,
+      "max_drop": 0.04
+    },
+    "dark": {
+      "mean_drop": 0.08,
+      "std_drop": 0.014142,
+      "max_drop": 0.09
+    },
+    "gaussian_blur": {
+      "mean_drop": 0.405,
+      "std_drop": 0.091924,
+      "max_drop": 0.47
+    },
+    "gaussian_noise": {
+      "mean_drop": 0.255,
+      "std_drop": 0.162635,
+      "max_drop": 0.37
+    },
+    "high_contrast": {
+      "mean_drop": 0.02,
+      "std_drop": 0.0,
+      "max_drop": 0.02
+    },
+    "low_contrast": {
+      "mean_drop": 0.33,
+      "std_drop": 0.056569,
+      "max_drop": 0.37
+    }
+  },
+  "overall_statistics": {
+    "total_models": 2,
+    "total_perturbations": 7,
+    "total_records": 14,
+    "mean_confidence": 0.744286
+  }
+}
