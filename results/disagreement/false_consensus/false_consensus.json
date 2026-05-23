@@ -1,0 +1,92 @@
+[
+  {
+    "sample_id": "sample_003",
+    "clean_agreement": true,
+    "flags": [
+      "high_confidence_gap",
+      "fragile_under_perturbation",
+      "high_instability"
+    ],
+    "flag_count": 3,
+    "confidence_gap": 0.3343,
+    "confidence_mean": 0.68061,
+    "instability_score": 0.9125,
+    "false_consensus_severity": "severe"
+  },
+  {
+    "sample_id": "sample_004",
+    "clean_agreement": true,
+    "flags": [
+      "high_confidence_gap",
+      "fragile_under_perturbation",
+      "high_instability"
+    ],
+    "flag_count": 3,
+    "confidence_gap": 0.3335,
+    "confidence_mean": 0.681757,
+    "instability_score": 0.9125,
+    "false_consensus_severity": "severe"
+  },
+  {
+    "sample_id": "sample_006",
+    "clean_agreement": true,
+    "flags": [
+      "low_mean_confidence",
+      "high_instability"
+    ],
+    "flag_count": 2,
+    "confidence_gap": 0.1416,
+    "confidence_mean": 0.330286,
+    "instability_score": 0.633333,
+    "false_consensus_severity": "moderate"
+  },
+  {
+    "sample_id": "sample_007",
+    "clean_agreement": true,
+    "flags": [
+      "low_mean_confidence",
+      "high_instability"
+    ],
+    "flag_count": 2,
+    "confidence_gap": 0.1406,
+    "confidence_mean": 0.330762,
+    "instability_score": 0.633333,
+    "false_consensus_severity": "moderate"
+  },
+  {
+    "sample_id": "sample_005",
+    "clean_agreement": true,
+    "flags": [
+      "high_confidence_gap"
+    ],
+    "flag_count": 1,
+    "confidence_gap": 0.3946,
+    "confidence_mean": 0.640248,
+    "instability_score": 0.441667,
+    "false_consensus_severity": "mild"
+  },
+  {
+    "sample_id": "sample_008",
+    "clean_agreement": true,
+    "flags": [
+      "high_confidence_gap"
+    ],
+    "flag_count": 1,
+    "confidence_gap": 0.5,
+    "confidence_mean": 0.609524,
+    "instability_score": 0.4125,
+    "false_consensus_severity": "mild"
+  },
+  {
+    "sample_id": "sample_009",
+    "clean_agreement": true,
+    "flags": [
+      "high_confidence_gap"
+    ],
+    "flag_count": 1,
+    "confidence_gap": 0.5,
+    "confidence_mean": 0.7,
+    "instability_score": NaN,
+    "false_consensus_severity": "mild"
+  }
+]

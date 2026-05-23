@@ -1,0 +1,26 @@
+[
+  {
+    "model_name": "efficientnet_b0",
+    "instability_score": 0.160938,
+    "flip_rate": 0.208333,
+    "trust_contribution": 0.839062,
+    "stability_label": "stabiliser",
+    "trust_rank": 1
+  },
+  {
+    "model_name": "resnet50",
+    "instability_score": 0.164583,
+    "flip_rate": 0.208333,
+    "trust_contribution": 0.835417,
+    "stability_label": "stabiliser",
+    "trust_rank": 2
+  },
+  {
+    "model_name": "densenet121",
+    "instability_score": 0.20625,
+    "flip_rate": 0.25,
+    "trust_contribution": 0.79375,
+    "stability_label": "stabiliser",
+    "trust_rank": 3
+  }
+]
