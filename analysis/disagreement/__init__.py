@@ -27,6 +27,11 @@ Modules (Step 4):
     consensus_reliability      - Consensus reliability scoring and breakdown
     false_consensus_detection  - Fragile/false/unstable consensus detection
     trust_analysis             - Trust labelling and Step 4 exports
+
+Modules (Step 5):
+    risk_estimation            - Deterministic reliability risk scoring and model profiling
+    risk_classification        - Risk level labels and distribution summaries
+    risk_summary               - Risk summaries, fragility analysis, trend analysis, and exports
 """
 
 # ---- Step 1 ----
@@ -144,6 +149,33 @@ from analysis.disagreement.trust_analysis import (
     export_trust_summary_json,
 )
 
+# ---- Step 5 ----
+from analysis.disagreement.risk_estimation import (
+    compute_reliability_risk_scores,
+    compute_model_reliability_risk_profiles,
+    compute_reliability_risk_summary,
+)
+from analysis.disagreement.risk_classification import (
+    classify_reliability_risk_level,
+    assign_reliability_risk_labels,
+    compute_risk_classification_summary,
+)
+from analysis.disagreement.risk_summary import (
+    compute_risk_summary,
+    compute_risk_contributor_summary,
+    compute_perturbation_fragility_analysis,
+    compute_model_risk_summary,
+    generate_risk_trend_summary,
+    export_risk_analysis_csv,
+    export_risk_analysis_json,
+    export_model_risk_profile_csv,
+    export_model_risk_profile_json,
+    export_fragility_analysis_csv,
+    export_fragility_analysis_json,
+    export_risk_trends_csv,
+    export_risk_trends_json,
+)
+
 __all__ = [
     # Step 1
     "compute_agreement_matrix",
@@ -241,6 +273,28 @@ __all__ = [
     "export_trust_labels_csv",
     "export_trust_labels_json",
     "export_trust_summary_json",
+    # Step 5 - Risk estimation
+    "compute_reliability_risk_scores",
+    "compute_model_reliability_risk_profiles",
+    "compute_reliability_risk_summary",
+    # Step 5 - Risk classification
+    "classify_reliability_risk_level",
+    "assign_reliability_risk_labels",
+    "compute_risk_classification_summary",
+    # Step 5 - Risk summary and exports
+    "compute_risk_summary",
+    "compute_risk_contributor_summary",
+    "compute_perturbation_fragility_analysis",
+    "compute_model_risk_summary",
+    "generate_risk_trend_summary",
+    "export_risk_analysis_csv",
+    "export_risk_analysis_json",
+    "export_model_risk_profile_csv",
+    "export_model_risk_profile_json",
+    "export_fragility_analysis_csv",
+    "export_fragility_analysis_json",
+    "export_risk_trends_csv",
+    "export_risk_trends_json",
 ]
 
 

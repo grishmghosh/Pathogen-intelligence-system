@@ -1,0 +1,5 @@
+experiment_summary: valid
+report_manifest: valid
+report_summary: valid
+trust_summary: valid
+compatibility_score: 100.0

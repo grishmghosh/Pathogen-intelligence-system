@@ -1,0 +1,44 @@
+[
+  {
+    "perturbation_type": "bright",
+    "mean_drop": 0.035,
+    "std_drop": 0.007071,
+    "max_drop": 0.04,
+    "degradation_impact": 0.035
+  },
+  {
+    "perturbation_type": "dark",
+    "mean_drop": 0.08,
+    "std_drop": 0.014142,
+    "max_drop": 0.09,
+    "degradation_impact": 0.08
+  },
+  {
+    "perturbation_type": "gaussian_blur",
+    "mean_drop": 0.405,
+    "std_drop": 0.091924,
+    "max_drop": 0.47,
+    "degradation_impact": 0.405
+  },
+  {
+    "perturbation_type": "gaussian_noise",
+    "mean_drop": 0.255,
+    "std_drop": 0.162635,
+    "max_drop": 0.37,
+    "degradation_impact": 0.255
+  },
+  {
+    "perturbation_type": "high_contrast",
+    "mean_drop": 0.02,
+    "std_drop": 0.0,
+    "max_drop": 0.02,
+    "degradation_impact": 0.02
+  },
+  {
+    "perturbation_type": "low_contrast",
+    "mean_drop": 0.33,
+    "std_drop": 0.056569,
+    "max_drop": 0.37,
+    "degradation_impact": 0.33
+  }
+]

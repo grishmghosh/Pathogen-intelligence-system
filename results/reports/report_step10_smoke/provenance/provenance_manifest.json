@@ -1,0 +1,18 @@
+{
+  "experiment_id": null,
+  "experiment_name": null,
+  "created_at": null,
+  "output_root": null,
+  "dataset_name": null,
+  "dataset_subset": null,
+  "dataset_sample_count": 0,
+  "enabled_stages": [],
+  "enabled_analyses": {},
+  "models": [],
+  "model_versions": {},
+  "perturbation_profiles": [],
+  "perturbation_parameters": {},
+  "seed": null,
+  "registry_path": null,
+  "summary_line": "Experiment summary loaded from visualization outputs."
+}
