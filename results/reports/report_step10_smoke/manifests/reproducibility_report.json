@@ -1,0 +1,47 @@
+{
+  "report_id": "step10_smoke",
+  "experiment_id": null,
+  "experiment_name": null,
+  "created_at": null,
+  "seed": null,
+  "config_snapshot": {},
+  "manifest_snapshot": {},
+  "provenance_snapshot": {
+    "experiment_id": null,
+    "experiment_name": null,
+    "created_at": null,
+    "output_root": null,
+    "dataset_name": null,
+    "dataset_subset": null,
+    "dataset_sample_count": 0,
+    "enabled_stages": [],
+    "enabled_analyses": {},
+    "models": [],
+    "model_versions": {},
+    "perturbation_profiles": [],
+    "perturbation_parameters": {},
+    "seed": null,
+    "registry_path": null,
+    "summary_line": "Experiment summary loaded from visualization outputs."
+  },
+  "dataset_metadata": {},
+  "model_metadata": {},
+  "perturbation_metadata": {},
+  "benchmark_snapshot": {
+    "model_summary": {
+      "best_robustness_model": "resnet50",
+      "most_stable_model": "resnet50",
+      "lowest_risk_model": null,
+      "best_attention_stability_model": null,
+      "strongest_perturbation_resilience": "resnet50"
+    },
+    "perturbation_summary": {
+      "most_disruptive_perturbation": "gaussian_blur"
+    },
+    "severity_summary": {
+      "trend_direction": "stable"
+    },
+    "correlation_summary": {},
+    "summary_line": "Experiment summary loaded from visualization outputs."
+  }
+}

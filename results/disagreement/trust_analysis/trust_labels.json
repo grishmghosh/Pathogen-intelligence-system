@@ -1,0 +1,76 @@
+{
+  "low": [
+    {
+      "sample_id": "sample_010",
+      "consensus_reliability_score": 0.258333,
+      "base_trust_level": "low",
+      "false_consensus_flag": false
+    }
+  ],
+  "critical": [
+    {
+      "sample_id": "sample_003",
+      "consensus_reliability_score": 0.609958,
+      "base_trust_level": "moderate",
+      "false_consensus_flag": true,
+      "downgrade_reason": "Severe false consensus (flags: ['high_confidence_gap', 'fragile_under_perturbation', 'high_instability'])"
+    },
+    {
+      "sample_id": "sample_004",
+      "consensus_reliability_score": 0.610146,
+      "base_trust_level": "moderate",
+      "false_consensus_flag": true,
+      "downgrade_reason": "Severe false consensus (flags: ['high_confidence_gap', 'fragile_under_perturbation', 'high_instability'])"
+    }
+  ],
+  "moderate": [
+    {
+      "sample_id": "sample_006",
+      "consensus_reliability_score": 0.709431,
+      "base_trust_level": "high",
+      "false_consensus_flag": true,
+      "downgrade_reason": "Moderate false consensus (flags: ['low_mean_confidence', 'high_instability'])"
+    },
+    {
+      "sample_id": "sample_007",
+      "consensus_reliability_score": 0.709589,
+      "base_trust_level": "high",
+      "false_consensus_flag": true,
+      "downgrade_reason": "Moderate false consensus (flags: ['low_mean_confidence', 'high_instability'])"
+    }
+  ],
+  "high": [
+    {
+      "sample_id": "sample_008",
+      "consensus_reliability_score": 0.784387,
+      "base_trust_level": "high",
+      "false_consensus_flag": true
+    },
+    {
+      "sample_id": "sample_005",
+      "consensus_reliability_score": 0.795118,
+      "base_trust_level": "high",
+      "false_consensus_flag": true
+    },
+    {
+      "sample_id": "sample_009",
+      "consensus_reliability_score": 0.841,
+      "base_trust_level": "high",
+      "false_consensus_flag": true
+    }
+  ],
+  "very_high": [
+    {
+      "sample_id": "sample_002",
+      "consensus_reliability_score": 0.961636,
+      "base_trust_level": "very_high",
+      "false_consensus_flag": false
+    },
+    {
+      "sample_id": "sample_001",
+      "consensus_reliability_score": 0.964452,
+      "base_trust_level": "very_high",
+      "false_consensus_flag": false
+    }
+  ]
+}

@@ -2,6 +2,7 @@
 __pycache__/
 *.py[codz]
 *$py.class
+*.zip
 
 # C extensions
 *.so
@@ -220,3 +221,6 @@ dataset_split/
 # Outputs
 outputs/
 logs/
+
+# Checkpoints
+checkpoints/

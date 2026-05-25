@@ -1,0 +1,44 @@
+[
+  {
+    "sample_id": "sample_005",
+    "total_transitions": 3,
+    "oscillation_count": 2,
+    "oscillation_rate": 0.666667,
+    "flag": "unstable_agreement"
+  },
+  {
+    "sample_id": "sample_003",
+    "total_transitions": 3,
+    "oscillation_count": 1,
+    "oscillation_rate": 0.333333,
+    "flag": "unstable_agreement"
+  },
+  {
+    "sample_id": "sample_004",
+    "total_transitions": 3,
+    "oscillation_count": 1,
+    "oscillation_rate": 0.333333,
+    "flag": "unstable_agreement"
+  },
+  {
+    "sample_id": "sample_006",
+    "total_transitions": 3,
+    "oscillation_count": 1,
+    "oscillation_rate": 0.333333,
+    "flag": "unstable_agreement"
+  },
+  {
+    "sample_id": "sample_007",
+    "total_transitions": 3,
+    "oscillation_count": 1,
+    "oscillation_rate": 0.333333,
+    "flag": "unstable_agreement"
+  },
+  {
+    "sample_id": "sample_008",
+    "total_transitions": 3,
+    "oscillation_count": 1,
+    "oscillation_rate": 0.333333,
+    "flag": "unstable_agreement"
+  }
+]

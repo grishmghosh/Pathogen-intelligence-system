@@ -1,0 +1,7 @@
+{
+  "agreement_persistence": 0.9,
+  "confidence_stability": 0.72651,
+  "perturbation_survival_rate": 0.617647,
+  "cross_model_consistency": 0.974825,
+  "overall_consistency": 0.804746
+}

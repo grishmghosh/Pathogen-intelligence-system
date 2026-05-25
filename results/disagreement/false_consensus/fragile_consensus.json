@@ -1,0 +1,16 @@
+[
+  {
+    "sample_id": "sample_003",
+    "clean_agreement": true,
+    "collapse_severity": "mild",
+    "collapse_severity_rank": 1,
+    "flag": "fragile_consensus"
+  },
+  {
+    "sample_id": "sample_004",
+    "clean_agreement": true,
+    "collapse_severity": "mild",
+    "collapse_severity_rank": 1,
+    "flag": "fragile_consensus"
+  }
+]

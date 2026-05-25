@@ -1,0 +1,90 @@
+[
+  {
+    "group": "plots",
+    "source": "results\\plots\\calibration\\calibration_curve.png",
+    "copied_to": "results\\reports\\report_step10_smoke\\figures\\plots\\calibration_curve.png",
+    "figure_name": "calibration_curve",
+    "extension": ".png",
+    "size_bytes": 73086
+  },
+  {
+    "group": "plots",
+    "source": "results\\plots\\calibration\\confidence_histogram.png",
+    "copied_to": "results\\reports\\report_step10_smoke\\figures\\plots\\confidence_histogram.png",
+    "figure_name": "confidence_histogram",
+    "extension": ".png",
+    "size_bytes": 46130
+  },
+  {
+    "group": "plots",
+    "source": "results\\plots\\calibration\\expected_vs_actual.png",
+    "copied_to": "results\\reports\\report_step10_smoke\\figures\\plots\\expected_vs_actual.png",
+    "figure_name": "expected_vs_actual",
+    "extension": ".png",
+    "size_bytes": 63692
+  },
+  {
+    "group": "plots",
+    "source": "results\\plots\\calibration\\reliability_diagram.png",
+    "copied_to": "results\\reports\\report_step10_smoke\\figures\\plots\\reliability_diagram.png",
+    "figure_name": "reliability_diagram",
+    "extension": ".png",
+    "size_bytes": 74354
+  },
+  {
+    "group": "plots",
+    "source": "results\\plots\\heatmaps\\model_instability_comparison.png",
+    "copied_to": "results\\reports\\report_step10_smoke\\figures\\plots\\model_instability_comparison.png",
+    "figure_name": "model_instability_comparison",
+    "extension": ".png",
+    "size_bytes": 56341
+  },
+  {
+    "group": "plots",
+    "source": "results\\plots\\heatmaps\\prediction_flip_heatmap.png",
+    "copied_to": "results\\reports\\report_step10_smoke\\figures\\plots\\prediction_flip_heatmap.png",
+    "figure_name": "prediction_flip_heatmap",
+    "extension": ".png",
+    "size_bytes": 56291
+  },
+  {
+    "group": "plots",
+    "source": "results\\plots\\heatmaps\\severity_vs_instability.png",
+    "copied_to": "results\\reports\\report_step10_smoke\\figures\\plots\\severity_vs_instability.png",
+    "figure_name": "severity_vs_instability",
+    "extension": ".png",
+    "size_bytes": 67412
+  },
+  {
+    "group": "plots",
+    "source": "results\\plots\\robustness\\accuracy_vs_severity.png",
+    "copied_to": "results\\reports\\report_step10_smoke\\figures\\plots\\accuracy_vs_severity.png",
+    "figure_name": "accuracy_vs_severity",
+    "extension": ".png",
+    "size_bytes": 60013
+  },
+  {
+    "group": "plots",
+    "source": "results\\plots\\robustness\\confidence_vs_severity.png",
+    "copied_to": "results\\reports\\report_step10_smoke\\figures\\plots\\confidence_vs_severity.png",
+    "figure_name": "confidence_vs_severity",
+    "extension": ".png",
+    "size_bytes": 95953
+  },
+  {
+    "group": "plots",
+    "source": "results\\plots\\robustness\\model_comparison.png",
+    "copied_to": "results\\reports\\report_step10_smoke\\figures\\plots\\model_comparison.png",
+    "figure_name": "model_comparison",
+    "extension": ".png",
+    "size_bytes": 42240
+  },
+  {
+    "group": "plots",
+    "source": "results\\plots\\robustness\\per_class_degradation.png",
+    "copied_to": "results\\reports\\report_step10_smoke\\figures\\plots\\per_class_degradation.png",
+    "figure_name": "per_class_degradation",
+    "extension": ".png",
+    "size_bytes": 85612
+  }
+]
