@@ -28,7 +28,7 @@ TRAIN_RATIO = 0.70
 VAL_RATIO   = 0.15
 TEST_RATIO  = 0.15
 
-IMAGE_EXTENSIONS = {".jpg", ".jpeg", ".png"}
+IMAGE_EXTENSIONS = {".jpg", ".jpeg", ".png", ".JPG", ".HEIC", ".heic"}
 
 # Maps top-level source folder name → output class name
 CLASS_NAME_MAP = {
@@ -45,7 +45,7 @@ CLASS_NAME_MAP = {
 
 def is_image_file(filename: str) -> bool:
     _, ext = os.path.splitext(filename)
-    return ext.lower() in IMAGE_EXTENSIONS
+    return ext.lower() in {".jpg", ".jpeg", ".png", ".heic"}
 
 
 def find_plate_dirs(root: str) -> List[str]:
@@ -112,21 +112,42 @@ def split_plates(plates: List[str], seed: int) -> Tuple[List[str], List[str], Li
 
 
 def copy_plate(plate_dir: str, class_dest_dir: str) -> int:
-    """Copy all images from plate_dir into class_dest_dir."""
+    """Copy all images from plate_dir into class_dest_dir.
+    HEIC files are converted to JPG automatically."""
+    from PIL import Image
+    try:
+        from pillow_heif import register_heif_opener
+        register_heif_opener()
+    except ImportError:
+        print("  [WARN] pillow-heif not installed. HEIC files will be skipped.")
+
     plate_name = os.path.basename(plate_dir)
     copied = 0
     for root, _, files in os.walk(plate_dir):
         for filename in files:
-            if not is_image_file(filename):
+            _, ext = os.path.splitext(filename)
+            if ext.lower() not in {".jpg", ".jpeg", ".png", ".heic"}:
                 continue
             src = os.path.join(root, filename)
             rel = os.path.relpath(src, plate_dir)
-            dst = os.path.join(class_dest_dir, plate_name, rel)
-            os.makedirs(os.path.dirname(dst), exist_ok=True)
-            shutil.copy2(src, dst)
-            copied += 1
-    return copied
 
+            # Convert HEIC to JPG
+            if ext.lower() == ".heic":
+                rel_jpg = os.path.splitext(rel)[0] + ".jpg"
+                dst = os.path.join(class_dest_dir, plate_name, rel_jpg)
+                os.makedirs(os.path.dirname(dst), exist_ok=True)
+                try:
+                    img = Image.open(src)
+                    img.convert("RGB").save(dst, "JPEG", quality=95)
+                    copied += 1
+                except Exception as e:
+                    print(f"  [WARN] Could not convert {src}: {e}")
+            else:
+                dst = os.path.join(class_dest_dir, plate_name, rel)
+                os.makedirs(os.path.dirname(dst), exist_ok=True)
+                shutil.copy2(src, dst)
+                copied += 1
+    return copied
 
 def prepare_output_structure(output_root: str, class_names: List[str]) -> None:
     if os.path.exists(output_root):
