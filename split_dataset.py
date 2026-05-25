@@ -5,10 +5,9 @@ FIX: Previously split at IMAGE level, which allowed images from the
      SAME plate to appear in both train and test sets — causing severe
      data leakage and inflated accuracy.
 
-This version splits at the PLATE level:
-  • All images from a plate go exclusively into ONE split.
-  • No plate ever straddles train/val/test.
-  • s_aureus class added (was silently missing from CLASS_NAME_MAP).
+FIX 2: Auto-discovers Plate folders recursively so nested dataset
+        structures (controlled/uncontrolled subfolders) are handled
+        automatically regardless of nesting depth.
 """
 
 import argparse
@@ -16,11 +15,12 @@ import os
 import random
 import shutil
 from typing import Dict, List, Tuple
+from collections import Counter
 
 # =========================
 # Default configuration
 # =========================
-DEFAULT_INPUT_ROOT = r"C:\Pathogen-intelligence-system\data\A Microbiological Image Repository of Escherichia"
+DEFAULT_INPUT_ROOT  = r"C:\Pathogen-intelligence-system\data\A Microbiological Image Repository of Escherichia"
 DEFAULT_OUTPUT_ROOT = r"C:\Pathogen-intelligence-system\dataset_split"
 
 RANDOM_SEED = 42
@@ -30,14 +30,14 @@ TEST_RATIO  = 0.15
 
 IMAGE_EXTENSIONS = {".jpg", ".jpeg", ".png"}
 
-# FIX: s_aureus was listed in README but missing from this map.
-# Added it back; update the key to match your actual folder name.
+# Maps top-level source folder name → output class name
 CLASS_NAME_MAP = {
-    "e.coli on BH":                "e_coli",
-    "Klebsiella on BH":            "k_pneumoniae",
+    "e.coli on BH":                 "e_coli",
+    "Klebsiella on BH":             "k_pneumoniae",
     "Pseudomonas aeruginosa on BH": "p_aeruginosa",
-    "Staph On BH":                 "s_aureus",
+    "Staph On BH":                  "s_aureus",
 }
+
 
 # ---------------------------------------------------------------------------
 # Helpers
@@ -48,12 +48,18 @@ def is_image_file(filename: str) -> bool:
     return ext.lower() in IMAGE_EXTENSIONS
 
 
-def list_plate_directories(class_dir: str) -> List[str]:
-    if not os.path.isdir(class_dir):
-        return []
-    plates = [e.path for e in os.scandir(class_dir) if e.is_dir()]
-    plates.sort()
-    return plates
+def find_plate_dirs(root: str) -> List[str]:
+    """
+    Recursively find all folders whose name starts with 'Plate'
+    anywhere under root. This handles any nesting depth.
+    """
+    plate_dirs = []
+    for dirpath, dirnames, _ in os.walk(root):
+        for d in dirnames:
+            if d.lower().startswith("plate"):
+                plate_dirs.append(os.path.join(dirpath, d))
+    plate_dirs.sort()
+    return plate_dirs
 
 
 def count_images_in_plate(plate_dir: str) -> int:
@@ -64,15 +70,7 @@ def count_images_in_plate(plate_dir: str) -> int:
 
 
 def split_plates(plates: List[str], seed: int) -> Tuple[List[str], List[str], List[str]]:
-    """
-    FIX: Split at the PLATE level so no plate crosses split boundaries.
-
-    Strategy
-    --------
-    Sort plates by descending image count so large plates are distributed
-    greedily (avoids one split getting all big plates), then assign
-    the remainder randomly to hit the target ratios.
-    """
+    """Split at the PLATE level — no plate ever crosses split boundaries."""
     rng = random.Random(seed)
 
     if len(plates) == 0:
@@ -83,45 +81,38 @@ def split_plates(plates: List[str], seed: int) -> Tuple[List[str], List[str], Li
     if len(plates) == 2:
         return [plates[0]], [plates[1]], []
 
-    # Shuffle first, then sort by image count for greedy distribution
     rng.shuffle(plates)
     plates_with_counts = [(p, count_images_in_plate(p)) for p in plates]
     plates_with_counts.sort(key=lambda x: x[1], reverse=True)
 
-    n = len(plates_with_counts)
+    n       = len(plates_with_counts)
     n_train = max(1, round(n * TRAIN_RATIO))
     n_val   = max(1, round(n * VAL_RATIO))
-    # Guarantee at least 1 plate in test if we have ≥3 plates
     n_test  = max(1, n - n_train - n_val)
 
-    # Re-adjust if rounding pushed us over
     while n_train + n_val + n_test > n:
-        if n_val > 1:
-            n_val -= 1
-        elif n_train > 1:
-            n_train -= 1
-        else:
-            n_test -= 1
+        if n_val > 1:   n_val   -= 1
+        elif n_train > 1: n_train -= 1
+        else:             n_test  -= 1
 
     all_plates = [p for p, _ in plates_with_counts]
-    # Interleave so each split gets a mix of large and small plates
     train_plates, val_plates, test_plates = [], [], []
-    buckets = [train_plates] * n_train + [val_plates] * n_val + [test_plates] * n_test
-    # Distribute round-robin so large plates are spread
-    targets = (
-        [train_plates] * n_train
-        + [val_plates]  * n_val
-        + [test_plates] * n_test
+
+    # Distribute round-robin so large and small plates are spread evenly
+    buckets = (
+        [train_plates] * n_train +
+        [val_plates]   * n_val   +
+        [test_plates]  * n_test
     )
-    rng.shuffle(targets)
-    for plate, target in zip(all_plates, targets):
-        target.append(plate)
+    rng.shuffle(buckets)
+    for plate, bucket in zip(all_plates, buckets):
+        bucket.append(plate)
 
     return train_plates, val_plates, test_plates
 
 
 def copy_plate(plate_dir: str, class_dest_dir: str) -> int:
-    """Copy all images from plate_dir into class_dest_dir, preserving structure."""
+    """Copy all images from plate_dir into class_dest_dir."""
     plate_name = os.path.basename(plate_dir)
     copied = 0
     for root, _, files in os.walk(plate_dir):
@@ -151,27 +142,29 @@ def prepare_output_structure(output_root: str, class_names: List[str]) -> None:
 # ---------------------------------------------------------------------------
 
 def split_dataset(input_root: str, output_root: str, seed: int) -> None:
-    """
-    Plate-level split: every plate goes entirely into train, val, or test.
-    This prevents the leakage that caused inflated accuracy scores.
-    """
     random.seed(seed)
-    class_names = list(CLASS_NAME_MAP.values())
+    class_names = list(set(CLASS_NAME_MAP.values()))
     prepare_output_structure(output_root, class_names)
 
     grand_total = {"train": 0, "val": 0, "test": 0}
 
     for src_cls, out_cls in CLASS_NAME_MAP.items():
         class_src_dir = os.path.join(input_root, src_cls)
-        plates = list_plate_directories(class_src_dir)
+
+        if not os.path.isdir(class_src_dir):
+            print(f"[WARN] Source folder not found: {class_src_dir}")
+            continue
+
+        # Auto-discover all Plate* folders anywhere under this class dir
+        plates = find_plate_dirs(class_src_dir)
 
         if not plates:
-            print(f"[WARN] No plates for '{src_cls}' at: {class_src_dir}")
+            print(f"[WARN] No Plate folders found under: {class_src_dir}")
             continue
 
         train_plates, val_plates, test_plates = split_plates(plates, seed)
 
-        print(f"\nClass: {out_cls}  ({len(plates)} plates total)")
+        print(f"\nClass: {out_cls}  ({len(plates)} plates found under '{src_cls}')")
         print(f"  Train: {len(train_plates)} plates")
         print(f"  Val:   {len(val_plates)} plates")
         print(f"  Test:  {len(test_plates)} plates")
@@ -196,6 +189,23 @@ def split_dataset(input_root: str, output_root: str, seed: int) -> None:
     print(f"  TOTAL: {total} images")
     print(f"\nOutput: {output_root}")
     print("\n[NOTE] Split is at the PLATE level — no leakage between splits.")
+
+    # Warn if val class distribution is badly skewed
+    for split_name in ("val", "test"):
+        counts = {}
+        split_dir = os.path.join(output_root, split_name)
+        for cls in class_names:
+            cls_dir = os.path.join(split_dir, cls)
+            n = sum(
+                1 for root, _, files in os.walk(cls_dir)
+                for f in files if is_image_file(f)
+            )
+            counts[cls] = n
+        if sum(counts.values()) > 0:
+            mx = max(counts.values())
+            total_split = sum(counts.values())
+            if mx / total_split > 0.8:
+                print(f"[WARN] {split_name} set is >80% one class: {counts}")
 
 
 def parse_args() -> argparse.Namespace:
