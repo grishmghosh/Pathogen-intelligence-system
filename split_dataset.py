@@ -20,7 +20,7 @@ from typing import Dict, List, Tuple
 # =========================
 # Default configuration
 # =========================
-DEFAULT_INPUT_ROOT  = r"C:\Pathogen-intelligence-system\data\A Microbiological Image Repository of Escherichia"
+DEFAULT_INPUT_ROOT = r"C:\Pathogen-intelligence-system\data\A Microbiological Image Repository of Escherichia"
 DEFAULT_OUTPUT_ROOT = r"C:\Pathogen-intelligence-system\dataset_split"
 
 RANDOM_SEED = 42
@@ -33,12 +33,11 @@ IMAGE_EXTENSIONS = {".jpg", ".jpeg", ".png"}
 # FIX: s_aureus was listed in README but missing from this map.
 # Added it back; update the key to match your actual folder name.
 CLASS_NAME_MAP = {
-    "e.coli on BH":          "e_coli",
-    "Klebsiella on BH":      "k_pneumoniae",
-    "Pseudomonas aeruginosa": "p_aeruginosa",
-    "Staphylococcus aureus":  "s_aureus",   # ← was silently dropped before
+    "e.coli on BH":                "e_coli",
+    "Klebsiella on BH":            "k_pneumoniae",
+    "Pseudomonas aeruginosa on BH": "p_aeruginosa",
+    "Staph On BH":                 "s_aureus",
 }
-
 
 # ---------------------------------------------------------------------------
 # Helpers
