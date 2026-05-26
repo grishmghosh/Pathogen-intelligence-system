@@ -183,7 +183,14 @@ from torch.nn.functional import cross_entropy
 class TemperatureScaler(nn.Module):
     def __init__(self):
         super().__init__()
-        self.temperature = nn.Parameter(torch.ones(1) * 1.5)
+        # Constrained to always be positive
+        self.log_temperature = nn.Parameter(torch.zeros(1))
+
+    @property
+    def temperature(self):
+        # exp() guarantees temperature is always positive
+        return torch.exp(self.log_temperature)
+
     def forward(self, logits):
         return logits / self.temperature
 
@@ -200,7 +207,7 @@ all_logits = torch.cat(all_logits)
 all_labels = torch.cat(all_labels)
 
 ts       = TemperatureScaler()
-ts_optim = optim.LBFGS([ts.temperature], lr=0.01, max_iter=50)
+ts_optim = optim.LBFGS([ts.log_temperature], lr=0.01, max_iter=50)
 
 def ts_eval():
     ts_optim.zero_grad()
@@ -209,10 +216,16 @@ def ts_eval():
     return loss
 
 ts_optim.step(ts_eval)
-print(f"Optimal temperature: {ts.temperature.item():.4f}")
-torch.save({"temperature": ts.temperature.item()},
-           os.path.join(CHECKPOINT_DIR, "efficientnet_b0_temperature.pth"))
+temp_value = ts.temperature.item()
 
+# Safety check — clamp to reasonable range
+if temp_value <= 0 or temp_value > 10:
+    print(f"[WARN] Optimized temperature {temp_value:.4f} is out of range. Using T=1.0.")
+    temp_value = 1.0
+
+print(f"Optimal temperature: {temp_value:.4f}")
+torch.save({"temperature": temp_value},
+           os.path.join(CHECKPOINT_DIR, "efficientnet_b0_temperature.pth"))
 # ---------------------------------------------------------------------------
 # Final test evaluation
 # ---------------------------------------------------------------------------

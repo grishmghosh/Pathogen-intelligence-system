@@ -175,7 +175,7 @@ for epoch in range(1, NUM_EPOCHS + 1):
         print("  [WARN] Overfit gap widening.")
 
 # ---------------------------------------------------------------------------
-# Temperature scaling
+# Temperature scaling (UPDATED LOGIC)
 # ---------------------------------------------------------------------------
 print("\n--- Temperature Scaling Calibration ---")
 from torch.nn.functional import cross_entropy
@@ -183,10 +183,18 @@ from torch.nn.functional import cross_entropy
 class TemperatureScaler(nn.Module):
     def __init__(self):
         super().__init__()
-        self.temperature = nn.Parameter(torch.ones(1) * 1.5)
+        # Constrained parameter to ensure temperature stays strictly positive
+        self.log_temperature = nn.Parameter(torch.zeros(1))
+
+    @property
+    def temperature(self):
+        # exp() guarantees temperature is always positive
+        return torch.exp(self.log_temperature)
+
     def forward(self, logits):
         return logits / self.temperature
 
+# Load the best state weights saved during training
 ckpt = torch.load(os.path.join(CHECKPOINT_DIR, "resnet50_best.pth"), map_location=DEVICE)
 model.load_state_dict(ckpt["model_state"])
 model.eval()
@@ -200,7 +208,7 @@ all_logits = torch.cat(all_logits)
 all_labels = torch.cat(all_labels)
 
 ts       = TemperatureScaler()
-ts_optim = optim.LBFGS([ts.temperature], lr=0.01, max_iter=50)
+ts_optim = optim.LBFGS([ts.log_temperature], lr=0.01, max_iter=50)
 
 def ts_eval():
     ts_optim.zero_grad()
@@ -209,8 +217,15 @@ def ts_eval():
     return loss
 
 ts_optim.step(ts_eval)
-print(f"Optimal temperature: {ts.temperature.item():.4f}")
-torch.save({"temperature": ts.temperature.item()},
+temp_value = ts.temperature.item()
+
+# Safety check — clamp to reasonable range if optimization drifted wildly
+if temp_value <= 0 or temp_value > 10:
+    print(f"[WARN] Optimized temperature {temp_value:.4f} is out of range. Using T=1.0.")
+    temp_value = 1.0
+
+print(f"Optimal temperature: {temp_value:.4f}")
+torch.save({"temperature": temp_value},
            os.path.join(CHECKPOINT_DIR, "resnet50_temperature.pth"))
 
 # ---------------------------------------------------------------------------
@@ -221,11 +236,11 @@ correct, total = 0, 0
 all_max_confs  = []
 with torch.no_grad():
     for imgs, labels in test_loader:
-        logits = model(imgs.to(DEVICE)) / ts.temperature.item()
+        logits = model(imgs.to(DEVICE)) / temp_value
         probs  = torch.softmax(logits, dim=1).cpu()
         preds  = probs.argmax(1)
         correct += (preds == labels).sum().item()
-        total   += labels.size(0)
+        total    += labels.size(0)
         all_max_confs.extend(probs.max(1).values.tolist())
 
 print(f"Test Accuracy:       {correct/total:.4f}")
