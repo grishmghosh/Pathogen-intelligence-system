@@ -1,15 +1,5 @@
 """
 training/train_resnet.py  –  Anti-overfit ResNet-50 training script
-====================================================================
-Mirrors all fixes from train_efficientnet.py:
-  1. Label smoothing (0.1)
-  2. Dropout on classifier head (0.5 — ResNet-50 is larger, needs more)
-  3. Weight decay (1e-4)
-  4. Cosine LR schedule with warm restarts
-  5. Early stopping on val loss
-  6. Stronger data augmentation
-  7. Gradient clipping
-  8. Temperature scaling calibration saved after training
 """
 
 import os
@@ -17,7 +7,6 @@ import sys
 import torch
 import torch.nn as nn
 import torch.optim as optim
-from torch.cuda.amp import GradScaler, autocast
 from torchvision import datasets, transforms, models
 from torch.utils.data import DataLoader
 import numpy as np
@@ -35,17 +24,21 @@ NUM_EPOCHS     = 50
 LR             = 3e-4
 WEIGHT_DECAY   = 1e-4
 LABEL_SMOOTH   = 0.1
-DROPOUT_RATE   = 0.5       # Higher than EfficientNet — ResNet-50 has 25M params
+DROPOUT_RATE   = 0.5
 PATIENCE       = 8
 SEED           = 42
 DEVICE         = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+USE_AMP        = torch.cuda.is_available()
+
+print(f"Using device: {DEVICE}")
+print(f"Mixed precision: {USE_AMP}")
 
 os.makedirs(CHECKPOINT_DIR, exist_ok=True)
 torch.manual_seed(SEED)
 np.random.seed(SEED)
 
 # ---------------------------------------------------------------------------
-# Transforms (same augmentation policy as efficientnet script)
+# Transforms
 # ---------------------------------------------------------------------------
 IMAGENET_MEAN = [0.485, 0.456, 0.406]
 IMAGENET_STD  = [0.229, 0.224, 0.225]
@@ -86,16 +79,12 @@ print(f"Train: {len(train_dataset)} | Val: {len(val_dataset)} | Test: {len(test_
 from collections import Counter
 val_counts = Counter(y for _, y in val_dataset.samples)
 print(f"Val class counts: {val_counts}")
-if max(val_counts.values()) / len(val_dataset) > 0.8:
-    print("[WARN] Val set is >80% one class — check for plate-level leakage!")
 
 # ---------------------------------------------------------------------------
 # Model
 # ---------------------------------------------------------------------------
 def build_model() -> nn.Module:
     model = models.resnet50(weights=models.ResNet50_Weights.IMAGENET1K_V2)
-
-    # FIX: Replace the single Linear head with Dropout + Linear
     in_features = model.fc.in_features
     model.fc = nn.Sequential(
         nn.Dropout(p=DROPOUT_RATE),
@@ -106,12 +95,12 @@ def build_model() -> nn.Module:
 model = build_model()
 
 # ---------------------------------------------------------------------------
-# Loss / Optimiser / Scheduler
+# Loss / Optimiser / Scheduler / Scaler
 # ---------------------------------------------------------------------------
 criterion = nn.CrossEntropyLoss(label_smoothing=LABEL_SMOOTH)
 optimizer = optim.AdamW(model.parameters(), lr=LR, weight_decay=WEIGHT_DECAY)
 scheduler = optim.lr_scheduler.CosineAnnealingWarmRestarts(optimizer, T_0=10, T_mult=2)
-scaler    = GradScaler()
+scaler    = torch.cuda.amp.GradScaler() if USE_AMP else None
 
 # ---------------------------------------------------------------------------
 # Training loop
@@ -126,14 +115,23 @@ for epoch in range(1, NUM_EPOCHS + 1):
     for imgs, labels in train_loader:
         imgs, labels = imgs.to(DEVICE), labels.to(DEVICE)
         optimizer.zero_grad()
-        with autocast():
+
+        if USE_AMP:
+            with torch.cuda.amp.autocast():
+                logits = model(imgs)
+                loss   = criterion(logits, labels)
+            scaler.scale(loss).backward()
+            scaler.unscale_(optimizer)
+            torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm=1.0)
+            scaler.step(optimizer)
+            scaler.update()
+        else:
             logits = model(imgs)
             loss   = criterion(logits, labels)
-        scaler.scale(loss).backward()
-        scaler.unscale_(optimizer)
-        torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm=1.0)
-        scaler.step(optimizer)
-        scaler.update()
+            loss.backward()
+            torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm=1.0)
+            optimizer.step()
+
         train_loss += loss.item() * imgs.size(0)
 
     scheduler.step()
@@ -145,18 +143,17 @@ for epoch in range(1, NUM_EPOCHS + 1):
     with torch.no_grad():
         for imgs, labels in val_loader:
             imgs, labels = imgs.to(DEVICE), labels.to(DEVICE)
-            logits  = model(imgs)
+            logits   = model(imgs)
             val_loss += criterion(logits, labels).item() * imgs.size(0)
             correct  += (logits.argmax(1) == labels).sum().item()
             total    += labels.size(0)
 
     val_loss /= len(val_dataset)
     val_acc   = correct / total
-    scheduler.step()
 
-    print(f"Epoch {epoch:03d} | Train: {train_loss:.4f} | "
-          f"Val: {val_loss:.4f} | Acc: {val_acc:.4f} | "
-          f"LR: {optimizer.param_groups[0]['lr']:.6f}")
+    print(f"Epoch {epoch:03d} | Train Loss: {train_loss:.4f} | "
+          f"Val Loss: {val_loss:.4f} | Val Acc: {val_acc:.4f} | "
+          f"LR: {scheduler.get_last_lr()[0]:.6f}")
 
     if val_loss < best_val_loss:
         best_val_loss    = val_loss
@@ -175,7 +172,7 @@ for epoch in range(1, NUM_EPOCHS + 1):
             break
 
     if epoch > 5 and train_loss < 0.5 * val_loss:
-        print("  [WARN] Overfit gap widening — check augmentation / data split.")
+        print("  [WARN] Overfit gap widening.")
 
 # ---------------------------------------------------------------------------
 # Temperature scaling
@@ -202,8 +199,8 @@ with torch.no_grad():
 all_logits = torch.cat(all_logits)
 all_labels = torch.cat(all_labels)
 
-ts          = TemperatureScaler()
-ts_optim    = optim.LBFGS([ts.temperature], lr=0.01, max_iter=50)
+ts       = TemperatureScaler()
+ts_optim = optim.LBFGS([ts.temperature], lr=0.01, max_iter=50)
 
 def ts_eval():
     ts_optim.zero_grad()
@@ -219,7 +216,7 @@ torch.save({"temperature": ts.temperature.item()},
 # ---------------------------------------------------------------------------
 # Final test evaluation
 # ---------------------------------------------------------------------------
-print("\n--- Final Test Evaluation (temperature-calibrated) ---")
+print("\n--- Final Test Evaluation ---")
 correct, total = 0, 0
 all_max_confs  = []
 with torch.no_grad():
@@ -231,11 +228,6 @@ with torch.no_grad():
         total   += labels.size(0)
         all_max_confs.extend(probs.max(1).values.tolist())
 
-test_acc  = correct / total
-mean_conf = float(np.mean(all_max_confs))
-print(f"Test Accuracy:       {test_acc:.4f}")
-print(f"Mean Max Confidence: {mean_conf:.4f}")
-
-if mean_conf > 0.95 and test_acc < 0.90:
-    print("[WARN] Overconfident relative to accuracy — check for leakage.")
+print(f"Test Accuracy:       {correct/total:.4f}")
+print(f"Mean Max Confidence: {np.mean(all_max_confs):.4f}")
 print("\nTraining complete.")
