@@ -183,12 +183,10 @@ from torch.nn.functional import cross_entropy
 class TemperatureScaler(nn.Module):
     def __init__(self):
         super().__init__()
-        # Constrained parameter to ensure temperature stays strictly positive
         self.log_temperature = nn.Parameter(torch.zeros(1))
 
     @property
     def temperature(self):
-        # exp() guarantees temperature is always positive
         return torch.exp(self.log_temperature)
 
     def forward(self, logits):
@@ -209,7 +207,6 @@ all_labels = torch.cat(all_labels)
 
 ts       = TemperatureScaler()
 ts_optim = optim.LBFGS([ts.log_temperature], lr=0.01, max_iter=50)
-
 def ts_eval():
     ts_optim.zero_grad()
     loss = cross_entropy(ts(all_logits), all_labels)
