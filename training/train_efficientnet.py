@@ -80,9 +80,9 @@ train_dataset = datasets.ImageFolder(os.path.join(DATASET_ROOT, "train"), transf
 val_dataset   = datasets.ImageFolder(os.path.join(DATASET_ROOT, "val"),   transform=val_transform)
 test_dataset  = datasets.ImageFolder(os.path.join(DATASET_ROOT, "test"),  transform=val_transform)
 
-train_loader = DataLoader(train_dataset, batch_size=BATCH_SIZE, shuffle=True,  num_workers=4, pin_memory=True)
-val_loader   = DataLoader(val_dataset,   batch_size=BATCH_SIZE, shuffle=False, num_workers=4, pin_memory=True)
-test_loader  = DataLoader(test_dataset,  batch_size=BATCH_SIZE, shuffle=False, num_workers=4, pin_memory=True)
+train_loader = DataLoader(train_dataset, batch_size=BATCH_SIZE, shuffle=True,  num_workers=2, pin_memory=True)
+val_loader   = DataLoader(val_dataset,   batch_size=BATCH_SIZE, shuffle=False, num_workers=2, pin_memory=True)
+test_loader  = DataLoader(test_dataset,  batch_size=BATCH_SIZE, shuffle=False, num_workers=2, pin_memory=True)
 
 print(f"Classes: {train_dataset.classes}")
 print(f"Train: {len(train_dataset)} | Val: {len(val_dataset)} | Test: {len(test_dataset)}")
@@ -290,3 +290,8 @@ elif mean_max_conf > 0.95:
     print("[INFO] High confidence. Verify with ECE metric in analysis/calibration.py.")
 
 print("\nTraining complete.")
+
+
+
+if __name__ == "__main__":
+    main()
