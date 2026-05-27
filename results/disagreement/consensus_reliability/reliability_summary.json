@@ -1,14 +1,14 @@
 {
   "total_samples": 10,
-  "mean_reliability": 0.724405,
+  "mean_reliability": 0.724841,
   "min_reliability": 0.258333,
-  "max_reliability": 0.964452,
-  "median_reliability": 0.746988,
+  "max_reliability": 0.96463,
+  "median_reliability": 0.748208,
   "reliable_count": 7,
   "unreliable_count": 1,
   "component_means": {
     "agreement_strength": 0.9,
-    "confidence_consistency": 0.692962,
+    "confidence_consistency": 0.695142,
     "perturbation_stability": 0.6,
     "severity_reliability": 0.9,
     "instability_reliability": 0.505417

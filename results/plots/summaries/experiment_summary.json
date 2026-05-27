@@ -1,42 +1,42 @@
 {
   "per_model_stats": {
     "efficientnet_b0": {
-      "robustness_score": 56.204895002762555,
+      "robustness_score": 53.33333333333333,
       "interpretation": "Poor robustness",
-      "consistency_score": 71.42857142857143,
-      "stability_score": 35.75033274500162,
-      "resistance_score": 66.66666666666666,
-      "consistency_rate": 71.42857142857143,
+      "consistency_score": 0,
+      "stability_score": 0,
+      "resistance_score": 0,
+      "consistency_rate": 66.66666666666666,
       "original_confidence": 0.92,
       "mean_confidence": 0.7614285714285715,
       "confidence_drop": 0.47000000000000003,
       "confidence_std": 0.17249667254998377,
-      "prediction_flips": 2,
-      "most_damaging": "gaussian_blur"
+      "prediction_flips": 0,
+      "most_damaging": "N/A"
     },
     "resnet50": {
-      "robustness_score": 70.09847346065568,
-      "interpretation": "Moderate robustness",
-      "consistency_score": 85.71428571428571,
-      "stability_score": 47.86523127068683,
-      "resistance_score": 83.33333333333334,
-      "consistency_rate": 85.71428571428571,
+      "robustness_score": 61.66666666666667,
+      "interpretation": "Fair robustness",
+      "consistency_score": 0,
+      "stability_score": 0,
+      "resistance_score": 0,
+      "consistency_rate": 83.33333333333334,
       "original_confidence": 0.89,
       "mean_confidence": 0.727142857142857,
       "confidence_drop": 0.37,
       "confidence_std": 0.15134768729313172,
-      "prediction_flips": 1,
-      "most_damaging": "gaussian_noise"
+      "prediction_flips": 0,
+      "most_damaging": "N/A"
     }
   },
   "best_robustness": {
     "model": "resnet50",
-    "score": 70.09847346065568,
-    "interpretation": "Moderate robustness"
+    "score": 61.66666666666667,
+    "interpretation": "Fair robustness"
   },
   "worst_robustness": {
     "model": "efficientnet_b0",
-    "score": 56.204895002762555,
+    "score": 53.33333333333333,
     "interpretation": "Poor robustness"
   },
   "calibration_summary": {

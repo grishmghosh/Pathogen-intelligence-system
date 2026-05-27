@@ -74,11 +74,21 @@ def _extract_perturbation_data(model_results: Dict) -> List[Dict]:
     for pert_id, pert_data in model_results.items():
         if "error" in pert_data:
             continue
+        # all_probabilities is a dict {class_name: float} from batch_inference.py.
+        # Extract values (sorted by key for consistency) before converting to np.array.
+        all_probs_raw = pert_data.get("all_probabilities", [])
+        if isinstance(all_probs_raw, dict):
+            all_probs_arr = np.array(
+                [all_probs_raw[k] for k in sorted(all_probs_raw.keys())], dtype=float
+            )
+        else:
+            all_probs_arr = np.array(all_probs_raw, dtype=float)
+
         records.append({
             "id":          pert_id,
             "prediction":  pert_data.get("prediction"),
             "confidence":  float(pert_data.get("confidence", 0.0)),
-            "all_probs":   np.array(pert_data.get("all_probabilities", []), dtype=float),
+            "all_probs":   all_probs_arr,
             "type":        pert_data.get("metadata", {}).get("type", pert_id),
             "parameter":   pert_data.get("metadata", {}).get("parameter", None),
         })

@@ -9,40 +9,40 @@
     "consensus_reliability_score": 0.258333
   },
   {
-    "sample_id": "sample_003",
-    "agreement_strength": 1.0,
-    "confidence_consistency": 0.671664,
-    "perturbation_stability": 0.25,
-    "severity_reliability": 1.0,
-    "instability_reliability": 0.0875,
-    "consensus_reliability_score": 0.609958
-  },
-  {
     "sample_id": "sample_004",
     "agreement_strength": 1.0,
-    "confidence_consistency": 0.672603,
+    "confidence_consistency": 0.661397,
     "perturbation_stability": 0.25,
     "severity_reliability": 1.0,
     "instability_reliability": 0.0875,
-    "consensus_reliability_score": 0.610146
+    "consensus_reliability_score": 0.607904
+  },
+  {
+    "sample_id": "sample_003",
+    "agreement_strength": 1.0,
+    "confidence_consistency": 0.689615,
+    "perturbation_stability": 0.25,
+    "severity_reliability": 1.0,
+    "instability_reliability": 0.0875,
+    "consensus_reliability_score": 0.613548
   },
   {
     "sample_id": "sample_006",
     "agreement_strength": 1.0,
-    "confidence_consistency": 0.647154,
+    "confidence_consistency": 0.642653,
     "perturbation_stability": 0.5,
     "severity_reliability": 1.0,
     "instability_reliability": 0.366667,
-    "consensus_reliability_score": 0.709431
+    "consensus_reliability_score": 0.708531
   },
   {
     "sample_id": "sample_007",
     "agreement_strength": 1.0,
-    "confidence_consistency": 0.647945,
+    "confidence_consistency": 0.660146,
     "perturbation_stability": 0.5,
     "severity_reliability": 1.0,
     "instability_reliability": 0.366667,
-    "consensus_reliability_score": 0.709589
+    "consensus_reliability_score": 0.712029
   },
   {
     "sample_id": "sample_008",
@@ -56,11 +56,11 @@
   {
     "sample_id": "sample_005",
     "agreement_strength": 1.0,
-    "confidence_consistency": 0.619339,
+    "confidence_consistency": 0.616774,
     "perturbation_stability": 0.75,
     "severity_reliability": 1.0,
     "instability_reliability": 0.558333,
-    "consensus_reliability_score": 0.795118
+    "consensus_reliability_score": 0.794605
   },
   {
     "sample_id": "sample_009",
@@ -72,21 +72,21 @@
     "consensus_reliability_score": 0.841
   },
   {
-    "sample_id": "sample_002",
-    "agreement_strength": 1.0,
-    "confidence_consistency": 0.808182,
-    "perturbation_stability": 1.0,
-    "severity_reliability": 1.0,
-    "instability_reliability": 1.0,
-    "consensus_reliability_score": 0.961636
-  },
-  {
     "sample_id": "sample_001",
     "agreement_strength": 1.0,
-    "confidence_consistency": 0.822259,
+    "confidence_consistency": 0.817207,
     "perturbation_stability": 1.0,
     "severity_reliability": 1.0,
     "instability_reliability": 1.0,
-    "consensus_reliability_score": 0.964452
+    "consensus_reliability_score": 0.963441
+  },
+  {
+    "sample_id": "sample_002",
+    "agreement_strength": 1.0,
+    "confidence_consistency": 0.823149,
+    "perturbation_stability": 1.0,
+    "severity_reliability": 1.0,
+    "instability_reliability": 1.0,
+    "consensus_reliability_score": 0.96463
   }
 ]

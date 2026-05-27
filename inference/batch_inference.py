@@ -212,8 +212,8 @@ def run_batch_inference(image_path: str) -> Dict:
     img_rgb  = cv2.cvtColor(img_bgr, cv2.COLOR_BGR2RGB)
 
     # Generate perturbations
-    from perturbations.perturbation_engine import generate_all_perturbations
-    perturbations = generate_all_perturbations(img_rgb)
+    from perturbations.perturbation_engine import generate_perturbations
+    perturbations = generate_perturbations(image_path)
 
     results = {}
 
@@ -226,7 +226,7 @@ def run_batch_inference(image_path: str) -> Dict:
             continue
 
         model_results = {}
-        for pert in perturbations:
+        for pert in perturbations.values():
             pert_id = pert["id"]
             try:
                 pred = predict_single(model, pert["image"], temperature=temperature)
