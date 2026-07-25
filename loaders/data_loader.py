@@ -5,7 +5,9 @@ from torchvision.datasets import ImageFolder
 from torch.utils.data import DataLoader
 
 # Default dataset root (can be overridden when calling get_data_loaders)
-DEFAULT_DATASET_ROOT = r"C:\Pathogen-intelligence-system\dataset_split"
+# Use an environment variable if provided, otherwise default to a workspace-relative path.
+PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+DEFAULT_DATASET_ROOT = os.getenv("PATHOGEN_DATA_SPLIT_ROOT", os.path.join(PROJECT_ROOT, "dataset_split"))
 
 # ImageNet normalization stats
 IMAGENET_MEAN = [0.485, 0.456, 0.406]

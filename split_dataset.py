@@ -7,8 +7,16 @@ from typing import Dict, List, Tuple
 # =========================
 # Default configuration
 # =========================
-DEFAULT_INPUT_ROOT = r"C:\Pathogen-intelligence-system\data\A Microbiological Image Repository of Escherichia"
-DEFAULT_OUTPUT_ROOT = r"C:\Pathogen-intelligence-system\dataset_split"
+# Use environment variables when available, otherwise default to repository-relative paths
+PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
+DEFAULT_INPUT_ROOT = os.getenv(
+    "PATHOGEN_RAW_DATA_ROOT",
+    os.path.join(PROJECT_ROOT, "data", "A Microbiological Image Repository of Escherichia"),
+)
+DEFAULT_OUTPUT_ROOT = os.getenv(
+    "PATHOGEN_SPLIT_OUTPUT_ROOT",
+    os.path.join(PROJECT_ROOT, "dataset_split"),
+)
 
 RANDOM_SEED = 42
 TRAIN_RATIO = 0.70

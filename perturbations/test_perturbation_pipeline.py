@@ -43,7 +43,9 @@ except Exception as e:
 
 # Test 2: Find a real test image
 print("\n[TEST 2] Finding test image from dataset...")
-dataset_root = r"C:\Pathogen-intelligence-system\dataset_split"
+# Determine dataset split root (env override supported)
+PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+dataset_root = os.getenv("PATHOGEN_DATA_SPLIT_ROOT", os.path.join(PROJECT_ROOT, "dataset_split"))
 test_image_path = None
 
 search_paths = [
