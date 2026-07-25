@@ -8,16 +8,16 @@ The Pathogen Intelligence System goes beyond traditional classification accuracy
 
 ### Key Features
 
-- 🧬 **Multi-Model Classification**: EfficientNet-B0 and ResNet-50 architectures
-- 🔬 **4 Pathogen Classes**: E. coli, K. pneumoniae, P. aeruginosa, S. aureus
-- 🎯 **Perturbation Framework**: 6 controlled perturbations (brightness, contrast, noise, blur)
-- 🤖 **Batch Inference**: Automated prediction collection across perturbations
-- 📊 **Robustness Analysis**: Comprehensive stability and confidence evaluation
-- 🏆 **Model Comparison**: Side-by-side robustness comparison
-- 🌡️ **Temperature Scaling Calibration**: Log-parameterised; honest confidence scores, not raw softmax
-- 🔍 **Disagreement & Consensus Analysis**: Inter-model agreement, false consensus detection, trust classification
-- 📈 **Visualization Suite**: Calibration plots, reliability diagrams, robustness heatmaps, experiment summaries
-- 🛡️ **Stabilization Framework**: Schema validation, artifact integrity, dataset readiness checks
+-  **Multi-Model Classification**: EfficientNet-B0 and ResNet-50 architectures
+-  **4 Pathogen Classes**: E. coli, K. pneumoniae, P. aeruginosa, S. aureus
+-  **Perturbation Framework**: 6 controlled perturbations (brightness, contrast, noise, blur)
+-  **Batch Inference**: Automated prediction collection across perturbations
+-  **Robustness Analysis**: Comprehensive stability and confidence evaluation
+-  **Model Comparison**: Side-by-side robustness comparison
+- ️ **Temperature Scaling Calibration**: Log-parameterised; honest confidence scores, not raw softmax
+-  **Disagreement & Consensus Analysis**: Inter-model agreement, false consensus detection, trust classification
+-  **Visualization Suite**: Calibration plots, reliability diagrams, robustness heatmaps, experiment summaries
+- ️ **Stabilization Framework**: Schema validation, artifact integrity, dataset readiness checks
 
 ## System Architecture
 
@@ -78,14 +78,23 @@ source venv/bin/activate  # On Windows: venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
-### 2. Prepare Dataset
+### 2. Run a Demo (no dataset required)
+
+```bash
+# Runs a synthetic demo image through the full pipeline on CPU
+python test_intelligence_pipeline.py --demo
+```
+
+This mode is useful for validating the implementation, generating a reproducible report, and preparing figures without requiring the original dataset.
+
+### 3. Prepare Dataset (optional)
 
 ```bash
 # Split dataset into train/val/test at the plate level (no leakage)
 python split_dataset.py
 ```
 
-### 3. Train Models
+### 4. Train Models (optional)
 
 ```bash
 # Train EfficientNet-B0
@@ -95,11 +104,17 @@ python training/train_efficientnet.py
 python training/train_resnet.py
 ```
 
-### 4. Run Intelligence Pipeline
+### 5. Run Intelligence Pipeline on a real image
 
 ```bash
 # Complete pipeline: Perturbations → Inference → Analysis
-python test_intelligence_pipeline.py
+python test_intelligence_pipeline.py --image /path/to/image.jpg
+```
+
+### 6. Run the full evaluation workflow
+
+```bash
+python run_full_eval.py --dataset-root /path/to/dataset_split --output-dir results/evaluation
 ```
 
 ### 5. Run Analysis Suite
@@ -370,42 +385,31 @@ python tools/run_stabilization_test.py
 python visualization/test_visualization_e2e.py
 ```
 
-## Future Enhancements
-
-- [ ] Ensemble methods
-- [ ] Per-class robustness analysis
-- [x] Uncertainty quantification
-- [ ] Adversarial robustness testing
-- [ ] Real-time monitoring
-- [ ] Automated PDF reports
-- [x] Explainability (Grad-CAM)
-
-## Contributing
-
-This is a research project for pathogen classification with robustness analysis. Contributions welcome for:
-- Additional perturbation types
-- New robustness metrics
-- Visualization improvements
-- Documentation enhancements
-
 ## License
 
-[Specify your license here]
+MIT License
 
-## Citation
+Copyright (c) [2026]
 
-If you use this system in your research, please cite:
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
 
-```
-[Add citation information]
-```
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
 
-## Contact
-
-[Add contact information]
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
 
 ---
 
-**Status:** Production Ready  
 **Version:** 1.0  
-**Last Updated:** May 27, 2026
+**Last Updated:** July 25, 2026

@@ -1,0 +1,374 @@
+{
+  "image_path": "/run/media/pranjal/4268-E694/Pathogen-intelligence-system/data/A Microbiological Image Repository of Escherichia/e.coli on BH/E-coli on BH mixed/E-coli on BH mixed/Plate 17/IMG_6655.JPG",
+  "checkpoint_dir": null,
+  "device": "auto",
+  "robustness_report": {
+    "efficientnet_b0": {
+      "model_name": "efficientnet_b0",
+      "temperature_used": 1.0,
+      "consistency_analysis": {
+        "original_prediction": "e_coli",
+        "total_perturbations": 6,
+        "consistent_count": 6,
+        "consistency_rate": 100.0,
+        "prediction_flips": [],
+        "saturation_warning": false,
+        "saturation_note": null
+      },
+      "confidence_analysis": {
+        "original_confidence": 0.3256564438343048,
+        "mean_confidence": 0.3243730919701712,
+        "std_confidence": 0.007012644634837438,
+        "min_confidence": 0.3107001781463623,
+        "max_confidence": 0.33528944849967957,
+        "confidence_drop": 0.014956265687942505,
+        "confidence_above_chance": 0.07437309197017122,
+        "is_saturated": false,
+        "calibration_note": null,
+        "perturbation_impacts": [
+          {
+            "id": "brightness_increase_1.2",
+            "confidence": 0.3107001781463623,
+            "impact": 0.014956265687942505,
+            "relative_impact": 0.045926515415590265
+          },
+          {
+            "id": "brightness_decrease_0.8",
+            "confidence": 0.33528944849967957,
+            "impact": -0.009633004665374756,
+            "relative_impact": 0.029580267326987285
+          },
+          {
+            "id": "contrast_decrease_0.85",
+            "confidence": 0.3296666741371155,
+            "impact": -0.004010230302810669,
+            "relative_impact": 0.012314297409852848
+          },
+          {
+            "id": "gaussian_noise_sigma_8",
+            "confidence": 0.321647047996521,
+            "impact": 0.0040093958377838135,
+            "relative_impact": 0.012311735000778331
+          },
+          {
+            "id": "contrast_increase_1.15",
+            "confidence": 0.3233645260334015,
+            "impact": 0.0022919178009033203,
+            "relative_impact": 0.0070378395523764195
+          },
+          {
+            "id": "gaussian_blur_kernel_5",
+            "confidence": 0.3242873251438141,
+            "impact": 0.0013691186904907227,
+            "relative_impact": 0.004204181174401497
+          }
+        ],
+        "most_damaging": {
+          "id": "brightness_increase_1.2",
+          "confidence": 0.3107001781463623,
+          "impact": 0.014956265687942505,
+          "relative_impact": 0.045926515415590265
+        },
+        "temperature_applied": 1.0
+      },
+      "sensitivity_analysis": {
+        "sensitivity_ranking": [
+          {
+            "perturbation_id": "brightness_increase_1.2",
+            "perturbation_type": "brightness",
+            "parameter": 1.2,
+            "prediction": "e_coli",
+            "confidence": 0.3107001781463623,
+            "confidence_delta": 0.014956265687942505,
+            "prediction_flipped": false,
+            "severity": "low"
+          },
+          {
+            "perturbation_id": "brightness_decrease_0.8",
+            "perturbation_type": "brightness",
+            "parameter": 0.8,
+            "prediction": "e_coli",
+            "confidence": 0.33528944849967957,
+            "confidence_delta": 0.009633004665374756,
+            "prediction_flipped": false,
+            "severity": "low"
+          },
+          {
+            "perturbation_id": "contrast_decrease_0.85",
+            "perturbation_type": "contrast",
+            "parameter": 0.85,
+            "prediction": "e_coli",
+            "confidence": 0.3296666741371155,
+            "confidence_delta": 0.004010230302810669,
+            "prediction_flipped": false,
+            "severity": "low"
+          },
+          {
+            "perturbation_id": "gaussian_noise_sigma_8",
+            "perturbation_type": "noise",
+            "parameter": 8,
+            "prediction": "e_coli",
+            "confidence": 0.321647047996521,
+            "confidence_delta": 0.0040093958377838135,
+            "prediction_flipped": false,
+            "severity": "low"
+          },
+          {
+            "perturbation_id": "contrast_increase_1.15",
+            "perturbation_type": "contrast",
+            "parameter": 1.15,
+            "prediction": "e_coli",
+            "confidence": 0.3233645260334015,
+            "confidence_delta": 0.0022919178009033203,
+            "prediction_flipped": false,
+            "severity": "low"
+          },
+          {
+            "perturbation_id": "gaussian_blur_kernel_5",
+            "perturbation_type": "blur",
+            "parameter": 5,
+            "prediction": "e_coli",
+            "confidence": 0.3242873251438141,
+            "confidence_delta": 0.0013691186904907227,
+            "prediction_flipped": false,
+            "severity": "low"
+          }
+        ],
+        "total_perturbations": 6,
+        "prediction_flips": 0,
+        "most_sensitive": {
+          "perturbation_id": "brightness_increase_1.2",
+          "perturbation_type": "brightness",
+          "parameter": 1.2,
+          "prediction": "e_coli",
+          "confidence": 0.3107001781463623,
+          "confidence_delta": 0.014956265687942505,
+          "prediction_flipped": false,
+          "severity": "low"
+        },
+        "least_sensitive": {
+          "perturbation_id": "gaussian_blur_kernel_5",
+          "perturbation_type": "blur",
+          "parameter": 5,
+          "prediction": "e_coli",
+          "confidence": 0.3242873251438141,
+          "confidence_delta": 0.0013691186904907227,
+          "prediction_flipped": false,
+          "severity": "low"
+        }
+      },
+      "robustness_score": {
+        "robustness_score": 95.79241321909754,
+        "interpretation": "Excellent robustness",
+        "components": {
+          "consistency_score": 100.0,
+          "stability_score": 85.97471073032511,
+          "resistance_score": 100.0,
+          "calibration_score": 100.0
+        },
+        "weights": {
+          "consistency": 0.3,
+          "stability": 0.3,
+          "resistance": 0.2,
+          "calibration": 0.2
+        },
+        "flags": [],
+        "temperature_applied": 1.0
+      },
+      "diagnosis": [
+        "✓ No major calibration or robustness issues detected."
+      ]
+    },
+    "resnet50": {
+      "model_name": "resnet50",
+      "temperature_used": 1.0,
+      "consistency_analysis": {
+        "original_prediction": "e_coli",
+        "total_perturbations": 6,
+        "consistent_count": 6,
+        "consistency_rate": 100.0,
+        "prediction_flips": [],
+        "saturation_warning": false,
+        "saturation_note": null
+      },
+      "confidence_analysis": {
+        "original_confidence": 0.36533698439598083,
+        "mean_confidence": 0.3704792431422642,
+        "std_confidence": 0.004761357084778659,
+        "min_confidence": 0.36533698439598083,
+        "max_confidence": 0.3804739713668823,
+        "confidence_drop": 0.0,
+        "confidence_above_chance": 0.12047924314226421,
+        "is_saturated": false,
+        "calibration_note": null,
+        "perturbation_impacts": [
+          {
+            "id": "brightness_increase_1.2",
+            "confidence": 0.3804739713668823,
+            "impact": -0.01513698697090149,
+            "relative_impact": 0.04143294442507041
+          },
+          {
+            "id": "contrast_increase_1.15",
+            "confidence": 0.3739805519580841,
+            "impact": -0.008643567562103271,
+            "relative_impact": 0.02365916381664413
+          },
+          {
+            "id": "gaussian_noise_sigma_8",
+            "confidence": 0.3693435490131378,
+            "impact": -0.004006564617156982,
+            "relative_impact": 0.010966764352591125
+          },
+          {
+            "id": "brightness_decrease_0.8",
+            "confidence": 0.3686082363128662,
+            "impact": -0.003271251916885376,
+            "relative_impact": 0.008954067221783758
+          },
+          {
+            "id": "gaussian_blur_kernel_5",
+            "confidence": 0.3685166835784912,
+            "impact": -0.003179699182510376,
+            "relative_impact": 0.00870346917591012
+          },
+          {
+            "id": "contrast_decrease_0.85",
+            "confidence": 0.3670947253704071,
+            "impact": -0.0017577409744262695,
+            "relative_impact": 0.00481128670105048
+          }
+        ],
+        "most_damaging": {
+          "id": "brightness_increase_1.2",
+          "confidence": 0.3804739713668823,
+          "impact": -0.01513698697090149,
+          "relative_impact": 0.04143294442507041
+        },
+        "temperature_applied": 1.0
+      },
+      "sensitivity_analysis": {
+        "sensitivity_ranking": [
+          {
+            "perturbation_id": "brightness_increase_1.2",
+            "perturbation_type": "brightness",
+            "parameter": 1.2,
+            "prediction": "e_coli",
+            "confidence": 0.3804739713668823,
+            "confidence_delta": 0.01513698697090149,
+            "prediction_flipped": false,
+            "severity": "low"
+          },
+          {
+            "perturbation_id": "contrast_increase_1.15",
+            "perturbation_type": "contrast",
+            "parameter": 1.15,
+            "prediction": "e_coli",
+            "confidence": 0.3739805519580841,
+            "confidence_delta": 0.008643567562103271,
+            "prediction_flipped": false,
+            "severity": "low"
+          },
+          {
+            "perturbation_id": "gaussian_noise_sigma_8",
+            "perturbation_type": "noise",
+            "parameter": 8,
+            "prediction": "e_coli",
+            "confidence": 0.3693435490131378,
+            "confidence_delta": 0.004006564617156982,
+            "prediction_flipped": false,
+            "severity": "low"
+          },
+          {
+            "perturbation_id": "brightness_decrease_0.8",
+            "perturbation_type": "brightness",
+            "parameter": 0.8,
+            "prediction": "e_coli",
+            "confidence": 0.3686082363128662,
+            "confidence_delta": 0.003271251916885376,
+            "prediction_flipped": false,
+            "severity": "low"
+          },
+          {
+            "perturbation_id": "gaussian_blur_kernel_5",
+            "perturbation_type": "blur",
+            "parameter": 5,
+            "prediction": "e_coli",
+            "confidence": 0.3685166835784912,
+            "confidence_delta": 0.003179699182510376,
+            "prediction_flipped": false,
+            "severity": "low"
+          },
+          {
+            "perturbation_id": "contrast_decrease_0.85",
+            "perturbation_type": "contrast",
+            "parameter": 0.85,
+            "prediction": "e_coli",
+            "confidence": 0.3670947253704071,
+            "confidence_delta": 0.0017577409744262695,
+            "prediction_flipped": false,
+            "severity": "low"
+          }
+        ],
+        "total_perturbations": 6,
+        "prediction_flips": 0,
+        "most_sensitive": {
+          "perturbation_id": "brightness_increase_1.2",
+          "perturbation_type": "brightness",
+          "parameter": 1.2,
+          "prediction": "e_coli",
+          "confidence": 0.3804739713668823,
+          "confidence_delta": 0.01513698697090149,
+          "prediction_flipped": false,
+          "severity": "low"
+        },
+        "least_sensitive": {
+          "perturbation_id": "contrast_decrease_0.85",
+          "perturbation_type": "contrast",
+          "parameter": 0.85,
+          "prediction": "e_coli",
+          "confidence": 0.3670947253704071,
+          "confidence_delta": 0.0017577409744262695,
+          "prediction_flipped": false,
+          "severity": "low"
+        }
+      },
+      "robustness_score": {
+        "robustness_score": 97.14318574913281,
+        "interpretation": "Excellent robustness",
+        "components": {
+          "consistency_score": 100.0,
+          "stability_score": 90.47728583044268,
+          "resistance_score": 100.0,
+          "calibration_score": 100.0
+        },
+        "weights": {
+          "consistency": 0.3,
+          "stability": 0.3,
+          "resistance": 0.2,
+          "calibration": 0.2
+        },
+        "flags": [],
+        "temperature_applied": 1.0
+      },
+      "diagnosis": [
+        "✓ No major calibration or robustness issues detected."
+      ]
+    },
+    "model_comparison": {
+      "winner": "resnet50",
+      "ranking": [
+        {
+          "model": "resnet50",
+          "score": 97.14318574913281
+        },
+        {
+          "model": "efficientnet_b0",
+          "score": 95.79241321909754
+        }
+      ],
+      "score_gap": 1.3507725300352718,
+      "note": "Scores now include a calibration penalty for overconfident models. A model that always outputs 0.999 confidence is penalised even if consistency is 100%."
+    }
+  }
+}
