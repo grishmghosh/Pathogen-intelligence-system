@@ -1,217 +1,151 @@
 # Pathogen Intelligence System - Project Structure
 
-## Directory Organization
+## Directory Layout
 
-```
+```text
 PATHOGEN-INTELLIGENCE-SYSTEM/
 │
-├── checkpoints/                    # Trained model weights and logs
-│   ├── efficientnet_b0_best.pth   # Best EfficientNet-B0 model
-│   ├── resnet50_best.pth          # Best ResNet-50 model
-│   ├── efficientnet_log.csv       # EfficientNet training logs
-│   └── resnet_log.csv             # ResNet training logs
+├── checkpoints/                        # Trained PyTorch state dicts (*.pth) & temperature locks
+│   ├── efficientnet_b0_best.pth       # EfficientNet-B0 weights (16 MB)
+│   ├── resnet50_best.pth              # ResNet-50 weights (91 MB)
+│   ├── efficientnet_b0_temperature.pth # Temperature calibration parameter
+│   └── resnet50_temperature.pth       # Temperature calibration parameter
 │
-├── configs/                        # Configuration files
+├── configs/                            # Configuration modules
 │   ├── __init__.py
-│   └── perturbation_config.py     # Perturbation parameters
+│   └── perturbation_config.py         # 10-corruption transformation parameters
 │
-├── data/                           # Raw dataset (original images)
-│   └── A Microbiological Image Repository of Escherichia/
+├── dataset_split/                      # Processed dataset splits (Plate-aware)
+│   ├── train/                         # Training images by class
+│   ├── val/                           # Validation images by class
+│   └── test/                          # Test images by class
 │
-├── dataset_split/                  # Processed dataset splits
-│   ├── train/                     # Training images by class
-│   ├── val/                       # Validation images by class
-│   └── test/                      # Test images by class
-│
-├── loaders/                        # Data loading utilities
+├── loaders/                            # Data loading utilities
 │   ├── __init__.py
-│   └── data_loader.py             # PyTorch DataLoader setup
+│   └── data_loader.py                 # PyTorch DataLoader setup
 │
-├── models/                         # Model architectures
+├── models/                             # Neural network architectures
 │   ├── __init__.py
-│   ├── efficientnet_setup.py      # EfficientNet-B0 setup
-│   └── resnet_setup.py            # ResNet-50 setup
+│   ├── efficientnet_setup.py          # EfficientNet-B0 with ImageNet pretrained backbone
+│   └── resnet_setup.py                # ResNet-50 with ImageNet pretrained backbone
 │
-├── training/                       # Training scripts
+├── perturbations/                      # Clinical corruption engine
 │   ├── __init__.py
-│   ├── train_efficientnet.py      # EfficientNet training
-│   └── train_resnet.py            # ResNet training
+│   ├── perturbation_engine.py         # In-memory corruption generators
+│   └── test_perturbation_pipeline.py  # Perturbation pipeline unit tests
 │
-├── perturbations/                  # Perturbation framework
+├── inference/                          # Batch inference engine
 │   ├── __init__.py
-│   ├── perturbation_engine.py     # Perturbation generation
-│   └── test_perturbation_pipeline.py  # Pipeline tests
+│   └── batch_inference.py             # Accelerated 4D tensor batching & logit scaling
 │
-├── inference/                      # Inference and prediction
-│   └── __init__.py
-│   # Future: batch_inference.py
+├── analysis/                           # Analytical intelligence modules
+│   ├── __init__.py
+│   ├── calibration.py                 # ECE, MCE, & vector Temperature Scaling optimization
+│   ├── robustness_analyzer.py         # 30/30/20/20 weighted robustness scoring formula
+│   ├── disagreement/                  # Inter-model consensus, Cohen/Fleiss Kappa, false consensus
+│   ├── uncertainty/                   # Shannon entropy & confidence dispersion
+│   └── explainability/                # Grad-CAM saliency maps & attention drift analysis
 │
-├── analysis/                       # Robustness analysis
-│   └── __init__.py
-│   # Future: robustness_analysis.py
+├── visualization/                      # Plotting and figure generation
+│   ├── __init__.py
+│   ├── calibration_plots.py           # Reliability diagrams & confidence histograms
+│   ├── heatmaps.py                    # Prediction flip heatmaps & severity charts
+│   ├── robustness_plots.py            # Accuracy vs severity degradation curves
+│   └── test_visualization_e2e.py      # Visualization integration tests
 │
-├── explainability/                 # Model interpretability
-│   └── __init__.py
-│   # Future: grad_cam.py, attention_maps.py
+├── stabilization/                      # Framework health & quality assurance
+│   ├── __init__.py
+│   ├── artifact_integrity.py          # Hash verification for checkpoints & configs
+│   ├── dataset_readiness.py           # Plate leakage & image format checks
+│   └── schema_validation.py           # JSON schema validation for reports
 │
-├── docs/                           # Documentation
-│   ├── PERTURBATION_TEST_REPORT.md
-│   ├── PERTURBATION_PIPELINE_STATUS.txt
-│   ├── perturbation_test_results.png
-│   └── PROJECT_STRUCTURE.md       # This file
+├── experiments/                        # Experiment runners & benchmark suites
+│   ├── experiment_runner.py           # Evaluation pipeline executor
+│   └── experiment_registry.py         # Metadata logging & experiment tracking
 │
-├── outputs/                        # Generated outputs
-│   # Future: inference results, analysis reports
+├── reporting/                          # Automated report generation
+│   ├── report_generator.py            # Markdown, HTML, & publication table exporter
+│   └── narrative_summary.py           # Natural language diagnostic summaries
 │
-├── utils/                          # Utility functions
-│   └── __init__.py
-│   # Future: visualization.py, metrics.py
+├── tools/                              # System health verification tools
+│   └── run_stabilization_test.py      # Stabilization audit script
 │
-├── venv/                           # Virtual environment
+├── training/                           # Model training pipelines
+│   ├── __init__.py
+│   ├── train_efficientnet.py          # Training loop for EfficientNet-B0
+│   └── train_resnet.py                # Training loop for ResNet-50
 │
-├── README.md                       # Project overview
-├── requirements.txt                # Python dependencies
-├── split_dataset.py                # Dataset splitting script
-└── .gitignore                      # Git ignore rules
+├── docs/                               # System documentation & architectural guides
+│   ├── INTEGRATION_LAYER_GUIDE.md     # Intelligence layer technical guide
+│   ├── PERTURBATION_TEST_REPORT.md    # Perturbation engine validation report
+│   └── PROJECT_STRUCTURE.md           # Repository architecture (this file)
+│
+├── README.md                           # Main repository documentation
+├── requirements.txt                    # Python package dependencies
+├── split_dataset.py                    # Plate-aware dataset splitting script
+├── run_full_eval.py                    # End-to-end dataset evaluation entry point
+├── test_intelligence_pipeline.py       # Primary single-image demo runner
+└── test_intelligence_layer_comprehensive.py # 10-phase system verification suite
 ```
 
-## Module Descriptions
+---
 
-### Core Modules
+## Component Responsibilities
 
-#### `configs/`
-Configuration files for experiments and perturbations.
-- `perturbation_config.py`: Perturbation parameters (brightness, contrast, noise, blur)
+### 1. Data & Preprocessing (`loaders/`, `split_dataset.py`)
+- **`split_dataset.py`**: Partitions raw images into train/val/test splits strictly at the physical petri dish plate level to prevent data leakage across split boundaries.
+- **`loaders/data_loader.py`**: Builds PyTorch `DataLoader` instances with standard ImageNet normalization ($\mu = [0.485, 0.456, 0.406]$, $\sigma = [0.229, 0.224, 0.225]$).
 
-#### `loaders/`
-Data loading and preprocessing utilities.
-- `data_loader.py`: PyTorch DataLoader with ImageNet normalization
+### 2. Model Architectures & Training (`models/`, `training/`)
+- **`models/efficientnet_setup.py`**: Constructs EfficientNet-B0 with a custom 4-class linear head.
+- **`models/resnet_setup.py`**: Constructs ResNet-50 with a custom 4-class linear head.
+- **`training/`**: Model training scripts featuring label smoothing, AdamW optimizer, cosine annealing learning rate schedules, and early stopping.
 
-#### `models/`
-Neural network architectures.
-- `efficientnet_setup.py`: EfficientNet-B0 with pretrained weights
-- `resnet_setup.py`: ResNet-50 with pretrained weights
+### 3. Perturbation Engine (`perturbations/`, `configs/`)
+- **`configs/perturbation_config.py`**: Defines transformation bounds for 10 clinical corruptions.
+- **`perturbations/perturbation_engine.py`**: Applies transformations in-memory with NumPy/OpenCV float32 arithmetic and random seed control.
 
-#### `training/`
-Model training scripts.
-- `train_efficientnet.py`: EfficientNet training with mixed precision
-- `train_resnet.py`: ResNet training with mixed precision
+### 4. Inference & Logit Calibration (`inference/`)
+- **`inference/batch_inference.py`**: Stacks corruptions into a single 4D tensor `[N, 3, 224, 224]` for accelerated GPU forward passes. Applies scalar or class-wise vector Temperature Scaling ($T \in \mathbb{R}^4$) to raw logits.
 
-#### `perturbations/`
-Perturbation generation framework for robustness testing.
-- `perturbation_engine.py`: Generate controlled image perturbations
-- `test_perturbation_pipeline.py`: Comprehensive pipeline tests
+### 5. Analytical Intelligence (`analysis/`)
+- **`analysis/calibration.py`**: Calculates Expected Calibration Error (ECE) and Maximum Calibration Error (MCE). Fits vector temperature parameters using L-BFGS.
+- **`analysis/robustness_analyzer.py`**: Computes the 30/30/20/20 composite robustness score (Consistency, Stability, Resistance, Calibration).
+- **`analysis/disagreement/`**: Computes Cohen's $\kappa$, Fleiss' $\kappa$, false consensus detection, and model trust classifications.
+- **`analysis/uncertainty/`**: Computes Shannon entropy and confidence dispersion under noise.
+- **`analysis/explainability/`**: Generates Grad-CAM saliency maps and calculates spatial attention drift across perturbations.
 
-### Future Modules
+### 6. Visualization & Reporting (`visualization/`, `reporting/`)
+- **`visualization/`**: Generates reliability diagrams, confusion matrices, prediction flip heatmaps, and per-class accuracy degradation curves.
+- **`reporting/`**: Assembles diagnostic reports into structured JSON, Markdown, and publication-ready tables.
 
-#### `inference/`
-Batch inference and prediction pipelines.
-- Future: `batch_inference.py` - Run inference on perturbed images
+---
 
-#### `analysis/`
-Robustness analysis and metrics.
-- Future: `robustness_analysis.py` - Analyze model performance under perturbations
+## Import Architecture
 
-#### `explainability/`
-Model interpretability and visualization.
-- Future: `grad_cam.py` - Gradient-weighted Class Activation Mapping
-- Future: `attention_maps.py` - Attention visualization
-
-#### `utils/`
-Shared utility functions.
-- Future: `visualization.py` - Plotting and visualization helpers
-- Future: `metrics.py` - Custom evaluation metrics
-
-#### `outputs/`
-Generated outputs from inference and analysis.
-- Future: Inference results, robustness reports, visualizations
-
-## Import Structure
-
-### From Root Directory
+All package imports use standard root-relative imports:
 
 ```python
-# Config
 from configs.perturbation_config import PERTURBATION_CONFIG
-
-# Data loading
-from loaders.data_loader import get_data_loaders
-
-# Models
-from models.efficientnet_setup import build_efficientnet_b0
-from models.resnet_setup import build_resnet50
-
-# Perturbations
-from perturbations.perturbation_engine import generate_perturbations
+from inference.batch_inference import run_batch_inference, load_model
+from analysis.robustness_analyzer import generate_robustness_report
+from analysis.calibration import fit_vector_temperature_scaling
+from analysis.disagreement.consensus_reliability import compute_consensus_reliability
 ```
 
-### From Subdirectories
+---
 
-Scripts in subdirectories use relative imports:
+## Data Execution Pipeline
 
-```python
-import sys
-import os
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-
-from configs.perturbation_config import PERTURBATION_CONFIG
-from loaders.data_loader import get_data_loaders
+```text
+Input Image ──► perturbation_engine.py (10 corruptions)
+                      │
+                      ▼
+             batch_inference.py (predict_batch: [10, 3, 224, 224])
+                      │
+                      ▼
+             robustness_analyzer.py (30/30/20/20 scoring)
+                      │
+                      ▼
+             report_generator.py (JSON / Markdown Output)
 ```
-
-## Running Scripts
-
-### Training
-
-```bash
-# From root directory
-python training/train_efficientnet.py
-python training/train_resnet.py
-```
-
-### Dataset Splitting
-
-```bash
-# From root directory
-python split_dataset.py
-```
-
-### Testing Perturbations
-
-```bash
-# From root directory
-python perturbations/test_perturbation_pipeline.py
-```
-
-## Data Flow
-
-1. **Raw Data** → `data/` (original images)
-2. **Split Data** → `split_dataset.py` → `dataset_split/` (train/val/test)
-3. **Training** → `training/*.py` → `checkpoints/` (model weights)
-4. **Perturbations** → `perturbations/perturbation_engine.py` → In-memory variants
-5. **Inference** → `inference/*.py` → `outputs/` (predictions)
-6. **Analysis** → `analysis/*.py` → `outputs/` (reports)
-
-## Best Practices
-
-1. **Always run from root directory** to ensure imports work correctly
-2. **Use virtual environment** (`venv/`) for dependency isolation
-3. **Keep configs separate** from code for easy experimentation
-4. **Document changes** in `docs/` folder
-5. **Save outputs** to `outputs/` folder, not in code directories
-
-## Version Control
-
-The `.gitignore` excludes:
-- `venv/` - Virtual environment
-- `__pycache__/` - Python cache
-- `checkpoints/*.pth` - Large model files
-- `data/` - Raw dataset
-- `dataset_split/` - Processed dataset
-- `outputs/` - Generated outputs
-
-## Next Steps
-
-1. Implement `inference/batch_inference.py`
-2. Implement `analysis/robustness_analysis.py`
-3. Add visualization utilities in `utils/`
-4. Implement explainability methods in `explainability/`

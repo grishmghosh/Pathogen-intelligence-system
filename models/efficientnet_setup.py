@@ -1,8 +1,5 @@
-# pyrefly: ignore [missing-import]
 import torch
-# pyrefly: ignore [missing-import]
 import torch.nn as nn
-# pyrefly: ignore [missing-import]
 from torchvision import models
 from torchvision.models import EfficientNet_B0_Weights
 

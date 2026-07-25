@@ -1,415 +1,275 @@
 # Pathogen Intelligence System
 
-A robustness-aware deep learning system for pathogen classification with comprehensive stability analysis.
+A robustness-aware deep learning framework for pathogen identification, logit calibration, and stress-testing under clinical microscopy corruptions.
 
-## Overview
+## System Overview
 
-The Pathogen Intelligence System goes beyond traditional classification accuracy to provide **robustness-aware intelligence** about pathogen identification. It evaluates not just what the model predicts, but how stable and reliable those predictions are under realistic perturbations.
+Standard convolutional neural networks trained on microbiological images often achieve high in-distribution lab accuracy but can suffer from overconfidence and fragility under real-world slide artifacts. 
 
-### Key Features
+The **Pathogen Intelligence System** evaluates model stability under 10 controlled corruptions (e.g., Gram stain variations, optical defocus, JPEG compression), applies post-hoc Temperature Scaling to calibrate softmax probabilities, and quantifies inter-model consensus between CNN architectures.
 
--  **Multi-Model Classification**: EfficientNet-B0 and ResNet-50 architectures
--  **4 Pathogen Classes**: E. coli, K. pneumoniae, P. aeruginosa, S. aureus
--  **Perturbation Framework**: 6 controlled perturbations (brightness, contrast, noise, blur)
--  **Batch Inference**: Automated prediction collection across perturbations
--  **Robustness Analysis**: Comprehensive stability and confidence evaluation
--  **Model Comparison**: Side-by-side robustness comparison
-- ️ **Temperature Scaling Calibration**: Log-parameterised; honest confidence scores, not raw softmax
--  **Disagreement & Consensus Analysis**: Inter-model agreement, false consensus detection, trust classification
--  **Visualization Suite**: Calibration plots, reliability diagrams, robustness heatmaps, experiment summaries
-- ️ **Stabilization Framework**: Schema validation, artifact integrity, dataset readiness checks
+---
+
+## Key Features
+
+- **Multi-Model Architecture**: EfficientNet-B0 and ResNet-50 backbones.
+- **4 Pathogen Target Classes**: *E. coli, K. pneumoniae, P. aeruginosa, S. aureus*.
+- **Clinical Corruption Engine**: 10 controlled transformations modeling optical, staining, and sensor artifacts.
+- **Accelerated Parallel Tensor Batch Inference**: Stacks corruptions into a single 4D tensor (`[10, 3, 224, 224]`) for single-pass GPU inference.
+- **Logit Temperature Scaling**: Scalar and class-wise vector temperature parameters ($T \in \mathbb{R}^4$) optimized via L-BFGS to minimize Expected Calibration Error (ECE).
+- **Composite Robustness Metric**: 30/30/20/20 weighted scoring formula (Consistency, Stability, Resistance, Calibration).
+- **Inter-Model Consensus Analysis**: Cohen's and Fleiss' $\kappa$ metrics, false consensus detection, and trust classification.
+- **Visual Explainability (Grad-CAM)**: Attention drift quantification showing feature location changes under stress.
+- **Plate-Aware Splitting**: Strictly partitions images by physical petri dish plate boundaries to eliminate data leakage.
+
+---
 
 ## System Architecture
 
-```
-Input Image → Perturbation Engine → Batch Inference → Robustness Analyzer → Intelligence Report
+```text
+Input Image ──► Perturbation Engine ──► Tensor Batch Inference ──► Calibration & Analysis ──► Diagnostic Report
 ```
 
-### Complete Pipeline
+### Complete Workflow
 
-1. **Dataset Preparation** - Plate-level splitting — no image from the same plate crosses split boundaries
-2. **Model Training** - EfficientNet-B0 and ResNet-50 with label smoothing, AdamW, cosine LR, early stopping
-3. **Perturbation Generation** - 6 controlled variants (in-memory, reproducible)
-4. **Batch Inference** - Calibrated CNN predictions (temperature scaling applied) on all variants
-5. **Robustness Analysis** - Stability, confidence, and sensitivity evaluation (30/30/20/20 formula)
-6. **Disagreement Analysis** - Inter-model agreement, confidence disagreement, perturbation-induced disagreement
-7. **Consensus Reliability** - False consensus detection, trust classification, consistency metrics
-8. **Stabilization Checks** - Schema validation, artifact integrity, dataset readiness
-9. **Visualization** - Calibration plots, heatmaps, robustness charts, experiment summaries
+1. **Plate-Aware Data Partitioning**: Splitting by physical petri-dish plate boundaries (9,106 train / 2,159 val / 1,083 test images).
+2. **Model Training**: EfficientNet-B0 (~5.3M params) and ResNet-50 (~25.6M params) with label smoothing, AdamW optimizer, and cosine learning rate schedules.
+3. **Clinical Perturbation Engine**: Generates 10 corrupted variants in-memory with seed control.
+4. **Calibrated Batch Inference**: Temperature scaling applied to raw logits before softmax evaluation.
+5. **Robustness Scoring**: Evaluates prediction flips, confidence variance, and calibration penalties.
+6. **Consensus Reliability**: Computes inter-model agreement matrix and flags false consensus states.
+7. **Visualization & Reporting**: Exports reliability diagrams, confusion matrices, heatmaps, and publication-ready tables.
+
+---
 
 ## Project Structure
 
-```
+```text
 PATHOGEN-INTELLIGENCE-SYSTEM/
-├── checkpoints/         # Trained model weights + temperature files
-├── configs/             # Configuration files
-├── loaders/             # Data loading utilities
-├── models/              # CNN architectures
-├── training/            # Training scripts (EfficientNet-B0, ResNet-50)
-├── perturbations/       # Perturbation framework
-├── inference/           # Calibrated batch inference module
-├── analysis/
-│   ├── robustness_analyzer.py   # 30/30/20/20 robustness score
-│   ├── calibration.py           # ECE, MCE, reliability diagram, temperature scaling
-│   ├── disagreement/            # Agreement metrics, consensus reliability, trust analysis
-│   ├── uncertainty/             # Entropy analysis, confidence dispersion
-│   └── explainability/          # GradCAM, attention analysis
-├── visualization/       # Calibration plots, heatmaps, experiment summaries
-├── stabilization/       # Artifact integrity, schema validation, dataset readiness
-├── experiments/         # Benchmark runner, perturbation benchmarking
-├── pipeline/            # Experiment config, registry, runner
-├── reporting/           # Narrative summary, publication tables, report generator
-├── results/             # Generated JSON, CSV, and plot outputs
-├── docs/                # Documentation
-├── data/                # Raw dataset
-└── dataset_split/       # Train/val/test splits (plate-level)
+├── checkpoints/         # Model weight binaries (*.pth) & temperature calibration locks
+├── configs/             # Perturbation parameters & system constants
+├── docs/                # System documentation & architectural guides
+├── experiments/         # Benchmarking scripts & statistical evaluation
+├── inference/           # Accelerated tensor batch inference & calibration engine
+├── loaders/             # PyTorch dataset loaders & plate-level split logic
+├── models/              # Network architecture definitions (EfficientNet-B0, ResNet-50)
+├── perturbations/       # 10-corruption clinical transformation engine
+├── pipeline/            # Experiment registry, runner, & reproducibility seeding
+├── reporting/           # HTML/Markdown report generator & publication tables
+├── results/             # Generated plots, CSV evaluation metrics, & report manifests
+├── stabilization/       # Schema validation & artifact integrity checks
+├── tools/               # System health test scripts
+├── training/            # Training scripts for EfficientNet-B0 and ResNet-50
+└── visualization/       # Calibration diagrams, heatmaps, & robustness plots
 ```
+
+---
 
 ## Quick Start
 
-### 1. Setup Environment
+### 1. Environment Setup
 
 ```bash
-# Create virtual environment
-python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
+# Clone the repository
+git clone https://github.com/grishmghosh/Pathogen-intelligence-system.git
+cd Pathogen-intelligence-system
+
+# Create and activate a virtual environment
+python3 -m venv .venv
+source .venv/bin/activate  # On Windows: .venv\Scripts\activate
 
 # Install dependencies
 pip install -r requirements.txt
 ```
 
-### 2. Run a Demo (no dataset required)
-
+*(Optional)* If using `uv` for fast package management:
 ```bash
-# Runs a synthetic demo image through the full pipeline on CPU
-python test_intelligence_pipeline.py --demo
+uv sync
 ```
 
-This mode is useful for validating the implementation, generating a reproducible report, and preparing figures without requiring the original dataset.
+---
 
-### 3. Prepare Dataset (optional)
+### 2. Run Pipeline Test (Single Image Execution)
 
-```bash
-# Split dataset into train/val/test at the plate level (no leakage)
-python split_dataset.py
-```
-
-### 4. Train Models (optional)
+Test batch inference, temperature scaling, and robustness scoring on any input image:
 
 ```bash
-# Train EfficientNet-B0
-python training/train_efficientnet.py
-
-# Train ResNet-50
-python training/train_resnet.py
+uv run python test_intelligence_pipeline.py --image "/path/to/image.png"
 ```
 
-### 5. Run Intelligence Pipeline on a real image
+If no image path is supplied, the script creates a synthetic test image automatically:
+```bash
+uv run python test_intelligence_pipeline.py --demo
+```
+
+---
+
+### 3. Run Comprehensive 10-Phase Test Suite
+
+Verify all pipeline modules (checkpoints, perturbations, inference, metadata, robustness scoring, error handling):
 
 ```bash
-# Complete pipeline: Perturbations → Inference → Analysis
-python test_intelligence_pipeline.py --image /path/to/image.jpg
+uv run python test_intelligence_layer_comprehensive.py --image "/path/to/image.png"
 ```
 
-### 6. Run the full evaluation workflow
+---
+
+### 4. Run Dataset Evaluation & Plot Generation
+
+Evaluate models on an entire dataset directory and generate figures in `results/evaluation/`:
 
 ```bash
-python run_full_eval.py --dataset-root /path/to/dataset_split --output-dir results/evaluation
+uv run python run_full_eval.py --dataset-root dataset_split --output-dir results/evaluation
 ```
 
-### 5. Run Analysis Suite
+---
+
+### 5. Run Specific Analytical Modules
 
 ```bash
-python test_disagreement_analysis.py
-python test_step2_confidence_disagreement.py
-python test_step3_perturbation_disagreement.py
-python test_step4_consensus_reliability.py
-python tools/run_stabilization_test.py
-python visualization/test_visualization_e2e.py
+# Test inter-model disagreement & false consensus detection
+uv run python test_step4_consensus_reliability.py
+
+# Run stabilization & schema integrity checks
+uv run python tools/run_stabilization_test.py
+
+# Generate end-to-end visualization plots
+uv run python visualization/test_visualization_e2e.py
 ```
 
-## Usage Examples
+---
+
+## Python API Usage
 
 ### Batch Inference
 
 ```python
 from inference.batch_inference import run_batch_inference
 
-# Run inference on image with all perturbations
-results = run_batch_inference("path/to/pathogen_image.jpg")
+# Execute batch inference across all perturbations
+results = run_batch_inference("path/to/microscopy_slide.png")
 
-# Access predictions
-efficientnet_pred = results["efficientnet_b0"]["original"]["prediction"]
-confidence     = results["efficientnet_b0"]["original"]["confidence"]      # calibrated
-raw_confidence = results["efficientnet_b0"]["original"]["raw_confidence"]  # pre-scaling
-all_probs      = results["efficientnet_b0"]["original"]["all_probabilities"]  # dict {class: prob}
+# Extract calibrated predictions and confidence
+model_output = results["efficientnet_b0"]["original"]
+prediction = model_output["prediction"]              # e.g. 'e_coli'
+calibrated_conf = model_output["confidence"]          # Temperature-calibrated
+raw_conf = model_output["raw_confidence"]             # Pre-calibration confidence
+all_probabilities = model_output["all_probabilities"] # Dict {class: prob}
 ```
 
-### Robustness Analysis
+### Robustness Report Generation
 
 ```python
 from analysis.robustness_analyzer import generate_robustness_report
 
-# Generate comprehensive robustness report
+# Generate robustness report
 report = generate_robustness_report(results)
 
-# Access robustness score
+# Extract composite robustness score (0-100)
 score = report["efficientnet_b0"]["robustness_score"]["robustness_score"]
-print(f"Robustness: {score:.2f}/100")
+print(f"EfficientNet-B0 Robustness Score: {score:.2f}/100")
 ```
 
-## Robustness Metrics
+---
 
-### 1. Prediction Consistency
-Measures how often predictions remain stable across perturbations.
-- **100%**: Perfect stability
-- **80-99%**: Good stability
-- **<80%**: Unstable predictions
+## Robustness Metrics & Scoring
 
-### 2. Confidence Stability
-Measures variance in confidence scores across perturbations.
-- **Low variance**: Reliable confidence
-- **High variance**: Unstable confidence
+The overall **Robustness Score (0–100)** combines four diagnostic dimensions:
 
-### 3. Perturbation Sensitivity
-Identifies which perturbations most affect the model.
-- **Most damaging**: Highest impact perturbation
-- **Prediction flips**: Perturbations causing class changes
+$$S_{\text{robustness}} = 0.30 \cdot C_{\text{consistency}} + 0.30 \cdot S_{\text{stability}} + 0.20 \cdot R_{\text{resistance}} + 0.20 \cdot K_{\text{calibration}}$$
 
-### 4. Overall Robustness Score (0-100)
-Composite metric combining all aspects:
-- 30% Prediction consistency
-- 30% Confidence stability
-- 20% Perturbation resistance
-- 20% Calibration quality (penalises confidence saturation above 0.97)
+1. **Prediction Consistency (30%)**: Percentage of corrupted variants yielding the same class prediction as the original image.
+2. **Confidence Stability (30%)**: Variance of calibrated confidence scores across perturbations.
+3. **Perturbation Resistance (20%)**: Resistance against class prediction flips under heavy noise.
+4. **Calibration Quality (20%)**: Expected Calibration Error (ECE) metric; penalizes overconfidence saturation above $0.97$.
 
-**Score Interpretation:**
-- 90-100: Excellent robustness
-- 80-90: Good robustness
-- 70-80: Moderate robustness
-- 60-70: Fair robustness
-- <60: Poor robustness
+| Score Range | Interpretation |
+| :--- | :--- |
+| **90 – 100** | Excellent Robustness |
+| **80 – 90** | Good Robustness |
+| **70 – 80** | Moderate Robustness |
+| **60 – 70** | Fair Robustness |
+| **< 60** | Poor Robustness |
 
-## Documentation
+---
 
-- **[Intelligence Layer Guide](docs/INTELLIGENCE_LAYER_GUIDE.md)** - Comprehensive usage guide
-- **[Project Structure](docs/PROJECT_STRUCTURE.md)** - Detailed architecture
-- **[Perturbation Testing](docs/PERTURBATION_TEST_REPORT.md)** - Perturbation validation
-- **[Implementation Status](INTELLIGENCE_LAYER_STATUS.md)** - Current status
+## Clinical Perturbation Suite
 
-## Key Components
+The system evaluates model stability across 10 controlled corruptions:
 
-### Perturbation Engine
-- Generates 6 controlled perturbations
-- In-memory processing (no disk writes)
-- Reproducible with seed control
-- Complete metadata tracking
+| Corruption | Type | Parameter | Physical Clinical Cause |
+| :--- | :--- | :--- | :--- |
+| `original` | Baseline | None | Reference image |
+| `bright` | Brightness | $1.2\times$ | Overexposure under microscope lamp |
+| `dark` | Brightness | $0.8\times$ | Underexposure / low lamp intensity |
+| `high_contrast` | Contrast | $1.15\times$ | High-contrast condenser adjustment |
+| `low_contrast` | Contrast | $0.85\times$ | Low-contrast / thick slide specimen |
+| `gaussian_noise` | Noise | $\sigma = 8$ | Camera sensor thermal noise |
+| `gaussian_blur` | Blur | Kernel = 5 | Slight optical focal misadjustment |
+| `stain_shift` | Color | Hue shift = 12 | Gram staining reagent variations |
+| `defocus_blur` | Optical | Kernel = 7 | High-magnification focal distance error |
+| `jpeg_compression` | Artifact | Quality = 45 | Digital image transmission compression |
 
-### Batch Inference
-- Loads trained CNN models with temperature scaling applied
-- Returns both calibrated confidence and raw pre-scaling confidence
-- Processes all perturbation variants
-- Preserves metadata throughout
+---
 
-### Robustness Analyzer
-- Analyzes prediction consistency
-- Measures confidence drift
-- Identifies vulnerabilities
-- Compares model robustness
-- Rebalanced 30/30/20/20 formula with calibration penalty
+## Model Evaluation Results
 
-### Calibration Module
-- Expected Calibration Error (ECE) and Maximum Calibration Error (MCE)
-- Reliability diagram data
-- Overconfidence ratio
-- Log-parameterised temperature scaling (always positive T)
-
-### Disagreement & Consensus Analysis
-- Inter-model agreement matrix
-- Confidence-aware disagreement scoring
-- Perturbation-induced disagreement detection
-- False consensus detection, trust classification, consensus reliability scoring
-
-### Visualization Suite
-- Calibration plots (reliability diagram, confidence histogram, calibration curve)
-- Robustness heatmaps (prediction flip, severity vs instability, model comparison)
-- Experiment summary (CSV + JSON)
-
-## Requirements
-
-- Python 3.8+
-- PyTorch 2.0+
-- torchvision 0.15+
-- OpenCV 4.8+
-- NumPy 1.24+
-- Matplotlib 3.7+
-- seaborn
-- pillow-heif (for HEIC image conversion)
-
-See `requirements.txt` for complete list.
-
-## Model Performance
+### Performance Summary
 
 | Metric | EfficientNet-B0 | ResNet-50 |
-|---|---|---|
-| Best Val Loss | 0.3598 (epoch 9) | 0.3608 (epoch 10) |
-| Best Val Accuracy | 99.58% | 99.58% |
-| Early Stopping | Epoch 17 | Epoch 18 |
-| Temperature (T) | 0.8336 | 0.8329 |
-| Test Accuracy | 98.43% | **99.63%** |
-| Robustness Score | 96.83/100 | **97.74/100** |
+| :--- | :--- | :--- |
+| **Parameters** | ~5.3M | ~25.6M |
+| **Input Size** | $224 \times 224$ | $224 \times 224$ |
+| **Best Val Accuracy** | 99.58% | 99.58% |
+| **Temperature ($T$)** | 0.8336 | 0.8329 |
+| **Test Accuracy** | 98.43% | **99.63%** |
+| **Robustness Score** | 96.83/100 | **97.74/100** |
 
-**Most Robust Model: ResNet-50**
+### Per-Class Test Set Metrics (EfficientNet-B0)
 
-### Per-Class Metrics (EfficientNet-B0 — Test Set)
+| Pathogen Class | Precision | Recall | F1-Score | Support |
+| :--- | :--- | :--- | :--- | :--- |
+| *E. coli* | 0.9704 | 0.9888 | 0.9795 | 265 |
+| *K. pneumoniae* | 0.9870 | 0.9784 | 0.9827 | 232 |
+| *P. aeruginosa* | 0.9891 | 0.9714 | 0.9802 | 280 |
+| *S. aureus* | 0.9967 | 0.9967 | 0.9967 | 306 |
 
-| Class | Precision | Recall | F1-Score | Support |
-|---|---|---|---|---|
-| e_coli | 0.9704 | 0.9888 | 0.9795 | 265 |
-| k_pneumoniae | 0.9870 | 0.9784 | 0.9827 | 232 |
-| p_aeruginosa | 0.9891 | 0.9714 | 0.9802 | 280 |
-| s_aureus | 0.9967 | 0.9967 | 0.9967 | 306 |
+---
 
-**Key misclassifications (EfficientNet-B0):** p_aeruginosa → e_coli (8 images) is the dominant error — the e_coli/p_aeruginosa boundary is the system's primary weakness. ResNet-50 makes zero p_aeruginosa errors.
+## Generated Evaluation Figures
 
-## Evaluation Results
-
-All graphs generated by `run_full_eval.py` and saved to `results/evaluation/`.
+Figures are generated by `run_full_eval.py` and stored in `results/evaluation/`:
 
 ### Confusion Matrices
-
-**EfficientNet-B0**
 ![EfficientNet-B0 Confusion Matrix](results/evaluation/EfficientNet_B0_1_confusion_matrix.png)
-
-**ResNet-50**
 ![ResNet-50 Confusion Matrix](results/evaluation/ResNet_50_1_confusion_matrix.png)
 
----
-
-### Per-Class Precision / Recall / F1
-
-**EfficientNet-B0**
-![EfficientNet-B0 Per-Class Metrics](results/evaluation/EfficientNet_B0_2_per_class_metrics.png)
-
-**ResNet-50**
-![ResNet-50 Per-Class Metrics](results/evaluation/ResNet_50_2_per_class_metrics.png)
-
----
-
 ### ROC Curves (One-vs-Rest)
-
-**EfficientNet-B0**
 ![EfficientNet-B0 ROC Curves](results/evaluation/EfficientNet_B0_3_roc_curves.png)
-
-**ResNet-50**
 ![ResNet-50 ROC Curves](results/evaluation/ResNet_50_3_roc_curves.png)
 
----
-
-### Precision-Recall Curves
-
-**EfficientNet-B0**
-![EfficientNet-B0 PR Curves](results/evaluation/EfficientNet_B0_4_pr_curves.png)
-
-**ResNet-50**
-![ResNet-50 PR Curves](results/evaluation/ResNet_50_4_pr_curves.png)
-
----
-
-### Confidence Distribution
-
-**EfficientNet-B0**
-![EfficientNet-B0 Confidence Distribution](results/evaluation/EfficientNet_B0_5_confidence_distribution.png)
-
-**ResNet-50**
-![ResNet-50 Confidence Distribution](results/evaluation/ResNet_50_5_confidence_distribution.png)
-
----
-
-### Model Comparison — EfficientNet-B0 vs ResNet-50
-
+### Model Comparison & Heatmaps
 ![Model Comparison](results/evaluation/comparison_6_model_vs_model.png)
+![Misclassification Heatmap](results/evaluation/comparison_7_misclassification_heatmap.png)
 
 ---
 
-### Misclassification Heatmap
+## Dataset Description
 
-![Misclassification Heatmap](results/evaluation/comparison_7_misclassification_heatmap.png)
-- Parameters: ~5.3M
-- Input size: 224×224
-- Training: Mixed precision (FP16)
+* **Source**: Microscopic Image Repository of Bacterial Pathogens.
+* **Target Classes**: *E. coli*, *K. pneumoniae*, *P. aeruginosa*, *S. aureus*.
+* **Plate-Aware Split**: 140 train / 32 val / 28 test plates per class. Images from the same physical petri dish plate are kept strictly within a single split (9,106 train / 2,159 val / 1,083 test images).
 
-### ResNet-50
-- Parameters: ~25.6M
-- Input size: 224×224
-- Training: Mixed precision (FP16)
+---
 
-## Dataset
+## Documentation Links
 
-**Source:** A Microbiological Image Repository of Escherichia
+- **[System Architecture Guide](docs/PROJECT_STRUCTURE.md)**: Repository layout and package map.
+- **[Intelligence Layer Technical Guide](docs/INTELLIGENCE_LAYER_GUIDE.md)**: Calibration formulas, logit scaling, and consensus scoring details.
+- **[Perturbation Engine Report](docs/PERTURBATION_TEST_REPORT.md)**: Perturbation validation and transformation parameters.
 
-**Classes:**
-- E. coli (e_coli)
-- K. pneumoniae (k_pneumoniae)
-- P. aeruginosa (p_aeruginosa)
-- S. aureus (s_aureus)
-
-**Split:** Plate-level splitting — 140 train / 32 val / 28 test plates per class. No image from the same physical plate crosses split boundaries. Total: 9,106 train / 2,159 val / 1,083 test images.
-
-## Perturbations
-
-1. **Brightness Increase** (factor: 1.2)
-2. **Brightness Decrease** (factor: 0.8)
-3. **Contrast Increase** (factor: 1.15)
-4. **Contrast Decrease** (factor: 0.85)
-5. **Gaussian Noise** (sigma: 8)
-6. **Gaussian Blur** (kernel: 5)
-
-All perturbations use float32 arithmetic to prevent overflow and are reproducible with seed control.
-
-## Testing
-
-```bash
-# Test perturbation generation
-python perturbations/test_perturbation_pipeline.py
-
-# Test complete intelligence pipeline
-python test_intelligence_pipeline.py
-
-# Run full analysis suite
-python test_disagreement_analysis.py
-python test_step2_confidence_disagreement.py
-python test_step3_perturbation_disagreement.py
-python test_step4_consensus_reliability.py
-python tools/run_stabilization_test.py
-python visualization/test_visualization_e2e.py
-```
+---
 
 ## License
 
-MIT License
-
-Copyright (c) [2026]
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
-
----
-
-**Version:** 1.0  
-**Last Updated:** July 25, 2026
+This project is licensed under the MIT License. See [LICENSE](LICENSE) for details.

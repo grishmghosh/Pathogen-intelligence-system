@@ -15,7 +15,6 @@ from pathlib import Path
 from typing import Dict, Optional, Tuple
 
 import numpy as np
-# pyrefly: ignore [missing-import]
 import torch
 import torch.nn as nn
 from PIL import Image
