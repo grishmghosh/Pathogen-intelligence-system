@@ -10,6 +10,9 @@ PERTURBATION_CONFIG = {
     "contrast_decrease_factor": 0.85,
     "gaussian_noise_sigma": 8,
     "gaussian_blur_kernel_size": 5,
+    "stain_hue_shift": 12,
+    "defocus_blur_kernel_size": 7,
+    "jpeg_quality": 45,
     "random_seed": 42,
 }
 
@@ -20,6 +23,9 @@ ENABLED_PERTURBATIONS = [
     "low_contrast",
     "gaussian_noise",
     "gaussian_blur",
+    "stain_shift",
+    "defocus_blur",
+    "jpeg_compression",
 ]
 
 PERTURBATION_ORDER = [
@@ -30,4 +36,7 @@ PERTURBATION_ORDER = [
     "low_contrast",
     "gaussian_noise",
     "gaussian_blur",
+    "stain_shift",
+    "defocus_blur",
+    "jpeg_compression",
 ]

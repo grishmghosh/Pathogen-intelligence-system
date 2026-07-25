@@ -1,4 +1,0 @@
-| model_name | robustness_score | interpretation | consistency_score | stability_score | resistance_score | consistency_rate | original_confidence | mean_confidence | confidence_drop | confidence_std | prediction_flips | most_damaging |
-| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| efficientnet_b0 | 56.204895 | Poor robustness | 71.428571 | 35.750333 | 66.666667 | 71.428571 | 0.92 | 0.761429 | 0.47 | 0.172497 | 2 | gaussian_blur |
-| resnet50 | 70.098473 | Moderate robustness | 85.714286 | 47.865231 | 83.333333 | 85.714286 | 0.89 | 0.727143 | 0.37 | 0.151348 | 1 | gaussian_noise |

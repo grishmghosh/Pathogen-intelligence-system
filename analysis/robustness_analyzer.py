@@ -133,6 +133,7 @@ def analyze_prediction_consistency(model_results: Dict) -> Dict:
         "original_prediction":  original_pred,
         "total_perturbations":  total_perts,
         "consistent_count":     consistent,
+        "consistent_predictions": consistent,
         "consistency_rate":     float(consistency_rate),
         "prediction_flips":     flips,
         "saturation_warning":   saturation_warning,
@@ -253,13 +254,18 @@ def analyze_perturbation_sensitivity(model_results: Dict) -> Dict:
         })
 
     sensitivity.sort(key=lambda x: (x["prediction_flipped"], x["confidence_delta"]), reverse=True)
-    flip_count = sum(1 for s in sensitivity if s["prediction_flipped"])
+    most_damaging = sensitivity[0] if sensitivity else None
+    most_damaging_pert = {"name": most_damaging["perturbation_id"], "impact_score": most_damaging["confidence_delta"]} if most_damaging else None
+    flips = [s["perturbation_id"] for s in sensitivity if s["prediction_flipped"]]
+    flip_count = len(flips)
 
     return {
         "sensitivity_ranking": sensitivity,
         "total_perturbations": len(sensitivity),
         "prediction_flips":    flip_count,
+        "prediction_flip_perturbations": flips,
         "most_sensitive":      sensitivity[0] if sensitivity else None,
+        "most_damaging_perturbation": most_damaging_pert,
         "least_sensitive":     sensitivity[-1] if sensitivity else None,
     }
 
@@ -271,6 +277,8 @@ def analyze_perturbation_sensitivity(model_results: Dict) -> Dict:
 def compute_robustness_score(
     model_results: Dict,
     temperature: float = 1.0,
+    ece: float = 0.05,
+    model_name: Optional[str] = None,
 ) -> Dict:
     """
     Composite robustness score 0–100.
@@ -425,9 +433,12 @@ def _diagnose(consistency: Dict, confidence: Dict, score: Dict) -> List[str]:
 
 def _compare_models(report: Dict) -> Dict:
     """Rank models by robustness score."""
+    if any(isinstance(v, dict) and any(k in v for k in ["original", "bright", "dark"]) for v in report.values()):
+        report = generate_robustness_report(report)
+
     scores = {}
     for model_name, model_report in report.items():
-        if model_name == "model_comparison" or "error" in model_report:
+        if model_name == "model_comparison" or not isinstance(model_report, dict) or "error" in model_report:
             continue
         s = model_report.get("robustness_score", {}).get("robustness_score")
         if s is not None:
@@ -438,9 +449,11 @@ def _compare_models(report: Dict) -> Dict:
 
     ranked = sorted(scores.items(), key=lambda x: x[1], reverse=True)
     winner = ranked[0][0]
+    rankings = [(m, {"robustness_score": s}) for m, s in ranked]
     return {
         "winner":  winner,
         "ranking": [{"model": m, "score": s} for m, s in ranked],
+        "model_rankings": rankings,
         "score_gap": float(ranked[0][1] - ranked[-1][1]) if len(ranked) > 1 else 0.0,
         "note": (
             "Scores now include a calibration penalty for overconfident models. "
@@ -506,3 +519,9 @@ def print_robustness_summary(report: Dict) -> None:
             for r in cmp["ranking"]:
                 print(f"    {r['model']}: {r['score']:.2f}/100")
             print(f"  Note: {cmp['note']}")
+
+
+# Backwards compatibility aliases
+analyze_confidence_drift = analyze_confidence_stability
+compare_models = _compare_models
+

@@ -6,19 +6,19 @@
       "base_trust_level": "low",
       "false_consensus_flag": false,
       "downgrade_reason": "nan"
-    },
-    {
-      "sample_id": "sample_003",
-      "consensus_reliability_score": 0.613548,
-      "base_trust_level": "moderate",
-      "false_consensus_flag": true,
-      "downgrade_reason": "Moderate false consensus (flags: ['fragile_under_perturbation', 'high_instability'])"
     }
   ],
   "critical": [
     {
       "sample_id": "sample_004",
-      "consensus_reliability_score": 0.607904,
+      "consensus_reliability_score": 0.609108,
+      "base_trust_level": "moderate",
+      "false_consensus_flag": true,
+      "downgrade_reason": "Severe false consensus (flags: ['high_confidence_gap', 'fragile_under_perturbation', 'high_instability'])"
+    },
+    {
+      "sample_id": "sample_003",
+      "consensus_reliability_score": 0.609502,
       "base_trust_level": "moderate",
       "false_consensus_flag": true,
       "downgrade_reason": "Severe false consensus (flags: ['high_confidence_gap', 'fragile_under_perturbation', 'high_instability'])"
@@ -27,14 +27,14 @@
   "moderate": [
     {
       "sample_id": "sample_006",
-      "consensus_reliability_score": 0.708531,
+      "consensus_reliability_score": 0.707814,
       "base_trust_level": "high",
       "false_consensus_flag": true,
       "downgrade_reason": "Moderate false consensus (flags: ['low_mean_confidence', 'high_instability'])"
     },
     {
       "sample_id": "sample_007",
-      "consensus_reliability_score": 0.712029,
+      "consensus_reliability_score": 0.708712,
       "base_trust_level": "high",
       "false_consensus_flag": true,
       "downgrade_reason": "Moderate false consensus (flags: ['low_mean_confidence', 'high_instability'])"
@@ -50,7 +50,7 @@
     },
     {
       "sample_id": "sample_005",
-      "consensus_reliability_score": 0.794605,
+      "consensus_reliability_score": 0.799734,
       "base_trust_level": "high",
       "false_consensus_flag": true,
       "downgrade_reason": "nan"
@@ -66,14 +66,14 @@
   "very_high": [
     {
       "sample_id": "sample_001",
-      "consensus_reliability_score": 0.963441,
+      "consensus_reliability_score": 0.959454,
       "base_trust_level": "very_high",
       "false_consensus_flag": false,
       "downgrade_reason": "nan"
     },
     {
       "sample_id": "sample_002",
-      "consensus_reliability_score": 0.96463,
+      "consensus_reliability_score": 0.961342,
       "base_trust_level": "very_high",
       "false_consensus_flag": false,
       "downgrade_reason": "nan"

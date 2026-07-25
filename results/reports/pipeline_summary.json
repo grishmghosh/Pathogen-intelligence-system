@@ -1,169 +1,230 @@
 {
-  "image_path": "/run/media/pranjal/4268-E694/Pathogen-intelligence-system/data/A Microbiological Image Repository of Escherichia/e.coli on BH/E-coli on BH mixed/E-coli on BH mixed/Plate 17/IMG_6655.JPG",
+  "image_path": "/home/pranjal/Downloads/pneu.png",
   "checkpoint_dir": null,
   "device": "auto",
   "robustness_report": {
     "efficientnet_b0": {
       "model_name": "efficientnet_b0",
-      "temperature_used": 1.0,
+      "temperature_used": 0.8336054086685181,
       "consistency_analysis": {
         "original_prediction": "e_coli",
-        "total_perturbations": 6,
-        "consistent_count": 6,
-        "consistency_rate": 100.0,
-        "prediction_flips": [],
+        "total_perturbations": 9,
+        "consistent_count": 8,
+        "consistent_predictions": 8,
+        "consistency_rate": 88.88888888888889,
+        "prediction_flips": [
+          [
+            "jpeg_compression",
+            "p_aeruginosa"
+          ]
+        ],
         "saturation_warning": false,
         "saturation_note": null
       },
       "confidence_analysis": {
-        "original_confidence": 0.3256564438343048,
-        "mean_confidence": 0.3243730919701712,
-        "std_confidence": 0.007012644634837438,
-        "min_confidence": 0.3107001781463623,
-        "max_confidence": 0.33528944849967957,
-        "confidence_drop": 0.014956265687942505,
-        "confidence_above_chance": 0.07437309197017122,
+        "original_confidence": 0.7116534562783076,
+        "mean_confidence": 0.6890292468361883,
+        "std_confidence": 0.11910957580519059,
+        "min_confidence": 0.4532963429311061,
+        "max_confidence": 0.8510425425496629,
+        "confidence_drop": 0.25835711334720146,
+        "confidence_above_chance": 0.43902924683618827,
         "is_saturated": false,
         "calibration_note": null,
         "perturbation_impacts": [
           {
-            "id": "brightness_increase_1.2",
-            "confidence": 0.3107001781463623,
-            "impact": 0.014956265687942505,
-            "relative_impact": 0.045926515415590265
+            "id": "jpeg_compression",
+            "confidence": 0.4532963429311061,
+            "impact": 0.25835711334720146,
+            "relative_impact": 0.3630378115470928
           },
           {
-            "id": "brightness_decrease_0.8",
-            "confidence": 0.33528944849967957,
-            "impact": -0.009633004665374756,
-            "relative_impact": 0.029580267326987285
+            "id": "stain_shift",
+            "confidence": 0.5554064138961363,
+            "impact": 0.15624704238217124,
+            "relative_impact": 0.21955495473778383
           },
           {
-            "id": "contrast_decrease_0.85",
-            "confidence": 0.3296666741371155,
-            "impact": -0.004010230302810669,
-            "relative_impact": 0.012314297409852848
+            "id": "dark",
+            "confidence": 0.8510425425496629,
+            "impact": -0.13938908627135538,
+            "relative_impact": 0.19586652048359368
           },
           {
-            "id": "gaussian_noise_sigma_8",
-            "confidence": 0.321647047996521,
-            "impact": 0.0040093958377838135,
-            "relative_impact": 0.012311735000778331
+            "id": "bright",
+            "confidence": 0.5784038914842666,
+            "impact": 0.13324956479404093,
+            "relative_impact": 0.18723939807850914
           },
           {
-            "id": "contrast_increase_1.15",
-            "confidence": 0.3233645260334015,
-            "impact": 0.0022919178009033203,
-            "relative_impact": 0.0070378395523764195
+            "id": "low_contrast",
+            "confidence": 0.8010897267778357,
+            "impact": -0.08943627049952818,
+            "relative_impact": 0.12567390730770536
           },
           {
-            "id": "gaussian_blur_kernel_5",
-            "confidence": 0.3242873251438141,
-            "impact": 0.0013691186904907227,
-            "relative_impact": 0.004204181174401497
+            "id": "defocus_blur",
+            "confidence": 0.7953883586737618,
+            "impact": -0.08373490239545422,
+            "relative_impact": 0.11766246851853673
+          },
+          {
+            "id": "gaussian_blur",
+            "confidence": 0.7587424168062036,
+            "impact": -0.04708896052789602,
+            "relative_impact": 0.06616838590815592
+          },
+          {
+            "id": "high_contrast",
+            "confidence": 0.6740338661212709,
+            "impact": 0.03761959015703664,
+            "relative_impact": 0.052862232066958
+          },
+          {
+            "id": "gaussian_noise",
+            "confidence": 0.7112354528433322,
+            "impact": 0.00041800343497533365,
+            "relative_impact": 0.0005873693597461632
           }
         ],
         "most_damaging": {
-          "id": "brightness_increase_1.2",
-          "confidence": 0.3107001781463623,
-          "impact": 0.014956265687942505,
-          "relative_impact": 0.045926515415590265
+          "id": "jpeg_compression",
+          "confidence": 0.4532963429311061,
+          "impact": 0.25835711334720146,
+          "relative_impact": 0.3630378115470928
         },
-        "temperature_applied": 1.0
+        "temperature_applied": 0.8336054086685181
       },
       "sensitivity_analysis": {
         "sensitivity_ranking": [
           {
-            "perturbation_id": "brightness_increase_1.2",
-            "perturbation_type": "brightness",
-            "parameter": 1.2,
-            "prediction": "e_coli",
-            "confidence": 0.3107001781463623,
-            "confidence_delta": 0.014956265687942505,
-            "prediction_flipped": false,
-            "severity": "low"
+            "perturbation_id": "jpeg_compression",
+            "perturbation_type": "compression",
+            "parameter": 45,
+            "prediction": "p_aeruginosa",
+            "confidence": 0.4181601107120514,
+            "confidence_delta": 0.22624489665031433,
+            "prediction_flipped": true,
+            "severity": "critical"
           },
           {
-            "perturbation_id": "brightness_decrease_0.8",
+            "perturbation_id": "dark",
             "perturbation_type": "brightness",
             "parameter": 0.8,
             "prediction": "e_coli",
-            "confidence": 0.33528944849967957,
-            "confidence_delta": 0.009633004665374756,
+            "confidence": 0.7856676578521729,
+            "confidence_delta": 0.14126265048980713,
             "prediction_flipped": false,
-            "severity": "low"
+            "severity": "moderate"
           },
           {
-            "perturbation_id": "contrast_decrease_0.85",
+            "perturbation_id": "stain_shift",
+            "perturbation_type": "stain",
+            "parameter": 12,
+            "prediction": "e_coli",
+            "confidence": 0.511761486530304,
+            "confidence_delta": 0.13264352083206177,
+            "prediction_flipped": false,
+            "severity": "moderate"
+          },
+          {
+            "perturbation_id": "bright",
+            "perturbation_type": "brightness",
+            "parameter": 1.2,
+            "prediction": "e_coli",
+            "confidence": 0.5275306105613708,
+            "confidence_delta": 0.11687439680099487,
+            "prediction_flipped": false,
+            "severity": "moderate"
+          },
+          {
+            "perturbation_id": "low_contrast",
             "perturbation_type": "contrast",
             "parameter": 0.85,
             "prediction": "e_coli",
-            "confidence": 0.3296666741371155,
-            "confidence_delta": 0.004010230302810669,
+            "confidence": 0.7311608195304871,
+            "confidence_delta": 0.08675581216812134,
             "prediction_flipped": false,
-            "severity": "low"
+            "severity": "moderate"
           },
           {
-            "perturbation_id": "gaussian_noise_sigma_8",
-            "perturbation_type": "noise",
-            "parameter": 8,
+            "perturbation_id": "defocus_blur",
+            "perturbation_type": "blur",
+            "parameter": 7,
             "prediction": "e_coli",
-            "confidence": 0.321647047996521,
-            "confidence_delta": 0.0040093958377838135,
+            "confidence": 0.7239531874656677,
+            "confidence_delta": 0.079548180103302,
             "prediction_flipped": false,
-            "severity": "low"
+            "severity": "moderate"
           },
           {
-            "perturbation_id": "contrast_increase_1.15",
-            "perturbation_type": "contrast",
-            "parameter": 1.15,
-            "prediction": "e_coli",
-            "confidence": 0.3233645260334015,
-            "confidence_delta": 0.0022919178009033203,
-            "prediction_flipped": false,
-            "severity": "low"
-          },
-          {
-            "perturbation_id": "gaussian_blur_kernel_5",
+            "perturbation_id": "gaussian_blur",
             "perturbation_type": "blur",
             "parameter": 5,
             "prediction": "e_coli",
-            "confidence": 0.3242873251438141,
-            "confidence_delta": 0.0013691186904907227,
+            "confidence": 0.6880083084106445,
+            "confidence_delta": 0.04360330104827881,
+            "prediction_flipped": false,
+            "severity": "low"
+          },
+          {
+            "perturbation_id": "high_contrast",
+            "perturbation_type": "contrast",
+            "parameter": 1.15,
+            "prediction": "e_coli",
+            "confidence": 0.609248161315918,
+            "confidence_delta": 0.035156846046447754,
+            "prediction_flipped": false,
+            "severity": "low"
+          },
+          {
+            "perturbation_id": "gaussian_noise",
+            "perturbation_type": "noise",
+            "parameter": 8,
+            "prediction": "e_coli",
+            "confidence": 0.6398196816444397,
+            "confidence_delta": 0.004585325717926025,
             "prediction_flipped": false,
             "severity": "low"
           }
         ],
-        "total_perturbations": 6,
-        "prediction_flips": 0,
+        "total_perturbations": 9,
+        "prediction_flips": 1,
+        "prediction_flip_perturbations": [
+          "jpeg_compression"
+        ],
         "most_sensitive": {
-          "perturbation_id": "brightness_increase_1.2",
-          "perturbation_type": "brightness",
-          "parameter": 1.2,
-          "prediction": "e_coli",
-          "confidence": 0.3107001781463623,
-          "confidence_delta": 0.014956265687942505,
-          "prediction_flipped": false,
-          "severity": "low"
+          "perturbation_id": "jpeg_compression",
+          "perturbation_type": "compression",
+          "parameter": 45,
+          "prediction": "p_aeruginosa",
+          "confidence": 0.4181601107120514,
+          "confidence_delta": 0.22624489665031433,
+          "prediction_flipped": true,
+          "severity": "critical"
+        },
+        "most_damaging_perturbation": {
+          "name": "jpeg_compression",
+          "impact_score": 0.22624489665031433
         },
         "least_sensitive": {
-          "perturbation_id": "gaussian_blur_kernel_5",
-          "perturbation_type": "blur",
-          "parameter": 5,
+          "perturbation_id": "gaussian_noise",
+          "perturbation_type": "noise",
+          "parameter": 8,
           "prediction": "e_coli",
-          "confidence": 0.3242873251438141,
-          "confidence_delta": 0.0013691186904907227,
+          "confidence": 0.6398196816444397,
+          "confidence_delta": 0.004585325717926025,
           "prediction_flipped": false,
           "severity": "low"
         }
       },
       "robustness_score": {
-        "robustness_score": 95.79241321909754,
-        "interpretation": "Excellent robustness",
+        "robustness_score": 64.44444444444444,
+        "interpretation": "Fair robustness",
         "components": {
-          "consistency_score": 100.0,
-          "stability_score": 85.97471073032511,
-          "resistance_score": 100.0,
+          "consistency_score": 88.88888888888889,
+          "stability_score": 0.0,
+          "resistance_score": 88.88888888888889,
           "calibration_score": 100.0
         },
         "weights": {
@@ -172,174 +233,242 @@
           "resistance": 0.2,
           "calibration": 0.2
         },
-        "flags": [],
-        "temperature_applied": 1.0
+        "flags": [
+          "1 prediction flip(s) detected across perturbations"
+        ],
+        "temperature_applied": 0.8336054086685181
       },
       "diagnosis": [
-        "✓ No major calibration or robustness issues detected."
+        "ℹ 1 prediction flip(s) detected across perturbations"
       ]
     },
     "resnet50": {
       "model_name": "resnet50",
-      "temperature_used": 1.0,
+      "temperature_used": 0.8328734636306763,
       "consistency_analysis": {
-        "original_prediction": "e_coli",
-        "total_perturbations": 6,
-        "consistent_count": 6,
-        "consistency_rate": 100.0,
-        "prediction_flips": [],
+        "original_prediction": "p_aeruginosa",
+        "total_perturbations": 9,
+        "consistent_count": 7,
+        "consistent_predictions": 7,
+        "consistency_rate": 77.77777777777779,
+        "prediction_flips": [
+          [
+            "bright",
+            "k_pneumoniae"
+          ],
+          [
+            "high_contrast",
+            "e_coli"
+          ]
+        ],
         "saturation_warning": false,
         "saturation_note": null
       },
       "confidence_analysis": {
-        "original_confidence": 0.36533698439598083,
-        "mean_confidence": 0.3704792431422642,
-        "std_confidence": 0.004761357084778659,
-        "min_confidence": 0.36533698439598083,
-        "max_confidence": 0.3804739713668823,
-        "confidence_drop": 0.0,
-        "confidence_above_chance": 0.12047924314226421,
+        "original_confidence": 0.560523548088907,
+        "mean_confidence": 0.6314035568219591,
+        "std_confidence": 0.17435302179639656,
+        "min_confidence": 0.38241148359682947,
+        "max_confidence": 0.9113436364829685,
+        "confidence_drop": 0.17811206449207756,
+        "confidence_above_chance": 0.38140355682195914,
         "is_saturated": false,
         "calibration_note": null,
         "perturbation_impacts": [
           {
-            "id": "brightness_increase_1.2",
-            "confidence": 0.3804739713668823,
-            "impact": -0.01513698697090149,
-            "relative_impact": 0.04143294442507041
+            "id": "jpeg_compression",
+            "confidence": 0.9113436364829685,
+            "impact": -0.3508200883940614,
+            "relative_impact": 0.6258793044291805
           },
           {
-            "id": "contrast_increase_1.15",
-            "confidence": 0.3739805519580841,
-            "impact": -0.008643567562103271,
-            "relative_impact": 0.02365916381664413
+            "id": "stain_shift",
+            "confidence": 0.8043273153515677,
+            "impact": -0.24380376726266062,
+            "relative_impact": 0.434957225425951
           },
           {
-            "id": "gaussian_noise_sigma_8",
-            "confidence": 0.3693435490131378,
-            "impact": -0.004006564617156982,
-            "relative_impact": 0.010966764352591125
+            "id": "defocus_blur",
+            "confidence": 0.7790366611907782,
+            "impact": -0.21851311310187116,
+            "relative_impact": 0.38983752573265995
           },
           {
-            "id": "brightness_decrease_0.8",
-            "confidence": 0.3686082363128662,
-            "impact": -0.003271251916885376,
-            "relative_impact": 0.008954067221783758
+            "id": "gaussian_blur",
+            "confidence": 0.7390246406103973,
+            "impact": -0.17850109252149027,
+            "relative_impact": 0.318454225750347
           },
           {
-            "id": "gaussian_blur_kernel_5",
-            "confidence": 0.3685166835784912,
-            "impact": -0.003179699182510376,
-            "relative_impact": 0.00870346917591012
+            "id": "bright",
+            "confidence": 0.38241148359682947,
+            "impact": 0.17811206449207756,
+            "relative_impact": 0.3177601817075247
           },
           {
-            "id": "contrast_decrease_0.85",
-            "confidence": 0.3670947253704071,
-            "impact": -0.0017577409744262695,
-            "relative_impact": 0.00481128670105048
+            "id": "low_contrast",
+            "confidence": 0.7317965590423082,
+            "impact": -0.1712730109534012,
+            "relative_impact": 0.30555899308307893
+          },
+          {
+            "id": "dark",
+            "confidence": 0.40777507724772505,
+            "impact": 0.15274847084118198,
+            "relative_impact": 0.27251035458184514
+          },
+          {
+            "id": "high_contrast",
+            "confidence": 0.4912138359547641,
+            "impact": 0.06930971213414294,
+            "relative_impact": 0.12365174018192976
+          },
+          {
+            "id": "gaussian_noise",
+            "confidence": 0.5065828106533454,
+            "impact": 0.0539407374355616,
+            "relative_impact": 0.09623277669505838
           }
         ],
         "most_damaging": {
-          "id": "brightness_increase_1.2",
-          "confidence": 0.3804739713668823,
-          "impact": -0.01513698697090149,
-          "relative_impact": 0.04143294442507041
+          "id": "jpeg_compression",
+          "confidence": 0.9113436364829685,
+          "impact": -0.3508200883940614,
+          "relative_impact": 0.6258793044291805
         },
-        "temperature_applied": 1.0
+        "temperature_applied": 0.8328734636306763
       },
       "sensitivity_analysis": {
         "sensitivity_ranking": [
           {
-            "perturbation_id": "brightness_increase_1.2",
+            "perturbation_id": "bright",
             "perturbation_type": "brightness",
             "parameter": 1.2,
-            "prediction": "e_coli",
-            "confidence": 0.3804739713668823,
-            "confidence_delta": 0.01513698697090149,
-            "prediction_flipped": false,
-            "severity": "low"
+            "prediction": "k_pneumoniae",
+            "confidence": 0.3694433271884918,
+            "confidence_delta": 0.14697489142417908,
+            "prediction_flipped": true,
+            "severity": "critical"
           },
           {
-            "perturbation_id": "contrast_increase_1.15",
+            "perturbation_id": "high_contrast",
             "perturbation_type": "contrast",
             "parameter": 1.15,
             "prediction": "e_coli",
-            "confidence": 0.3739805519580841,
-            "confidence_delta": 0.008643567562103271,
-            "prediction_flipped": false,
-            "severity": "low"
+            "confidence": 0.4585393965244293,
+            "confidence_delta": 0.05787882208824158,
+            "prediction_flipped": true,
+            "severity": "critical"
           },
           {
-            "perturbation_id": "gaussian_noise_sigma_8",
-            "perturbation_type": "noise",
-            "parameter": 8,
-            "prediction": "e_coli",
-            "confidence": 0.3693435490131378,
-            "confidence_delta": 0.004006564617156982,
+            "perturbation_id": "jpeg_compression",
+            "perturbation_type": "compression",
+            "parameter": 45,
+            "prediction": "p_aeruginosa",
+            "confidence": 0.8543256521224976,
+            "confidence_delta": 0.33790743350982666,
             "prediction_flipped": false,
-            "severity": "low"
+            "severity": "moderate"
           },
           {
-            "perturbation_id": "brightness_decrease_0.8",
-            "perturbation_type": "brightness",
-            "parameter": 0.8,
-            "prediction": "e_coli",
-            "confidence": 0.3686082363128662,
-            "confidence_delta": 0.003271251916885376,
+            "perturbation_id": "stain_shift",
+            "perturbation_type": "stain",
+            "parameter": 12,
+            "prediction": "p_aeruginosa",
+            "confidence": 0.7350757718086243,
+            "confidence_delta": 0.21865755319595337,
             "prediction_flipped": false,
-            "severity": "low"
+            "severity": "moderate"
           },
           {
-            "perturbation_id": "gaussian_blur_kernel_5",
+            "perturbation_id": "defocus_blur",
+            "perturbation_type": "blur",
+            "parameter": 7,
+            "prediction": "p_aeruginosa",
+            "confidence": 0.7125839591026306,
+            "confidence_delta": 0.19616574048995972,
+            "prediction_flipped": false,
+            "severity": "moderate"
+          },
+          {
+            "perturbation_id": "gaussian_blur",
             "perturbation_type": "blur",
             "parameter": 5,
-            "prediction": "e_coli",
-            "confidence": 0.3685166835784912,
-            "confidence_delta": 0.003179699182510376,
+            "prediction": "p_aeruginosa",
+            "confidence": 0.6753179430961609,
+            "confidence_delta": 0.15889972448349,
             "prediction_flipped": false,
-            "severity": "low"
+            "severity": "moderate"
           },
           {
-            "perturbation_id": "contrast_decrease_0.85",
+            "perturbation_id": "low_contrast",
             "perturbation_type": "contrast",
             "parameter": 0.85,
-            "prediction": "e_coli",
-            "confidence": 0.3670947253704071,
-            "confidence_delta": 0.0017577409744262695,
+            "prediction": "p_aeruginosa",
+            "confidence": 0.6649510860443115,
+            "confidence_delta": 0.14853286743164062,
+            "prediction_flipped": false,
+            "severity": "moderate"
+          },
+          {
+            "perturbation_id": "dark",
+            "perturbation_type": "brightness",
+            "parameter": 0.8,
+            "prediction": "p_aeruginosa",
+            "confidence": 0.38954097032546997,
+            "confidence_delta": 0.12687724828720093,
+            "prediction_flipped": false,
+            "severity": "moderate"
+          },
+          {
+            "perturbation_id": "gaussian_noise",
+            "perturbation_type": "noise",
+            "parameter": 8,
+            "prediction": "p_aeruginosa",
+            "confidence": 0.4698006510734558,
+            "confidence_delta": 0.04661756753921509,
             "prediction_flipped": false,
             "severity": "low"
           }
         ],
-        "total_perturbations": 6,
-        "prediction_flips": 0,
+        "total_perturbations": 9,
+        "prediction_flips": 2,
+        "prediction_flip_perturbations": [
+          "bright",
+          "high_contrast"
+        ],
         "most_sensitive": {
-          "perturbation_id": "brightness_increase_1.2",
+          "perturbation_id": "bright",
           "perturbation_type": "brightness",
           "parameter": 1.2,
-          "prediction": "e_coli",
-          "confidence": 0.3804739713668823,
-          "confidence_delta": 0.01513698697090149,
-          "prediction_flipped": false,
-          "severity": "low"
+          "prediction": "k_pneumoniae",
+          "confidence": 0.3694433271884918,
+          "confidence_delta": 0.14697489142417908,
+          "prediction_flipped": true,
+          "severity": "critical"
+        },
+        "most_damaging_perturbation": {
+          "name": "bright",
+          "impact_score": 0.14697489142417908
         },
         "least_sensitive": {
-          "perturbation_id": "contrast_decrease_0.85",
-          "perturbation_type": "contrast",
-          "parameter": 0.85,
-          "prediction": "e_coli",
-          "confidence": 0.3670947253704071,
-          "confidence_delta": 0.0017577409744262695,
+          "perturbation_id": "gaussian_noise",
+          "perturbation_type": "noise",
+          "parameter": 8,
+          "prediction": "p_aeruginosa",
+          "confidence": 0.4698006510734558,
+          "confidence_delta": 0.04661756753921509,
           "prediction_flipped": false,
           "severity": "low"
         }
       },
       "robustness_score": {
-        "robustness_score": 97.14318574913281,
-        "interpretation": "Excellent robustness",
+        "robustness_score": 58.88888888888889,
+        "interpretation": "Poor robustness",
         "components": {
-          "consistency_score": 100.0,
-          "stability_score": 90.47728583044268,
-          "resistance_score": 100.0,
+          "consistency_score": 77.77777777777779,
+          "stability_score": 0.0,
+          "resistance_score": 77.77777777777779,
           "calibration_score": 100.0
         },
         "weights": {
@@ -348,26 +477,42 @@
           "resistance": 0.2,
           "calibration": 0.2
         },
-        "flags": [],
-        "temperature_applied": 1.0
+        "flags": [
+          "2 prediction flip(s) detected across perturbations"
+        ],
+        "temperature_applied": 0.8328734636306763
       },
       "diagnosis": [
-        "✓ No major calibration or robustness issues detected."
+        "ℹ 2 prediction flip(s) detected across perturbations"
       ]
     },
     "model_comparison": {
-      "winner": "resnet50",
+      "winner": "efficientnet_b0",
       "ranking": [
         {
-          "model": "resnet50",
-          "score": 97.14318574913281
+          "model": "efficientnet_b0",
+          "score": 64.44444444444444
         },
         {
-          "model": "efficientnet_b0",
-          "score": 95.79241321909754
+          "model": "resnet50",
+          "score": 58.88888888888889
         }
       ],
-      "score_gap": 1.3507725300352718,
+      "model_rankings": [
+        [
+          "efficientnet_b0",
+          {
+            "robustness_score": 64.44444444444444
+          }
+        ],
+        [
+          "resnet50",
+          {
+            "robustness_score": 58.88888888888889
+          }
+        ]
+      ],
+      "score_gap": 5.55555555555555,
       "note": "Scores now include a calibration penalty for overconfident models. A model that always outputs 0.999 confidence is penalised even if consistency is 100%."
     }
   }

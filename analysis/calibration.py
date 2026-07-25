@@ -276,3 +276,40 @@ def print_calibration_report(report: Dict) -> None:
     else:
         print("\n  ✓ No calibration issues detected.")
     print(f"{'='*60}")
+
+
+def fit_vector_temperature_scaling(
+    logits: np.ndarray,
+    labels: np.ndarray,
+    num_classes: int = 4,
+) -> np.ndarray:
+    """
+    Fits class-wise vector temperature parameters T = [T_1, T_2, ..., T_K]
+    using L-BFGS optimization on validation logits without modifying model weights.
+    """
+    import torch
+    import torch.nn as nn
+    import torch.optim as optim
+
+    logits_t = torch.tensor(logits, dtype=torch.float32)
+    labels_t = torch.tensor(labels, dtype=torch.long)
+
+    # Initialize per-class log-temperatures (log(1.0) = 0)
+    log_temps = nn.Parameter(torch.zeros(num_classes, dtype=torch.float32))
+    optimizer = optim.LBFGS([log_temps], lr=0.01, max_iter=50)
+
+    criterion = nn.CrossEntropyLoss()
+
+    def eval_loss():
+        optimizer.zero_grad()
+        temps = torch.exp(log_temps)
+        scaled_logits = logits_t / temps
+        loss = criterion(scaled_logits, labels_t)
+        loss.backward()
+        return loss
+
+    optimizer.step(eval_loss)
+
+    best_temps = torch.exp(log_temps).detach().cpu().numpy()
+    return best_temps
+

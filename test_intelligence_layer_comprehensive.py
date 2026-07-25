@@ -158,9 +158,10 @@ for model_name, checkpoint_path in checkpoint_paths.items():
         continue
     
     try:
-        model = load_model(model_name, checkpoint_path, device)
+        model, temperature = load_model(model_name, os.path.dirname(checkpoint_path), device)
         loaded_models[model_name] = model
-        print(f"  ✓ {model_name} loaded successfully")
+        temp_str = f"{temperature:.4f}" if isinstance(temperature, float) else (str(temperature.tolist()) if hasattr(temperature, "tolist") else str(temperature))
+        print(f"  ✓ {model_name} loaded successfully (T={temp_str})")
         print(f"    - Device: {next(model.parameters()).device}")
         print(f"    - Mode: {'eval' if not model.training else 'train'}")
         print(f"    - Parameters: {sum(p.numel() for p in model.parameters()):,}")
@@ -187,20 +188,34 @@ print("FINDING TEST IMAGE")
 print("="*80)
 
 test_image_path = None
+if len(sys.argv) > 1:
+    for i, arg in enumerate(sys.argv):
+        if arg == "--image" and i + 1 < len(sys.argv):
+            test_image_path = sys.argv[i + 1]
+            break
+        elif not arg.startswith("-") and i > 0 and not sys.argv[i-1] == "--image":
+            test_image_path = arg
+
 search_paths = [
     "dataset_split/val/e_coli/Plate 1",
     "dataset_split/train/e_coli/Plate 1",
     "dataset_split/val/k_pneumoniae/Plate 1",
+    "results/demo_dataset/test/e_coli",
+    "results/demo_dataset/test/k_pneumoniae",
+    "results/demo_dataset/test/p_aeruginosa",
+    "results/demo_dataset/test/s_aureus"
 ]
 
-for search_path in search_paths:
-    if os.path.exists(search_path):
-        for file in os.listdir(search_path):
-            if file.lower().endswith(('.jpg', '.jpeg', '.png')):
-                test_image_path = os.path.join(search_path, file)
-                break
-    if test_image_path:
-        break
+if not test_image_path or not os.path.exists(test_image_path):
+    test_image_path = None
+    for search_path in search_paths:
+        if os.path.exists(search_path):
+            for file in os.listdir(search_path):
+                if file.lower().endswith(('.jpg', '.jpeg', '.png')):
+                    test_image_path = os.path.join(search_path, file)
+                    break
+        if test_image_path:
+            break
 
 if not test_image_path:
     print("✗ No test image found in dataset")
@@ -319,12 +334,15 @@ else:
         
         for pert_name, pert_data in perturbations.items():
             try:
-                # Preprocess
-                image_tensor = preprocess_image(pert_data["image"])
-                
                 # Predict
-                prediction = predict_single(model, image_tensor, device)
+                prediction = predict_single(model, pert_data["image"], device=device)
                 
+                # Normalize keys for testing
+                if "all_probabilities" in prediction and "probabilities" not in prediction:
+                    prediction["probabilities"] = list(prediction["all_probabilities"].values())
+                if "class_index" in prediction and "predicted_idx" not in prediction:
+                    prediction["predicted_idx"] = prediction["class_index"]
+
                 # Validate prediction structure
                 required_keys = ["prediction", "confidence", "probabilities", "predicted_idx"]
                 if all(k in prediction for k in required_keys):
@@ -356,7 +374,7 @@ else:
                     }
                     model_results[pert_name] = prediction
                 else:
-                    print(f"    {pert_name:20s} → ✗ Missing keys in prediction")
+                    print(f"    {pert_name:20s} → ✗ Missing keys in prediction: {[k for k in required_keys if k not in prediction]}")
                     test_results["inference"]["status"] = "failed"
                 
             except Exception as e:
@@ -451,14 +469,15 @@ try:
             test_results["robustness"]["status"] = "failed"
         
         # Robustness score
-        robustness = compute_robustness_score(consistency, confidence, sensitivity)
+        robustness = compute_robustness_score(model_results, model_name=model_name)
         if "error" not in robustness:
             print(f"  ✓ Robustness score computed successfully")
             print(f"    - Overall score: {robustness['robustness_score']:.2f}/100")
             print(f"    - Interpretation: {robustness['interpretation']}")
-            print(f"    - Consistency: {robustness['consistency_score']:.2f}")
-            print(f"    - Stability: {robustness['stability_score']:.2f}")
-            print(f"    - Resistance: {robustness['resistance_score']:.2f}")
+            comp = robustness.get("components", {})
+            print(f"    - Consistency: {comp.get('consistency_score', 0):.2f}")
+            print(f"    - Stability: {comp.get('stability_score', 0):.2f}")
+            print(f"    - Resistance: {comp.get('resistance_score', 0):.2f}")
         else:
             print(f"  ✗ Robustness score failed: {robustness['error']}")
             test_results["robustness"]["status"] = "failed"

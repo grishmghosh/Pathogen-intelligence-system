@@ -14,11 +14,11 @@
   "total_unique_flagged": 7,
   "severity_distribution": {
     "mild": 3,
-    "moderate": 3,
-    "severe": 1
+    "moderate": 2,
+    "severe": 2
   },
   "flag_frequency": {
-    "high_confidence_gap": 4,
+    "high_confidence_gap": 5,
     "fragile_under_perturbation": 2,
     "high_instability": 4,
     "low_mean_confidence": 2

@@ -20,7 +20,6 @@ from collections import Counter
 # =========================
 # Default configuration
 # =========================
-<<<<<<< HEAD
 # Use environment variables when available, otherwise default to repository-relative paths
 PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
 DEFAULT_INPUT_ROOT = os.getenv(
@@ -31,10 +30,8 @@ DEFAULT_OUTPUT_ROOT = os.getenv(
     "PATHOGEN_SPLIT_OUTPUT_ROOT",
     os.path.join(PROJECT_ROOT, "dataset_split"),
 )
-=======
 DEFAULT_INPUT_ROOT  = r"C:\Pathogen-intelligence-system\data\A Microbiological Image Repository of Escherichia"
 DEFAULT_OUTPUT_ROOT = r"C:\Pathogen-intelligence-system\dataset_split"
->>>>>>> origin/main
 
 RANDOM_SEED = 42
 TRAIN_RATIO = 0.70

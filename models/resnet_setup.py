@@ -1,6 +1,7 @@
 import torch
 import torch.nn as nn
 import torchvision.models as models
+# pyrefly: ignore [missing-import]
 from torchvision.models import ResNet50_Weights
 
 

@@ -11,38 +11,38 @@
   {
     "sample_id": "sample_004",
     "agreement_strength": 1.0,
-    "confidence_consistency": 0.661397,
+    "confidence_consistency": 0.667417,
     "perturbation_stability": 0.25,
     "severity_reliability": 1.0,
     "instability_reliability": 0.0875,
-    "consensus_reliability_score": 0.607904
+    "consensus_reliability_score": 0.609108
   },
   {
     "sample_id": "sample_003",
     "agreement_strength": 1.0,
-    "confidence_consistency": 0.689615,
+    "confidence_consistency": 0.669384,
     "perturbation_stability": 0.25,
     "severity_reliability": 1.0,
     "instability_reliability": 0.0875,
-    "consensus_reliability_score": 0.613548
+    "consensus_reliability_score": 0.609502
   },
   {
     "sample_id": "sample_006",
     "agreement_strength": 1.0,
-    "confidence_consistency": 0.642653,
+    "confidence_consistency": 0.63907,
     "perturbation_stability": 0.5,
     "severity_reliability": 1.0,
     "instability_reliability": 0.366667,
-    "consensus_reliability_score": 0.708531
+    "consensus_reliability_score": 0.707814
   },
   {
     "sample_id": "sample_007",
     "agreement_strength": 1.0,
-    "confidence_consistency": 0.660146,
+    "confidence_consistency": 0.643562,
     "perturbation_stability": 0.5,
     "severity_reliability": 1.0,
     "instability_reliability": 0.366667,
-    "consensus_reliability_score": 0.712029
+    "consensus_reliability_score": 0.708712
   },
   {
     "sample_id": "sample_008",
@@ -56,11 +56,11 @@
   {
     "sample_id": "sample_005",
     "agreement_strength": 1.0,
-    "confidence_consistency": 0.616774,
+    "confidence_consistency": 0.64242,
     "perturbation_stability": 0.75,
     "severity_reliability": 1.0,
     "instability_reliability": 0.558333,
-    "consensus_reliability_score": 0.794605
+    "consensus_reliability_score": 0.799734
   },
   {
     "sample_id": "sample_009",
@@ -74,19 +74,19 @@
   {
     "sample_id": "sample_001",
     "agreement_strength": 1.0,
-    "confidence_consistency": 0.817207,
+    "confidence_consistency": 0.79727,
     "perturbation_stability": 1.0,
     "severity_reliability": 1.0,
     "instability_reliability": 1.0,
-    "consensus_reliability_score": 0.963441
+    "consensus_reliability_score": 0.959454
   },
   {
     "sample_id": "sample_002",
     "agreement_strength": 1.0,
-    "confidence_consistency": 0.823149,
+    "confidence_consistency": 0.806711,
     "perturbation_stability": 1.0,
     "severity_reliability": 1.0,
     "instability_reliability": 1.0,
-    "consensus_reliability_score": 0.96463
+    "consensus_reliability_score": 0.961342
   }
 ]

@@ -111,6 +111,38 @@ def apply_gaussian_blur(image, kernel_size):
     return blurred
 
 
+def apply_stain_shift(image, hue_shift=12):
+    """Simulate Gram stain color variation by shifting HSV hue."""
+    validate_image(image)
+    hsv = cv2.cvtColor(image, cv2.COLOR_RGB2HSV).astype(np.float32)
+    hsv[:, :, 0] = (hsv[:, :, 0] + hue_shift) % 180
+    shifted_rgb = cv2.cvtColor(hsv.astype(np.uint8), cv2.COLOR_HSV2RGB)
+    return shifted_rgb
+
+
+def apply_defocus_blur(image, kernel_size=7):
+    """Simulate microscopy optical defocus blur using a circular disk kernel."""
+    validate_image(image)
+    if kernel_size % 2 == 0:
+        kernel_size += 1
+    r = kernel_size // 2
+    y, x = np.ogrid[-r:r+1, -r:r+1]
+    kernel = (x**2 + y**2 <= r**2).astype(np.float32)
+    kernel /= kernel.sum()
+    blurred = cv2.filter2D(image, -1, kernel)
+    return blurred.astype(np.uint8)
+
+
+def apply_jpeg_compression(image, quality=45):
+    """Simulate digital transmission/compression artifacts."""
+    validate_image(image)
+    image_bgr = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
+    encode_param = [int(cv2.IMWRITE_JPEG_QUALITY), int(quality)]
+    _, encoded = cv2.imencode(".jpg", image_bgr, encode_param)
+    decoded_bgr = cv2.imdecode(encoded, cv2.IMREAD_COLOR)
+    return cv2.cvtColor(decoded_bgr, cv2.COLOR_BGR2RGB)
+
+
 def generate_perturbations(image_path):
     """Generate all enabled perturbations from a single input image."""
     original = load_image(image_path)
@@ -178,6 +210,33 @@ def generate_perturbations(image_path):
             "type": "blur",
             "parameter": param,
             "id": f"gaussian_blur_kernel_{param}",
+        }
+
+    if "stain_shift" in ENABLED_PERTURBATIONS:
+        param = config.get("stain_hue_shift", 12)
+        perturbations["stain_shift"] = {
+            "image": apply_stain_shift(original, param),
+            "type": "stain",
+            "parameter": param,
+            "id": f"stain_hue_shift_{param}",
+        }
+
+    if "defocus_blur" in ENABLED_PERTURBATIONS:
+        param = config.get("defocus_blur_kernel_size", 7)
+        perturbations["defocus_blur"] = {
+            "image": apply_defocus_blur(original, param),
+            "type": "blur",
+            "parameter": param,
+            "id": f"defocus_blur_kernel_{param}",
+        }
+
+    if "jpeg_compression" in ENABLED_PERTURBATIONS:
+        param = config.get("jpeg_quality", 45)
+        perturbations["jpeg_compression"] = {
+            "image": apply_jpeg_compression(original, param),
+            "type": "compression",
+            "parameter": param,
+            "id": f"jpeg_quality_{param}",
         }
 
     return perturbations
