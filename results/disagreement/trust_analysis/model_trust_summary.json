@@ -1,0 +1,25 @@
+{
+  "most_trusted_model": "efficientnet_b0",
+  "least_trusted_model": "densenet121",
+  "trust_spread": 0.045312,
+  "stabiliser_count": 3,
+  "destabiliser_count": 0,
+  "neutral_count": 0,
+  "model_rankings": [
+    {
+      "model": "efficientnet_b0",
+      "trust_contribution": 0.839062,
+      "stability_label": "stabiliser"
+    },
+    {
+      "model": "resnet50",
+      "trust_contribution": 0.835417,
+      "stability_label": "stabiliser"
+    },
+    {
+      "model": "densenet121",
+      "trust_contribution": 0.79375,
+      "stability_label": "stabiliser"
+    }
+  ]
+}

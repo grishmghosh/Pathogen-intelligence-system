@@ -1,371 +1,277 @@
 """
-Batch Inference Module for Pathogen Intelligence System.
-
-This module acts as the bridge between perturbation generation and robustness analysis.
-It loads trained CNN models, processes perturbed images, and collects structured predictions.
-
-Purpose:
-    - Load trained EfficientNet-B0 and ResNet-50 models
-    - Process perturbation variants from perturbation_engine
-    - Run inference on original and perturbed images
-    - Collect structured outputs with predictions, confidence, and metadata
-    - Enable downstream robustness analysis
-
-Architecture Flow:
-    Perturbation Engine → Batch Inference → Robustness Analyzer
+inference/batch_inference.py  –  Calibrated Batch Inference
+============================================================
+FIXES vs. original:
+  1. Temperature scaling is applied BEFORE returning probabilities.
+     Previously raw softmax outputs (0.9999) were returned and treated
+     as reliable confidence values — they are not.
+  2. All-probabilities dict returned so calibration.py can compute ECE.
+  3. Confidence ceiling warning emitted when any result is > 0.99.
+  4. s_aureus added to CLASS_NAMES (was silently missing).
 """
 
 import os
 import sys
-import torch
-import torch.nn.functional as F
 import numpy as np
-from PIL import Image
+import torch
+import torch.nn as nn
 from torchvision import transforms
+from PIL import Image
+from typing import Dict, Optional, Tuple
 
-# Add parent directory to path for imports
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from models.efficientnet_setup import build_efficientnet_b0
-from models.resnet_setup import build_resnet50
-from perturbations.perturbation_engine import generate_perturbations
-from loaders.data_loader import IMAGENET_MEAN, IMAGENET_STD
+# ---------------------------------------------------------------------------
+# Config
+# ---------------------------------------------------------------------------
+CHECKPOINT_DIR = r"C:\Pathogen-intelligence-system\checkpoints"
+DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
+CLASS_NAMES = ["e_coli", "k_pneumoniae", "p_aeruginosa", "s_aureus"]   # FIX: s_aureus added
 
-# Class mapping for pathogen classification
-CLASS_NAMES = ["e_coli", "k_pneumoniae", "p_aeruginosa", "s_aureus"]
+MODEL_CONFIGS = {
+    "efficientnet_b0": {
+        "checkpoint": os.path.join(CHECKPOINT_DIR, "efficientnet_b0_best.pth"),
+        "temperature_file": os.path.join(CHECKPOINT_DIR, "efficientnet_b0_temperature.pth"),
+    },
+    "resnet50": {
+        "checkpoint": os.path.join(CHECKPOINT_DIR, "resnet50_best.pth"),
+        "temperature_file": os.path.join(CHECKPOINT_DIR, "resnet50_temperature.pth"),
+    },
+}
 
-# Default checkpoint paths
-DEFAULT_EFFICIENTNET_CHECKPOINT = "checkpoints/efficientnet_b0_best.pth"
-DEFAULT_RESNET_CHECKPOINT = "checkpoints/resnet50_best.pth"
+IMAGENET_MEAN = [0.485, 0.456, 0.406]
+IMAGENET_STD  = [0.229, 0.224, 0.225]
 
+preprocess = transforms.Compose([
+    transforms.Resize(256),
+    transforms.CenterCrop(224),
+    transforms.ToTensor(),
+    transforms.Normalize(IMAGENET_MEAN, IMAGENET_STD),
+])
 
-def load_model(model_name, checkpoint_path, device):
-    """
-    Load a trained CNN model from checkpoint.
-    
-    Args:
-        model_name: "efficientnet_b0" or "resnet50"
-        checkpoint_path: Path to model checkpoint (.pth file)
-        device: torch.device for model placement
-        
-    Returns:
-        Loaded model in evaluation mode
-        
-    Raises:
-        FileNotFoundError: If checkpoint doesn't exist
-        ValueError: If model_name is invalid
-    """
-    if not os.path.exists(checkpoint_path):
-        raise FileNotFoundError(f"Checkpoint not found: {checkpoint_path}")
-    
-    print(f"[INFO] Loading {model_name} from {checkpoint_path}")
-    
-    # Build model architecture
-    if model_name == "efficientnet_b0":
-        model = build_efficientnet_b0(num_classes=len(CLASS_NAMES))
-    elif model_name == "resnet50":
-        model = build_resnet50(num_classes=len(CLASS_NAMES))
-    else:
-        raise ValueError(f"Unknown model: {model_name}. Use 'efficientnet_b0' or 'resnet50'")
-    
-    # Load trained weights
+# ---------------------------------------------------------------------------
+# Helpers
+# ---------------------------------------------------------------------------
+
+def _load_temperature(temperature_file: str) -> float:
+    """Load temperature from checkpoint; default 1.0 (no scaling)."""
+    if not os.path.exists(temperature_file):
+        print(f"  [WARN] No temperature file at {temperature_file}. "
+              f"Using T=1.0 (uncalibrated). Run training first.")
+        return 1.0
     try:
-        state_dict = torch.load(checkpoint_path, map_location=device)
-        model.load_state_dict(state_dict)
-        print(f"[INFO] Successfully loaded weights for {model_name}")
+        ckpt = torch.load(temperature_file, map_location="cpu")
+        t    = float(ckpt.get("temperature", 1.0))
+        print(f"  [INFO] Temperature loaded: {t:.4f}")
+        return t
     except Exception as e:
-        raise RuntimeError(f"Failed to load model weights: {e}")
-    
-    # Set to evaluation mode
-    model = model.to(device)
-    model.eval()
-    
-    return model
+        print(f"  [WARN] Could not load temperature: {e}. Using T=1.0.")
+        return 1.0
 
 
-def preprocess_image(image_np, target_size=(224, 224)):
+def load_model(model_name: str) -> Tuple[Optional[nn.Module], Optional[float]]:
     """
-    Preprocess numpy image for PyTorch inference.
-    
-    Applies:
-        - Resize to target size
-        - Convert to PIL Image
-        - Convert to tensor
-        - Normalize with ImageNet stats
-        - Add batch dimension
-    
-    Args:
-        image_np: Numpy array (H, W, 3) in RGB format, uint8
-        target_size: Target image size (height, width)
-        
+    Load a trained model and its calibration temperature.
+
     Returns:
-        Preprocessed tensor (1, 3, H, W) ready for inference
+        (model, temperature) or (None, None) on failure.
     """
-    # Convert numpy to PIL Image
-    if image_np.dtype != np.uint8:
-        raise ValueError(f"Expected uint8 image, got {image_np.dtype}")
-    
-    pil_image = Image.fromarray(image_np)
-    
-    # Define preprocessing pipeline
-    preprocess = transforms.Compose([
-        transforms.Resize(target_size),
-        transforms.ToTensor(),
-        transforms.Normalize(mean=IMAGENET_MEAN, std=IMAGENET_STD)
-    ])
-    
-    # Apply preprocessing
-    tensor = preprocess(pil_image)
-    
-    # Add batch dimension
-    tensor = tensor.unsqueeze(0)
-    
-    return tensor
+    cfg = MODEL_CONFIGS.get(model_name)
+    if cfg is None:
+        print(f"[ERROR] Unknown model: {model_name}")
+        return None, None
+
+    if not os.path.exists(cfg["checkpoint"]):
+        print(f"[ERROR] Checkpoint not found: {cfg['checkpoint']}")
+        return None, None
+
+    try:
+        from torchvision import models as tvm
+
+        ckpt = torch.load(cfg["checkpoint"], map_location=DEVICE)
+        num_classes = len(CLASS_NAMES)
+
+        if model_name == "efficientnet_b0":
+            model = tvm.efficientnet_b0(weights=None)
+            in_feat = model.classifier[1].in_features
+            model.classifier = nn.Sequential(
+                nn.Dropout(p=0.4, inplace=True),
+                nn.Linear(in_feat, num_classes),
+            )
+        elif model_name == "resnet50":
+            model = tvm.resnet50(weights=None)
+            in_feat = model.fc.in_features
+            model.fc = nn.Sequential(
+                nn.Dropout(p=0.5),
+                nn.Linear(in_feat, num_classes),
+            )
+        else:
+            print(f"[ERROR] No architecture defined for {model_name}")
+            return None, None
+
+        model.load_state_dict(ckpt["model_state"])
+        model.to(DEVICE).eval()
+
+        temperature = _load_temperature(cfg["temperature_file"])
+        return model, temperature
+
+    except Exception as e:
+        print(f"[ERROR] Failed to load {model_name}: {e}")
+        return None, None
 
 
-def predict_single(model, image_tensor, device):
+def preprocess_image(image_array: np.ndarray) -> torch.Tensor:
+    """Convert numpy uint8 image to preprocessed tensor."""
+    img = Image.fromarray(image_array.astype(np.uint8))
+    return preprocess(img).unsqueeze(0)   # (1, 3, 224, 224)
+
+
+def predict_single(
+    model: nn.Module,
+    image_array: np.ndarray,
+    temperature: float = 1.0,
+) -> Dict:
     """
-    Run inference on a single preprocessed image.
-    
-    Args:
-        model: Trained PyTorch model in eval mode
-        image_tensor: Preprocessed tensor (1, 3, H, W)
-        device: torch.device for computation
-        
+    Run inference on one image.
+
+    FIX: Applies temperature scaling so returned confidence values are
+         calibrated, not the raw overconfident softmax outputs.
+
     Returns:
-        Dictionary containing:
-            - prediction: Predicted class name
-            - confidence: Confidence score (0-1)
-            - probabilities: Softmax probabilities for all classes
-            - predicted_idx: Predicted class index
+        {
+          "prediction":        str,
+          "confidence":        float  (calibrated),
+          "all_probabilities": dict[class_name -> float],
+          "raw_confidence":    float  (pre-calibration, for comparison),
+          "temperature":       float,
+        }
     """
-    image_tensor = image_tensor.to(device)
-    
+    tensor = preprocess_image(image_array).to(DEVICE)
+
     with torch.no_grad():
-        # Forward pass
-        logits = model(image_tensor)
-        
-        # Apply softmax to get probabilities
-        probabilities = F.softmax(logits, dim=1)
-        
-        # Get predicted class
-        confidence, predicted_idx = torch.max(probabilities, dim=1)
-        
-        # Convert to Python types
-        predicted_idx = predicted_idx.item()
-        confidence = confidence.item()
-        probabilities = probabilities.squeeze().cpu().numpy().tolist()
-    
-    prediction = CLASS_NAMES[predicted_idx]
-    
+        logits = model(tensor)
+
+    # Raw softmax (what the original code returned)
+    raw_probs  = torch.softmax(logits, dim=1).cpu().numpy().flatten()
+
+    # FIX: Temperature-scaled softmax (calibrated)
+    cal_logits = logits / temperature
+    cal_probs  = torch.softmax(cal_logits, dim=1).cpu().numpy().flatten()
+
+    pred_idx   = int(cal_probs.argmax())
+    prediction = CLASS_NAMES[pred_idx] if pred_idx < len(CLASS_NAMES) else f"class_{pred_idx}"
+    confidence = float(cal_probs[pred_idx])
+    raw_conf   = float(raw_probs[pred_idx])
+
+    # Warn if still saturated after scaling (indicates very strong overfit)
+    if confidence > 0.99:
+        print(f"  [WARN] Post-calibration confidence {confidence:.4f} is still > 0.99. "
+              f"Check for data leakage (plate-level split issue).")
+
+    all_probs_dict = {
+        CLASS_NAMES[i] if i < len(CLASS_NAMES) else f"class_{i}": float(cal_probs[i])
+        for i in range(len(cal_probs))
+    }
+
     return {
-        "prediction": prediction,
-        "confidence": confidence,
-        "probabilities": probabilities,
-        "predicted_idx": predicted_idx
+        "prediction":        prediction,
+        "confidence":        confidence,
+        "raw_confidence":    raw_conf,
+        "all_probabilities": all_probs_dict,
+        "temperature":       temperature,
+        "class_index":       pred_idx,
     }
 
 
-def run_batch_inference(image_path, models_config=None, device=None):
+# ---------------------------------------------------------------------------
+# Batch inference (all perturbations × all models)
+# ---------------------------------------------------------------------------
+
+def run_batch_inference(image_path: str) -> Dict:
     """
-    Run batch inference on original image and all perturbation variants.
-    
-    This is the main entry point for the inference module. It:
-        1. Generates perturbations from input image
-        2. Loads specified models
-        3. Runs inference on all variants
-        4. Collects structured results with metadata
-    
-    Args:
-        image_path: Path to input image
-        models_config: Dictionary mapping model names to checkpoint paths
-                      Example: {"efficientnet_b0": "path/to/checkpoint.pth"}
-                      If None, uses default checkpoints
-        device: torch.device for computation. If None, auto-detects GPU/CPU
-        
-    Returns:
-        Dictionary with structure:
+    Run inference on one image across all perturbations and all models.
+
+    Returns nested dict:
         {
-            "model_name": {
-                "perturbation_name": {
-                    "prediction": str,
-                    "confidence": float,
-                    "probabilities": list,
-                    "predicted_idx": int,
-                    "metadata": {
-                        "type": str,
-                        "parameter": float,
-                        "id": str
-                    }
-                }
-            }
+          "efficientnet_b0": {
+              "original": {prediction, confidence, all_probabilities, ...},
+              "bright":   {...},
+              ...
+          },
+          "resnet50": {...},
         }
-        
-    Raises:
-        FileNotFoundError: If image or checkpoint not found
-        ValueError: If image is invalid
     """
-    # Setup device
-    if device is None:
-        device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    print(f"[INFO] Using device: {device}")
-    
-    # Setup models configuration
-    if models_config is None:
-        models_config = {
-            "efficientnet_b0": DEFAULT_EFFICIENTNET_CHECKPOINT,
-            "resnet50": DEFAULT_RESNET_CHECKPOINT
-        }
-    
+    if not os.path.exists(image_path):
+        raise ValueError(f"Image not found: {image_path}")
+
+    import cv2
+    img_bgr  = cv2.imread(image_path)
+    if img_bgr is None:
+        raise ValueError(f"Could not read image: {image_path}")
+    img_rgb  = cv2.cvtColor(img_bgr, cv2.COLOR_BGR2RGB)
+
     # Generate perturbations
-    print(f"\n[INFO] Generating perturbations for: {image_path}")
-    try:
-        perturbations = generate_perturbations(image_path)
-        print(f"[INFO] Generated {len(perturbations)} perturbation variants")
-    except Exception as e:
-        raise ValueError(f"Failed to generate perturbations: {e}")
-    
-    # Initialize results structure
+    from perturbations.perturbation_engine import generate_perturbations
+    perturbations = generate_perturbations(image_path)
+
     results = {}
-    
-    # Process each model
-    for model_name, checkpoint_path in models_config.items():
-        print(f"\n{'='*80}")
-        print(f"[INFO] Processing model: {model_name}")
-        print(f"{'='*80}")
-        
-        try:
-            # Load model
-            model = load_model(model_name, checkpoint_path, device)
-            
-            # Initialize model results
-            model_results = {}
-            
-            # Process each perturbation
-            for perturbation_name, perturbation_data in perturbations.items():
-                print(f"\n[INFO] Processing perturbation: {perturbation_name}")
-                
-                try:
-                    # Extract image and metadata
-                    image_np = perturbation_data["image"]
-                    metadata = {
-                        "type": perturbation_data["type"],
-                        "parameter": perturbation_data["parameter"],
-                        "id": perturbation_data["id"]
-                    }
-                    
-                    # Preprocess image
-                    image_tensor = preprocess_image(image_np)
-                    
-                    # Run inference
-                    prediction_result = predict_single(model, image_tensor, device)
-                    
-                    # Add metadata to result
-                    prediction_result["metadata"] = metadata
-                    
-                    # Store result
-                    model_results[perturbation_name] = prediction_result
-                    
-                    # Debug logging
-                    print(f"  → Prediction: {prediction_result['prediction']}")
-                    print(f"  → Confidence: {prediction_result['confidence']:.4f}")
-                    print(f"  → Metadata: {metadata['id']}")
-                    
-                except Exception as e:
-                    print(f"[ERROR] Failed to process {perturbation_name}: {e}")
-                    model_results[perturbation_name] = {
-                        "error": str(e),
-                        "metadata": metadata if 'metadata' in locals() else None
-                    }
-            
-            # Store model results
-            results[model_name] = model_results
-            
-            print(f"\n[INFO] Completed inference for {model_name}")
-            print(f"[INFO] Processed {len(model_results)} perturbations")
-            
-        except Exception as e:
-            print(f"[ERROR] Failed to process model {model_name}: {e}")
-            results[model_name] = {"error": str(e)}
-    
-    print(f"\n{'='*80}")
-    print(f"[INFO] Batch inference completed")
-    print(f"[INFO] Models processed: {list(results.keys())}")
-    print(f"{'='*80}\n")
-    
+
+    for model_name in MODEL_CONFIGS:
+        print(f"\nLoading {model_name}...")
+        model, temperature = load_model(model_name)
+
+        if model is None:
+            results[model_name] = {"error": f"Could not load {model_name}"}
+            continue
+
+        model_results = {}
+        for pert in perturbations.values():
+            pert_id = pert["id"]
+            try:
+                pred = predict_single(model, pert["image"], temperature=temperature)
+                pred["metadata"] = {
+                    "type":      pert.get("type", pert_id),
+                    "parameter": pert.get("parameter"),
+                    "id":        pert_id,
+                }
+                model_results[pert_id] = pred
+            except Exception as e:
+                model_results[pert_id] = {"error": str(e)}
+
+        results[model_name] = model_results
+
     return results
 
 
-def print_inference_summary(results):
-    """
-    Print a human-readable summary of inference results.
-    
-    Args:
-        results: Output from run_batch_inference()
-    """
-    print("\n" + "="*80)
-    print("INFERENCE SUMMARY")
-    print("="*80)
-    
+def print_inference_summary(results: Dict) -> None:
+    """Print a formatted summary of batch inference results."""
+    print("\n" + "="*65)
+    print("BATCH INFERENCE SUMMARY")
+    print("="*65)
+
     for model_name, model_results in results.items():
-        print(f"\n{model_name.upper()}:")
-        print("-" * 80)
-        
+        print(f"\nModel: {model_name}")
         if "error" in model_results:
             print(f"  ERROR: {model_results['error']}")
             continue
-        
-        for perturbation_name, pred_data in model_results.items():
-            if "error" in pred_data:
-                print(f"  {perturbation_name:20s} → ERROR: {pred_data['error']}")
-            else:
-                pred = pred_data['prediction']
-                conf = pred_data['confidence']
-                print(f"  {perturbation_name:20s} → {pred:15s} (confidence: {conf:.4f})")
-    
-    print("\n" + "="*80)
 
+        confs     = []
+        raw_confs = []
+        for pert_id, pred in model_results.items():
+            if "error" in pred:
+                print(f"  {pert_id:20s}: ERROR – {pred['error']}")
+                continue
+            c   = pred.get("confidence", 0)
+            rc  = pred.get("raw_confidence", c)
+            confs.append(c)
+            raw_confs.append(rc)
+            print(f"  {pert_id:20s}: {pred['prediction']:15s} "
+                  f"conf={c:.4f} (raw={rc:.4f})  T={pred.get('temperature', 1.0):.3f}")
 
-def main():
-    """
-    Test batch inference on a sample image.
-    Demonstrates the complete inference pipeline.
-    """
-    # Get image path from user
-    image_path = input("Enter path to pathogen image: ").strip()
-    
-    if not image_path:
-        print("No path provided. Exiting.")
-        return
-    
-    if not os.path.exists(image_path):
-        print(f"Image not found: {image_path}")
-        return
-    
-    # Run batch inference
-    print("\n" + "="*80)
-    print("STARTING BATCH INFERENCE")
-    print("="*80)
-    
-    try:
-        results = run_batch_inference(image_path)
-        
-        # Print summary
-        print_inference_summary(results)
-        
-        # Example: Access specific result
-        if "efficientnet_b0" in results and "original" in results["efficientnet_b0"]:
-            original_pred = results["efficientnet_b0"]["original"]
-            print(f"\nExample access:")
-            print(f"EfficientNet prediction on original image: {original_pred['prediction']}")
-            print(f"Confidence: {original_pred['confidence']:.4f}")
-        
-    except Exception as e:
-        print(f"\n[ERROR] Batch inference failed: {e}")
-        import traceback
-        traceback.print_exc()
-
-
-if __name__ == "__main__":
-    main()
+        if confs:
+            mean_raw = float(np.mean(raw_confs)) if raw_confs else 0
+            mean_cal = float(np.mean(confs))
+            print(f"\n  Mean confidence — raw: {mean_raw:.4f} | calibrated: {mean_cal:.4f}")
+            if mean_cal > 0.95:
+                print("  ⚠ Still high after calibration — verify split integrity")

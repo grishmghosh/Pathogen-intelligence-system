@@ -1,0 +1,32 @@
+{
+  "total_samples": 10,
+  "trust_distribution": {
+    "high": 3,
+    "low": 2,
+    "moderate": 2,
+    "very_high": 2,
+    "critical": 1
+  },
+  "trust_rates": {
+    "high": 0.3,
+    "low": 0.2,
+    "moderate": 0.2,
+    "very_high": 0.2,
+    "critical": 0.1
+  },
+  "downgraded_count": 4,
+  "critical_sample_ids": [
+    "sample_004"
+  ],
+  "very_high_sample_ids": [
+    "sample_001",
+    "sample_002"
+  ],
+  "mean_reliability_by_trust": {
+    "critical": 0.607904,
+    "high": 0.806664,
+    "low": 0.43594,
+    "moderate": 0.71028,
+    "very_high": 0.964036
+  }
+}

@@ -1,0 +1,65 @@
+[
+  {
+    "sample_id": "sample_010",
+    "collapse_trigger": "unknown",
+    "collapse_severity": "clean",
+    "stability_duration": 0,
+    "total_severity_steps": 1,
+    "escalation_speed": 1.0,
+    "instability_score": 0.0
+  },
+  {
+    "sample_id": "sample_004",
+    "collapse_trigger": "unknown",
+    "collapse_severity": "mild",
+    "stability_duration": 1,
+    "total_severity_steps": 4,
+    "escalation_speed": 0.5,
+    "instability_score": 0.9125
+  },
+  {
+    "sample_id": "sample_003",
+    "collapse_trigger": "unknown",
+    "collapse_severity": "mild",
+    "stability_duration": 1,
+    "total_severity_steps": 4,
+    "escalation_speed": 0.5,
+    "instability_score": 0.9125
+  },
+  {
+    "sample_id": "sample_005",
+    "collapse_trigger": "unknown",
+    "collapse_severity": "moderate",
+    "stability_duration": 2,
+    "total_severity_steps": 4,
+    "escalation_speed": 0.333333,
+    "instability_score": 0.441667
+  },
+  {
+    "sample_id": "sample_006",
+    "collapse_trigger": "unknown",
+    "collapse_severity": "moderate",
+    "stability_duration": 2,
+    "total_severity_steps": 4,
+    "escalation_speed": 0.333333,
+    "instability_score": 0.633333
+  },
+  {
+    "sample_id": "sample_007",
+    "collapse_trigger": "unknown",
+    "collapse_severity": "moderate",
+    "stability_duration": 2,
+    "total_severity_steps": 4,
+    "escalation_speed": 0.333333,
+    "instability_score": 0.633333
+  },
+  {
+    "sample_id": "sample_008",
+    "collapse_trigger": "unknown",
+    "collapse_severity": "severe",
+    "stability_duration": 3,
+    "total_severity_steps": 4,
+    "escalation_speed": 0.25,
+    "instability_score": 0.4125
+  }
+]

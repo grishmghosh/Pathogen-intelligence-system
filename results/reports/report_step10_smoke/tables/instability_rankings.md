@@ -1,0 +1,3 @@
+| metric | value |
+| --- | --- |
+| instability | nan |

@@ -1,0 +1,94 @@
+{
+  "reports": [
+    {
+      "schema_name": "experiment_summary",
+      "valid": true,
+      "errors": [],
+      "warnings": [],
+      "missing_keys": [],
+      "extra_keys": []
+    },
+    {
+      "schema_name": "report_manifest",
+      "valid": true,
+      "errors": [],
+      "warnings": [],
+      "missing_keys": [],
+      "extra_keys": [
+        "created_at",
+        "experiment_summary_source",
+        "benchmark_summary_source",
+        "figure_manifest_csv",
+        "figure_manifest_json",
+        "reproducibility_report",
+        "configuration_snapshot",
+        "provenance_manifest",
+        "traceability_summary"
+      ]
+    },
+    {
+      "schema_name": "report_summary",
+      "valid": true,
+      "errors": [],
+      "warnings": [],
+      "missing_keys": [],
+      "extra_keys": [
+        "report_id",
+        "provenance",
+        "reproducibility",
+        "tables",
+        "figures",
+        "narratives",
+        "benchmark_summary",
+        "summary_line",
+        "artifact_counts"
+      ]
+    },
+    {
+      "schema_name": "trust_summary",
+      "valid": true,
+      "errors": [],
+      "warnings": [],
+      "missing_keys": [],
+      "extra_keys": []
+    }
+  ],
+  "compatibility": {
+    "frame": [
+      {
+        "schema_name": "experiment_summary",
+        "valid": true,
+        "missing_key_count": 0,
+        "error_count": 0,
+        "warning_count": 0
+      },
+      {
+        "schema_name": "report_manifest",
+        "valid": true,
+        "missing_key_count": 0,
+        "error_count": 0,
+        "warning_count": 0
+      },
+      {
+        "schema_name": "report_summary",
+        "valid": true,
+        "missing_key_count": 0,
+        "error_count": 0,
+        "warning_count": 0
+      },
+      {
+        "schema_name": "trust_summary",
+        "valid": true,
+        "missing_key_count": 0,
+        "error_count": 0,
+        "warning_count": 0
+      }
+    ],
+    "summary": {
+      "total_schemas": 4,
+      "valid_schemas": 4,
+      "invalid_schemas": 0,
+      "compatibility_score": 100.0
+    }
+  }
+}

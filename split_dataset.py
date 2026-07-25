@@ -1,12 +1,26 @@
+"""
+split_dataset.py  –  Plate-level train/val/test splitter
+=========================================================
+FIX: Previously split at IMAGE level, which allowed images from the
+     SAME plate to appear in both train and test sets — causing severe
+     data leakage and inflated accuracy.
+
+FIX 2: Auto-discovers Plate folders recursively so nested dataset
+        structures (controlled/uncontrolled subfolders) are handled
+        automatically regardless of nesting depth.
+"""
+
 import argparse
 import os
 import random
 import shutil
 from typing import Dict, List, Tuple
+from collections import Counter
 
 # =========================
 # Default configuration
 # =========================
+<<<<<<< HEAD
 # Use environment variables when available, otherwise default to repository-relative paths
 PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
 DEFAULT_INPUT_ROOT = os.getenv(
@@ -17,254 +31,224 @@ DEFAULT_OUTPUT_ROOT = os.getenv(
     "PATHOGEN_SPLIT_OUTPUT_ROOT",
     os.path.join(PROJECT_ROOT, "dataset_split"),
 )
+=======
+DEFAULT_INPUT_ROOT  = r"C:\Pathogen-intelligence-system\data\A Microbiological Image Repository of Escherichia"
+DEFAULT_OUTPUT_ROOT = r"C:\Pathogen-intelligence-system\dataset_split"
+>>>>>>> origin/main
 
 RANDOM_SEED = 42
 TRAIN_RATIO = 0.70
-VAL_RATIO = 0.15
-TEST_RATIO = 0.15
+VAL_RATIO   = 0.15
+TEST_RATIO  = 0.15
 
-IMAGE_EXTENSIONS = {".jpg", ".jpeg", ".png"}
+IMAGE_EXTENSIONS = {".jpg", ".jpeg", ".png", ".JPG", ".HEIC", ".heic"}
 
-# Input class folder -> normalized output class folder
+# Maps top-level source folder name → output class name
 CLASS_NAME_MAP = {
-    "e.coli on BH": "e_coli",
-    "Klebsiella on BH": "k_pneumoniae",
-    "Pseudomonas aeruginosa": "p_aeruginosa",
+    "e.coli on BH":                 "e_coli",
+    "Klebsiella on BH":             "k_pneumoniae",
+    "Pseudomonas aeruginosa on BH": "p_aeruginosa",
+    "Staph On BH":                  "s_aureus",
 }
 
 
+# ---------------------------------------------------------------------------
+# Helpers
+# ---------------------------------------------------------------------------
+
 def is_image_file(filename: str) -> bool:
-    """Return True if file extension is an allowed image extension."""
     _, ext = os.path.splitext(filename)
-    return ext.lower() in IMAGE_EXTENSIONS
+    return ext.lower() in {".jpg", ".jpeg", ".png", ".heic"}
 
 
-def list_plate_directories(class_dir: str) -> List[str]:
-    """List immediate subdirectories (plates) under a class directory."""
-    if not os.path.isdir(class_dir):
-        return []
-    plates = [entry.path for entry in os.scandir(class_dir) if entry.is_dir()]
-    plates.sort()
-    return plates
-
-
-def collect_all_images_from_plates(plate_dirs: List[str]) -> List[Tuple[str, str]]:
+def find_plate_dirs(root: str) -> List[str]:
     """
-    Collect all image file paths from plate directories.
-    
-    Returns:
-        List of tuples (plate_dir, image_relative_path)
+    Recursively find all folders whose name starts with 'Plate'
+    anywhere under root. This handles any nesting depth.
     """
-    all_images = []
-    for plate_dir in plate_dirs:
-        for root, _, files in os.walk(plate_dir):
-            for filename in files:
-                if is_image_file(filename):
-                    rel_path = os.path.relpath(os.path.join(root, filename), plate_dir)
-                    all_images.append((plate_dir, rel_path))
-    return all_images
+    plate_dirs = []
+    for dirpath, dirnames, _ in os.walk(root):
+        for d in dirnames:
+            if d.lower().startswith("plate"):
+                plate_dirs.append(os.path.join(dirpath, d))
+    plate_dirs.sort()
+    return plate_dirs
 
 
-def allocate_image_splits(images: List[Tuple[str, str]]) -> Tuple[List, List, List]:
-    """
-    Split images into train/val/test ensuring minimum 1 image in train and val.
-    
-    Args:
-        images: List of (plate_dir, relative_path) tuples
-        
-    Returns:
-        (train_images, val_images, test_images)
-    """
-    num_images = len(images)
-    
-    if num_images == 0:
+def count_images_in_plate(plate_dir: str) -> int:
+    count = 0
+    for root, _, files in os.walk(plate_dir):
+        count += sum(1 for f in files if is_image_file(f))
+    return count
+
+
+def split_plates(plates: List[str], seed: int) -> Tuple[List[str], List[str], List[str]]:
+    """Split at the PLATE level — no plate ever crosses split boundaries."""
+    rng = random.Random(seed)
+
+    if len(plates) == 0:
         return [], [], []
-    
-    if num_images == 1:
-        # Only 1 image: put in train, leave val/test empty (will warn user)
-        return [images[0]], [], []
-    
-    if num_images == 2:
-        # 2 images: 1 train, 1 val, 0 test
-        return [images[0]], [images[1]], []
-    
-    # For 3+ images, ensure at least 1 in train and 1 in val
-    # Step 1: Compute train count (at least 1, respect ratio)
-    train_count = max(1, int(num_images * TRAIN_RATIO))
-    
-    # Step 2: Compute val count (at least 1, respect ratio)
-    val_count = max(1, int(num_images * VAL_RATIO))
-    
-    # Step 3: Check if train + val exceeds total
-    remaining = num_images - train_count - val_count
+    if len(plates) == 1:
+        print("  [WARN] Only 1 plate — placed entirely in train. Val/test will be empty.")
+        return plates, [], []
+    if len(plates) == 2:
+        return [plates[0]], [plates[1]], []
 
-    if remaining < 0:
-        val_count = max(1, num_images - train_count - 1)
-        remaining = num_images - train_count - val_count
+    rng.shuffle(plates)
+    plates_with_counts = [(p, count_images_in_plate(p)) for p in plates]
+    plates_with_counts.sort(key=lambda x: x[1], reverse=True)
 
-    test_count = remaining
-    
-    # Step 4: Assign remaining to test (guaranteed non-negative)
-    test_count = num_images - train_count - val_count
-    
-    train_images = images[:train_count]
-    val_images = images[train_count:train_count + val_count]
-    test_images = images[train_count + val_count:]
-    
-    return train_images, val_images, test_images
+    n       = len(plates_with_counts)
+    n_train = max(1, round(n * TRAIN_RATIO))
+    n_val   = max(1, round(n * VAL_RATIO))
+    n_test  = max(1, n - n_train - n_val)
 
+    while n_train + n_val + n_test > n:
+        if n_val > 1:   n_val   -= 1
+        elif n_train > 1: n_train -= 1
+        else:             n_test  -= 1
 
-def copy_single_image(plate_src_dir: str, rel_path: str, class_dest_dir: str) -> None:
-    """
-    Copy a single image file preserving its relative structure.
-    
-    Args:
-        plate_src_dir: Source plate directory
-        rel_path: Relative path of image within plate directory
-        class_dest_dir: Destination class directory
-    """
-    plate_name = os.path.basename(plate_src_dir)
-    src_file = os.path.join(plate_src_dir, rel_path)
-    
-    # Preserve plate folder structure
-    dest_file = os.path.join(class_dest_dir, plate_name, rel_path)
-    dest_dir = os.path.dirname(dest_file)
-    
-    os.makedirs(dest_dir, exist_ok=True)
-    shutil.copy2(src_file, dest_file)
+    all_plates = [p for p, _ in plates_with_counts]
+    train_plates, val_plates, test_plates = [], [], []
+
+    # Distribute round-robin so large and small plates are spread evenly
+    buckets = (
+        [train_plates] * n_train +
+        [val_plates]   * n_val   +
+        [test_plates]  * n_test
+    )
+    rng.shuffle(buckets)
+    for plate, bucket in zip(all_plates, buckets):
+        bucket.append(plate)
+
+    return train_plates, val_plates, test_plates
 
 
+def copy_plate(plate_dir: str, class_dest_dir: str) -> int:
+    """Copy all images from plate_dir into class_dest_dir.
+    HEIC files are converted to JPG automatically."""
+    from PIL import Image
+    try:
+        from pillow_heif import register_heif_opener
+        register_heif_opener()
+    except ImportError:
+        print("  [WARN] pillow-heif not installed. HEIC files will be skipped.")
 
+    plate_name = os.path.basename(plate_dir)
+    copied = 0
+    for root, _, files in os.walk(plate_dir):
+        for filename in files:
+            _, ext = os.path.splitext(filename)
+            if ext.lower() not in {".jpg", ".jpeg", ".png", ".heic"}:
+                continue
+            src = os.path.join(root, filename)
+            rel = os.path.relpath(src, plate_dir)
 
+            # Convert HEIC to JPG
+            if ext.lower() == ".heic":
+                rel_jpg = os.path.splitext(rel)[0] + ".jpg"
+                dst = os.path.join(class_dest_dir, plate_name, rel_jpg)
+                os.makedirs(os.path.dirname(dst), exist_ok=True)
+                try:
+                    img = Image.open(src)
+                    img.convert("RGB").save(dst, "JPEG", quality=95)
+                    copied += 1
+                except Exception as e:
+                    print(f"  [WARN] Could not convert {src}: {e}")
+            else:
+                dst = os.path.join(class_dest_dir, plate_name, rel)
+                os.makedirs(os.path.dirname(dst), exist_ok=True)
+                shutil.copy2(src, dst)
+                copied += 1
+    return copied
 
-def prepare_output_structure(output_root: str, normalized_classes: List[str]) -> None:
-    """
-    Prepare split folder tree.
-
-    If output_root exists, print warning and delete it before recreating.
-    """
+def prepare_output_structure(output_root: str, class_names: List[str]) -> None:
     if os.path.exists(output_root):
-        print(f"[WARNING] Output directory already exists and will be deleted: {output_root}")
+        print(f"[WARN] Deleting existing output: {output_root}")
         shutil.rmtree(output_root)
+    for split in ("train", "val", "test"):
+        for cls in class_names:
+            os.makedirs(os.path.join(output_root, split, cls), exist_ok=True)
 
-    for split_name in ("train", "val", "test"):
-        for class_name in normalized_classes:
-            os.makedirs(os.path.join(output_root, split_name, class_name), exist_ok=True)
 
+# ---------------------------------------------------------------------------
+# Main splitter
+# ---------------------------------------------------------------------------
 
 def split_dataset(input_root: str, output_root: str, seed: int) -> None:
-    """Split dataset at IMAGE level and copy images to train/val/test structure."""
     random.seed(seed)
+    class_names = list(set(CLASS_NAME_MAP.values()))
+    prepare_output_structure(output_root, class_names)
 
-    normalized_classes = list(CLASS_NAME_MAP.values())
-    prepare_output_structure(output_root, normalized_classes)
+    grand_total = {"train": 0, "val": 0, "test": 0}
 
-    # Tracking logs
-    per_class_stats: Dict[str, Dict[str, Dict[str, int]]] = {}
-    total_split_images = {"train": 0, "val": 0, "test": 0}
+    for src_cls, out_cls in CLASS_NAME_MAP.items():
+        class_src_dir = os.path.join(input_root, src_cls)
 
-    for src_class_name, out_class_name in CLASS_NAME_MAP.items():
-        class_src_dir = os.path.join(input_root, src_class_name)
-        plate_dirs = list_plate_directories(class_src_dir)
-
-        if not plate_dirs:
-            print(f"[WARNING] No plates found for class '{src_class_name}' at: {class_src_dir}")
-            per_class_stats[out_class_name] = {
-                "train": {"plates": 0, "images": 0},
-                "val": {"plates": 0, "images": 0},
-                "test": {"plates": 0, "images": 0},
-            }
+        if not os.path.isdir(class_src_dir):
+            print(f"[WARN] Source folder not found: {class_src_dir}")
             continue
 
-        # Collect all images from all plates for this class
-        all_images = collect_all_images_from_plates(plate_dirs)
-        
-        if not all_images:
-            print(f"[WARNING] No images found for class '{src_class_name}'")
-            per_class_stats[out_class_name] = {
-                "train": {"plates": 0, "images": 0},
-                "val": {"plates": 0, "images": 0},
-                "test": {"plates": 0, "images": 0},
-            }
+        # Auto-discover all Plate* folders anywhere under this class dir
+        plates = find_plate_dirs(class_src_dir)
+
+        if not plates:
+            print(f"[WARN] No Plate folders found under: {class_src_dir}")
             continue
-        
-        # Shuffle images for random split
-        random.shuffle(all_images)
-        
-        # Split images ensuring minimum requirements
-        train_images, val_images, test_images = allocate_image_splits(all_images)
-        
-        # Warn if validation is empty (only happens with 1 image total)
-        if len(all_images) == 1:
-            print(f"[WARNING] Class '{src_class_name}' has only 1 image. Placing in train only.")
-        
-        class_stats = {
-            "train": {"plates": 0, "images": len(train_images)},
-            "val": {"plates": 0, "images": len(val_images)},
-            "test": {"plates": 0, "images": len(test_images)},
-        }
 
-        # Copy images to respective splits
-        for split_name, split_images in (
-            ("train", train_images),
-            ("val", val_images),
-            ("test", test_images),
-        ):
-            class_dest_dir = os.path.join(output_root, split_name, out_class_name)
-            
-            for plate_dir, rel_path in split_images:
-                copy_single_image(plate_dir, rel_path, class_dest_dir)
-            
-            total_split_images[split_name] += len(split_images)
+        train_plates, val_plates, test_plates = split_plates(plates, seed)
 
-        per_class_stats[out_class_name] = class_stats
+        print(f"\nClass: {out_cls}  ({len(plates)} plates found under '{src_cls}')")
+        print(f"  Train: {len(train_plates)} plates")
+        print(f"  Val:   {len(val_plates)} plates")
+        print(f"  Test:  {len(test_plates)} plates")
 
-    # =========================
-    # Logs
-    # =========================
-    print("\n=== Per-class split summary (image-level splitting) ===")
-    for class_name in sorted(per_class_stats.keys()):
-        stats = per_class_stats[class_name]
-        print(f"\nClass: {class_name}")
-        print(f"  Train -> images: {stats['train']['images']}")
-        print(f"  Val   -> images: {stats['val']['images']}")
-        print(f"  Test  -> images: {stats['test']['images']}")
+        for split_name, split_plates_list in [
+            ("train", train_plates),
+            ("val",   val_plates),
+            ("test",  test_plates),
+        ]:
+            dest = os.path.join(output_root, split_name, out_cls)
+            n_images = 0
+            for plate in split_plates_list:
+                n_images += copy_plate(plate, dest)
+            grand_total[split_name] += n_images
+            print(f"    {split_name}: {n_images} images copied")
 
-    total_images = sum(total_split_images.values())
+    total = sum(grand_total.values())
+    print("\n=== Final totals ===")
+    for split_name, cnt in grand_total.items():
+        pct = 100 * cnt / total if total else 0
+        print(f"  {split_name}: {cnt} images ({pct:.1f}%)")
+    print(f"  TOTAL: {total} images")
+    print(f"\nOutput: {output_root}")
+    print("\n[NOTE] Split is at the PLATE level — no leakage between splits.")
 
-    print("\n=== Split totals ===")
-    print(f"Train -> images: {total_split_images['train']}")
-    print(f"Val   -> images: {total_split_images['val']}")
-    print(f"Test  -> images: {total_split_images['test']}")
-
-    print("\n=== Dataset total ===")
-    print(f"Total images copied: {total_images}")
-    print(f"\nOutput directory: {output_root}")
+    # Warn if val class distribution is badly skewed
+    for split_name in ("val", "test"):
+        counts = {}
+        split_dir = os.path.join(output_root, split_name)
+        for cls in class_names:
+            cls_dir = os.path.join(split_dir, cls)
+            n = sum(
+                1 for root, _, files in os.walk(cls_dir)
+                for f in files if is_image_file(f)
+            )
+            counts[cls] = n
+        if sum(counts.values()) > 0:
+            mx = max(counts.values())
+            total_split = sum(counts.values())
+            if mx / total_split > 0.8:
+                print(f"[WARN] {split_name} set is >80% one class: {counts}")
 
 
 def parse_args() -> argparse.Namespace:
-    """Parse command-line arguments."""
     parser = argparse.ArgumentParser(
-        description="Split image dataset at IMAGE level into train/val/test ensuring minimum images per split."
+        description="Split pathogen image dataset at PLATE level (no leakage)."
     )
-    parser.add_argument(
-        "--input-root",
-        type=str,
-        default=DEFAULT_INPUT_ROOT,
-        help="Input dataset root path.",
-    )
-    parser.add_argument(
-        "--output-root",
-        type=str,
-        default=DEFAULT_OUTPUT_ROOT,
-        help="Output split dataset root path.",
-    )
-    parser.add_argument(
-        "--seed",
-        type=int,
-        default=RANDOM_SEED,
-        help="Random seed for plate shuffling.",
-    )
+    parser.add_argument("--input-root",  default=DEFAULT_INPUT_ROOT)
+    parser.add_argument("--output-root", default=DEFAULT_OUTPUT_ROOT)
+    parser.add_argument("--seed", type=int, default=RANDOM_SEED)
     return parser.parse_args()
 
 
