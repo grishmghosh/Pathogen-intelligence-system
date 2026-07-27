@@ -1,0 +1,25 @@
+# Train Swin Transformer (saves checkpoints/swin_t_best.pth)
+uv run python training/train_swin.py
+
+# Train ConvNeXt-Tiny (saves checkpoints/convnext_tiny_best.pth)
+uv run python training/train_convnext.py
+
+To generate temp calibration:-
+# Calibrates temperature scaling parameters (T) for all 4 models
+uv run python generate_resnet_temp.py
+
+To Generate Evaluation Graphs & Figures:-
+# Generates 22+ diagnostic graphs in results/evaluation/
+# (Confusion Matrices, ROC Curves, PR Curves, Confidence Distributions, Misclassification Heatmaps)
+uv run python run_full_eval.py
+
+# Generates Reliability Diagrams and Calibration Curves:-
+uv run python visualization/test_visualization_e2e.py
+
+To Run Multi-Seed Statistical Significance Testing ("The Random Seed Thing"):-
+# Runs 5-seed evaluation, paired t-tests, Wilcoxon tests, 95% CIs, and exports publication tables
+uv run python experiments/run_statistical_benchmark.py --image "/path/to/image.png"
+
+To Run the Single-Image Diagnostic Demo:-
+# Runs single-image pipeline test across all 4 models
+uv run python test_intelligence_pipeline.py --image "/path/to/image.png"

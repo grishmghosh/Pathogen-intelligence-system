@@ -76,6 +76,15 @@ def test_intelligence_pipeline(image_path: str, checkpoint_dir: Optional[str] = 
     try:
         robustness_report = generate_robustness_report(inference_results)
         print_robustness_summary(robustness_report)
+
+        from analysis.robustness_analyzer import print_sensitivity_summary
+        components_dict = {
+            m: data["robustness_score"]["components"]
+            for m, data in robustness_report.items()
+            if "robustness_score" in data and "components" in data["robustness_score"]
+        }
+        if components_dict:
+            print_sensitivity_summary(components_dict)
     except Exception as exc:
         print(f"\n[ERROR] Robustness analysis failed: {exc}")
         import traceback

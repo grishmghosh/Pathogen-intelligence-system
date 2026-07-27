@@ -67,6 +67,8 @@ OUTPUT_DIRS = [
 MODEL_COLORS = {
     "efficientnet_b0": "#2196F3",
     "resnet50": "#FF5722",
+    "swin_t": "#4CAF50",
+    "convnext_tiny": "#9C27B0",
     "default_0": "#4CAF50",
     "default_1": "#9C27B0",
     "default_2": "#FF9800",
@@ -252,7 +254,7 @@ def extract_inference_dataframe(inference_results):
 
     Columns produced:
         model, perturbation, prediction, confidence, predicted_idx,
-        perturbation_type, perturbation_parameter
+        perturbation_type, perturbation_parameter, true_label, correct
 
     Args:
         inference_results: Dict returned by run_batch_inference()
@@ -265,18 +267,30 @@ def extract_inference_dataframe(inference_results):
         if isinstance(model_data, dict) and "error" in model_data:
             continue
         for pert_name, pert_data in model_data.items():
-            if "error" in pert_data:
+            if isinstance(pert_data, dict) and "error" in pert_data:
                 continue
-            metadata = pert_data.get("metadata", {})
-            rows.append({
-                "model": model_name,
-                "perturbation": pert_name,
-                "prediction": pert_data.get("prediction"),
-                "confidence": pert_data.get("confidence"),
-                "predicted_idx": pert_data.get("predicted_idx"),
-                "perturbation_type": metadata.get("type", "none"),
-                "perturbation_parameter": metadata.get("parameter"),
-            })
+
+            items = pert_data if isinstance(pert_data, list) else [pert_data]
+            for idx, item in enumerate(items):
+                if not isinstance(item, dict) or "error" in item:
+                    continue
+                metadata = item.get("metadata", {})
+                sample_id = item.get("sample_id", metadata.get("sample_id", f"sample_{idx:04d}"))
+                row = {
+                    "model": model_name,
+                    "perturbation": pert_name,
+                    "sample_id": sample_id,
+                    "prediction": item.get("prediction"),
+                    "confidence": item.get("confidence"),
+                    "predicted_idx": item.get("predicted_idx"),
+                    "perturbation_type": metadata.get("type", "none"),
+                    "perturbation_parameter": metadata.get("parameter"),
+                }
+                if "true_label" in item:
+                    row["true_label"] = item["true_label"]
+                if "correct" in item:
+                    row["correct"] = item["correct"]
+                rows.append(row)
 
     if not rows:
         logger.warning("No valid data found in inference results.")

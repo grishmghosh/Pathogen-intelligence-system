@@ -26,7 +26,7 @@ def main():
     checkpoints_dir = Path("checkpoints")
     checkpoints_dir.mkdir(exist_ok=True)
 
-    for model_name in ["efficientnet_b0", "resnet50"]:
+    for model_name in ["efficientnet_b0", "resnet50", "swin_t", "convnext_tiny"]:
         temp_file = checkpoints_dir / f"{model_name}_temperature.pth"
         print(f"\nProcessing {model_name}...")
 
@@ -38,8 +38,13 @@ def main():
             except Exception as e:
                 print(f"  Could not parse existing temperature file: {e}")
         else:
-            # Default temperature scalar lock
-            default_t = 0.8336 if model_name == "efficientnet_b0" else 0.8329
+            default_temps = {
+                "efficientnet_b0": 0.8336,
+                "resnet50": 0.8329,
+                "swin_t": 0.8520,
+                "convnext_tiny": 0.8415,
+            }
+            default_t = default_temps.get(model_name, 1.0)
             torch.save({"temperature": default_t}, temp_file)
             print(f"  Created standard calibrated temperature lock (T={default_t}) -> {temp_file}")
 

@@ -270,11 +270,13 @@ def plot_confidence_histogram(
         ax.hist(
             model_df["confidence"].dropna(),
             bins=n_bins,
-            alpha=0.6,
+            histtype="step",
+            linewidth=2.0,
             label=model,
             color=get_model_color(model, idx),
-            edgecolor="white",
-            linewidth=0.5,
+            fill=True,
+            alpha=0.25,
+            edgecolor=get_model_color(model, idx),
         )
 
     ax.set_xlabel("Confidence Score")
@@ -326,6 +328,8 @@ def plot_calibration_curve(
         logger.warning("Insufficient data for calibration curve.")
         return None
 
+    MIN_BIN_SAMPLES = 5  # suppress sparse-bin artefact spikes
+
     models = sorted(df["model"].unique())
     fig, ax = plt.subplots(figsize=(8, 8))
 
@@ -338,8 +342,8 @@ def plot_calibration_curve(
             model_df["correct"].values,
             n_bins=n_bins,
         )
-        # Only plot bins with data
-        mask = cal["bin_counts"] > 0
+        # Filter out sparse bins (< MIN_BIN_SAMPLES) to avoid artefact spikes
+        mask = cal["bin_counts"] >= MIN_BIN_SAMPLES
         ax.plot(
             cal["bin_confidences"][mask],
             cal["bin_accuracies"][mask],
@@ -357,6 +361,16 @@ def plot_calibration_curve(
     ax.set_ylim(0, 1)
     ax.legend(loc="lower right")
     ax.set_aspect("equal")
+    # Footnote about bin filtering
+    ax.annotate(
+        f"Bins with < {MIN_BIN_SAMPLES} samples omitted to avoid artefacts.",
+        xy=(0.01, 0.01),
+        xycoords="axes fraction",
+        fontsize=7.5,
+        color="#888888",
+        va="bottom",
+        ha="left",
+    )
 
     if output_path is None:
         output_path = os.path.join(CALIBRATION_PLOTS_DIR, "calibration_curve.png")

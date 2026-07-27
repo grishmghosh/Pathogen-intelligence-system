@@ -8,7 +8,10 @@ def build_resnet50(num_classes=4):
     """Build a pretrained ResNet-50 and adapt it for the target class count."""
     model = models.resnet50(weights=ResNet50_Weights.IMAGENET1K_V2)
     in_features = model.fc.in_features
-    model.fc = nn.Linear(in_features, num_classes)
+    model.fc = nn.Sequential(
+        nn.Dropout(p=0.5),
+        nn.Linear(in_features, num_classes),
+    )
     return model
 
 

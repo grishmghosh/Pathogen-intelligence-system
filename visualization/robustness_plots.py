@@ -92,20 +92,24 @@ def plot_accuracy_vs_severity(
     # Derive prediction_changed if not present
     if "prediction_changed" not in df.columns:
         if "perturbation" in df.columns and "prediction" in df.columns and "model" in df.columns:
-            original_preds = (
-                df[df["perturbation"] == "original"]
-                .set_index("model")["prediction"]
-                .to_dict()
-            )
-            if original_preds:
-                df = df.copy()
+            df = df.copy()
+            if "sample_id" in df.columns:
+                orig_df = df[df["perturbation"] == "original"].drop_duplicates(subset=["model", "sample_id"])
+                original_preds = orig_df.set_index(["model", "sample_id"])["prediction"].to_dict()
+                df["prediction_changed"] = df.apply(
+                    lambda row: row["prediction"] != original_preds.get((row["model"], row["sample_id"])),
+                    axis=1,
+                )
+            else:
+                original_preds = (
+                    df[df["perturbation"] == "original"]
+                    .set_index("model")["prediction"]
+                    .to_dict()
+                )
                 df["prediction_changed"] = df.apply(
                     lambda row: row["prediction"] != original_preds.get(row["model"]),
                     axis=1,
                 )
-            else:
-                logger.warning("No original predictions found; cannot derive accuracy.")
-                return None
         else:
             logger.warning("Column 'prediction_changed' missing and cannot be derived.")
             return None
@@ -149,6 +153,20 @@ def plot_accuracy_vs_severity(
     ax.set_ylim(0, 110)
     ax.legend(title="Model")
     ax.yaxis.grid(True, alpha=0.3)
+
+    # Annotate that 'original' = self-comparison baseline, not test-set accuracy
+    if "original" in ordered_perts:
+        ax.annotate(
+            "\u2139\ufe0f 'original' bars show self-consistency (100% by definition),\n"
+            "not test-set accuracy. Perturbation bars show consistency vs. original prediction.",
+            xy=(0.01, 0.01),
+            xycoords="axes fraction",
+            fontsize=8,
+            color="#666666",
+            va="bottom",
+            ha="left",
+            bbox=dict(boxstyle="round,pad=0.3", facecolor="#f5f5f5", edgecolor="#cccccc", alpha=0.85),
+        )
 
     if output_path is None:
         output_path = os.path.join(ROBUSTNESS_PLOTS_DIR, "accuracy_vs_severity.png")
@@ -268,12 +286,14 @@ def plot_model_comparison(
             scores = model_report.get("robustness_score", {})
             if "error" in scores:
                 continue
+            comps = scores.get("components", {})
             records.append({
                 "model": model_name,
                 "Robustness": scores.get("robustness_score", 0),
-                "Consistency": scores.get("consistency_score", 0),
-                "Stability": scores.get("stability_score", 0),
-                "Resistance": scores.get("resistance_score", 0),
+                "Consistency": comps.get("consistency_score", scores.get("consistency_score", 0)),
+                "Stability": comps.get("stability_score", scores.get("stability_score", 0)),
+                "Resistance": comps.get("resistance_score", scores.get("resistance_score", 0)),
+                "Calibration": comps.get("calibration_score", scores.get("calibration_score", 0)),
             })
     elif csv_path is not None:
         df_csv = load_csv_safe(csv_path)
@@ -287,14 +307,14 @@ def plot_model_comparison(
         return None
 
     df = pd.DataFrame(records)
-    metrics = ["Robustness", "Consistency", "Stability", "Resistance"]
+    metrics = ["Robustness", "Consistency", "Stability", "Resistance", "Calibration"]
+    metrics = [m for m in metrics if m in df.columns]
     models = df["model"].tolist()
 
     x = np.arange(len(metrics))
     width = 0.8 / max(len(models), 1)
 
     fig, ax = plt.subplots(figsize=(12, 6))
-    palette = ["#2196F3", "#FF5722", "#4CAF50", "#9C27B0", "#FF9800", "#00BCD4"]
 
     for i, model in enumerate(models):
         values = [df.loc[df["model"] == model, m].values[0] for m in metrics]
@@ -304,7 +324,7 @@ def plot_model_comparison(
             values,
             width,
             label=model,
-            color=palette[i % len(palette)],
+            color=get_model_color(model, i),
             edgecolor="white",
             linewidth=0.5,
         )
@@ -393,7 +413,7 @@ def plot_per_class_robustness_degradation(
     ax.set_ylabel("Mean Confidence")
     ax.set_title(title)
     ax.set_ylim(0, 1.05)
-    ax.legend(title="Predicted Class", loc="lower left")
+    ax.legend(title="Predicted Class Confidence", loc="lower left")
     ax.yaxis.grid(True, alpha=0.3)
     plt.xticks(rotation=30, ha="right")
 

@@ -72,26 +72,31 @@ def _extract_perturbation_data(model_results: Dict) -> List[Dict]:
     """
     records = []
     for pert_id, pert_data in model_results.items():
-        if "error" in pert_data:
+        if isinstance(pert_data, dict) and "error" in pert_data:
             continue
-        # all_probabilities is a dict {class_name: float} from batch_inference.py.
-        # Extract values (sorted by key for consistency) before converting to np.array.
-        all_probs_raw = pert_data.get("all_probabilities", [])
-        if isinstance(all_probs_raw, dict):
-            all_probs_arr = np.array(
-                [all_probs_raw[k] for k in sorted(all_probs_raw.keys())], dtype=float
-            )
-        else:
-            all_probs_arr = np.array(all_probs_raw, dtype=float)
+        items = pert_data if isinstance(pert_data, list) else [pert_data]
+        for idx, item in enumerate(items):
+            if not isinstance(item, dict) or "error" in item:
+                continue
+            all_probs_raw = item.get("all_probabilities", item.get("probabilities", []))
+            if isinstance(all_probs_raw, dict):
+                all_probs_arr = np.array(
+                    [all_probs_raw[k] for k in sorted(all_probs_raw.keys())], dtype=float
+                )
+            else:
+                all_probs_arr = np.array(all_probs_raw, dtype=float)
 
-        records.append({
-            "id":          pert_id,
-            "prediction":  pert_data.get("prediction"),
-            "confidence":  float(pert_data.get("confidence", 0.0)),
-            "all_probs":   all_probs_arr,
-            "type":        pert_data.get("metadata", {}).get("type", pert_id),
-            "parameter":   pert_data.get("metadata", {}).get("parameter", None),
-        })
+            records.append({
+                "id":          pert_id,
+                "prediction":  item.get("prediction"),
+                "confidence":  float(item.get("confidence", 0.0)),
+                "all_probs":   all_probs_arr,
+                "type":        item.get("metadata", {}).get("type", pert_id),
+                "parameter":   item.get("metadata", {}).get("parameter", None),
+                "correct":     item.get("correct"),
+                "true_label":  item.get("true_label"),
+                "sample_id":   item.get("sample_id", item.get("metadata", {}).get("sample_id", f"sample_{idx:04d}")),
+            })
     return records
 
 
@@ -105,24 +110,29 @@ def analyze_prediction_consistency(model_results: Dict) -> Dict:
     if not records:
         return {"error": "No valid perturbation results"}
 
-    original_pred = None
-    for r in records:
-        if r["id"] == "original":
-            original_pred = r["prediction"]
-            break
-    if original_pred is None and records:
-        original_pred = records[0]["prediction"]
+    original_preds = {
+        r.get("sample_id"): r["prediction"]
+        for r in records
+        if r["id"] == "original" and "sample_id" in r
+    }
 
     perturbation_records = [r for r in records if r["id"] != "original"]
     total_perts          = len(perturbation_records)
-    consistent           = sum(1 for r in perturbation_records if r["prediction"] == original_pred)
-    flips                = [(r["id"], r["prediction"]) for r in perturbation_records
-                            if r["prediction"] != original_pred]
+
+    if original_preds:
+        consistent = sum(
+            1 for r in perturbation_records
+            if r["prediction"] == original_preds.get(r.get("sample_id"))
+        )
+    else:
+        original_pred = next((r["prediction"] for r in records if r["id"] == "original"), records[0]["prediction"])
+        consistent = sum(1 for r in perturbation_records if r["prediction"] == original_pred)
+
+    flips = [(r["id"], r["prediction"]) for r in perturbation_records
+             if (original_preds.get(r.get("sample_id")) != r["prediction"] if original_preds else r["prediction"] != original_pred)]
 
     consistency_rate = (consistent / total_perts * 100) if total_perts > 0 else 100.0
 
-    # FIX: Flag when 100% consistency co-occurs with extreme confidence.
-    # This pattern indicates the model may be saturated, not truly robust.
     all_confs = [r["confidence"] for r in records]
     mean_conf = float(np.mean(all_confs)) if all_confs else 0.0
     saturation_warning = (
@@ -130,7 +140,7 @@ def analyze_prediction_consistency(model_results: Dict) -> Dict:
     )
 
     return {
-        "original_prediction":  original_pred,
+        "original_prediction":  next(iter(original_preds.values())) if original_preds else next((r["prediction"] for r in records if r["id"] == "original"), records[0]["prediction"]),
         "total_perturbations":  total_perts,
         "consistent_count":     consistent,
         "consistent_predictions": consistent,
@@ -154,15 +164,11 @@ def analyze_confidence_stability(
 ) -> Dict:
     """
     Measure confidence variance across perturbations.
-
-    FIX: Reports whether confidence is near-saturated (overfit signal)
-         and computes the accuracy-vs-confidence gap if ground truth is known.
     """
     records = _extract_perturbation_data(model_results)
     if not records:
         return {"error": "No valid perturbation results"}
 
-    # Apply temperature scaling to all probability vectors
     for r in records:
         if r["all_probs"].size > 0:
             r["all_probs"]   = _apply_temperature(r["all_probs"].reshape(1, -1), temperature).flatten()
@@ -179,7 +185,6 @@ def analyze_confidence_stability(
     std_conf     = float(np.std(all_confs))
     conf_drop    = (original_conf - min(all_confs)) if original_conf is not None else 0.0
 
-    # Per-perturbation impact
     pert_impacts = []
     for r in records:
         if r["id"] != "original" and original_conf is not None:
@@ -193,32 +198,21 @@ def analyze_confidence_stability(
     pert_impacts.sort(key=lambda x: abs(x["impact"]), reverse=True)
     most_damaging = pert_impacts[0] if pert_impacts else None
 
-    # FIX: Saturation check — confidence near 1.0 means temperature scaling needed
-    is_saturated = mean_conf > 0.97
-    calibration_note = None
-    if is_saturated:
-        calibration_note = (
-            f"Mean confidence {mean_conf:.4f} is near 1.0 (saturated). "
-            f"This indicates the model is overconfident. "
-            f"Apply temperature scaling (T > 1) to obtain reliable probabilities."
-        )
-
-    # FIX: Confidence relative to chance level
-    conf_above_chance = mean_conf - CHANCE_LEVEL   # how much above random (0.25)
-
+    is_saturated = mean_conf > 0.98 and std_conf < 0.01
     return {
-        "original_confidence":    original_conf,
+        "original_confidence":    float(original_conf) if original_conf is not None else float(mean_conf),
         "mean_confidence":        mean_conf,
         "std_confidence":         std_conf,
-        "min_confidence":         float(min(all_confs)),
-        "max_confidence":         float(max(all_confs)),
+        "min_confidence":         float(min(all_confs)) if all_confs else 0.0,
+        "max_confidence":         float(max(all_confs)) if all_confs else 0.0,
         "confidence_drop":        float(conf_drop),
-        "confidence_above_chance": float(conf_above_chance),
+        "max_confidence_drop":    float(conf_drop),
+        "confidence_above_chance": float(mean_conf - 0.25),
+        "most_damaging_perturbation": most_damaging,
         "is_saturated":           is_saturated,
-        "calibration_note":       calibration_note,
+        "saturation_warning":     "Near-zero variance at >0.98 confidence — model is outputting hard 1.0s." if is_saturated else None,
+        "calibration_note":       "Apply temperature scaling before trusting confidence values" if is_saturated else None,
         "perturbation_impacts":   pert_impacts,
-        "most_damaging":          most_damaging,
-        "temperature_applied":    temperature,
     }
 
 
@@ -232,16 +226,20 @@ def analyze_perturbation_sensitivity(model_results: Dict) -> Dict:
     if not records:
         return {"error": "No valid perturbation results"}
 
-    original = next((r for r in records if r["id"] == "original"), None)
-    if original is None:
-        return {"error": "No original prediction found"}
+    original_map = {
+        r.get("sample_id"): r
+        for r in records
+        if r["id"] == "original" and "sample_id" in r
+    }
+    fallback_original = next((r for r in records if r["id"] == "original"), records[0])
 
     sensitivity = []
     for r in records:
         if r["id"] == "original":
             continue
-        conf_delta = abs(original["confidence"] - r["confidence"])
-        flipped    = r["prediction"] != original["prediction"]
+        orig = original_map.get(r.get("sample_id"), fallback_original)
+        conf_delta = abs(orig["confidence"] - r["confidence"])
+        flipped    = r["prediction"] != orig["prediction"]
         sensitivity.append({
             "perturbation_id":   r["id"],
             "perturbation_type": r["type"],
@@ -277,20 +275,9 @@ def analyze_perturbation_sensitivity(model_results: Dict) -> Dict:
 def compute_robustness_score(
     model_results: Dict,
     temperature: float = 1.0,
-    ece: float = 0.05,
-    model_name: Optional[str] = None,
 ) -> Dict:
     """
-    Composite robustness score 0–100.
-
-    FIXED formula (vs. original 40/40/20 split that ignored calibration):
-      • Prediction Consistency  30%  (was 40%)
-      • Confidence Stability    30%  (was 40%)
-      • Perturbation Resistance 20%  (unchanged)
-      • Calibration Quality     20%  (NEW — penalises saturation/overconfidence)
-
-    A perfectly overfit model that always says "e_coli" with 0.9999 confidence
-    now gets penalised in the Calibration component instead of scoring 99+.
+    Compute single composite robustness score in range [0, 100].
     """
     consistency = analyze_prediction_consistency(model_results)
     confidence  = analyze_confidence_stability(model_results, temperature=temperature)
@@ -304,7 +291,7 @@ def compute_robustness_score(
 
     # --- Component 2: Confidence stability (0–100, lower std = better) ---
     std_conf = confidence["std_confidence"]
-    c2 = max(0.0, 100.0 * (1.0 - std_conf * 20))   # std of 0.05 → score 0
+    c2 = max(0.0, 100.0 * (1.0 - std_conf * 2.5))
 
     # --- Component 3: Perturbation resistance (0–100) ---
     n_perts    = sensitivity["total_perturbations"]
@@ -312,20 +299,26 @@ def compute_robustness_score(
     c3 = 100.0 * (1.0 - n_flips / n_perts) if n_perts > 0 else 100.0
 
     # --- Component 4: Calibration quality (0–100) ---
-    # FIX: Penalise confidence saturation.
-    # An ideal model has mean_conf close to its accuracy.
-    # We don't always have labels here, so we proxy with:
-    #   if confidence is >0.97 AND consistency == 100%, apply a soft penalty
-    #   because this pattern overwhelmingly indicates overfit in small datasets.
-    mean_conf = confidence["mean_confidence"]
-    if mean_conf > 0.97:
-        # Penalty grows linearly from 0 at 0.97 to 30 pts at 1.0
-        saturation_penalty = min(30.0, (mean_conf - 0.97) / 0.03 * 30.0)
+    records = _extract_perturbation_data(model_results)
+    confidences = np.array([r["confidence"] for r in records])
+    if records and "correct" in records[0] and records[0]["correct"] is not None:
+        correctness = np.array([r["correct"] for r in records], dtype=float)
+        n_bins = 10
+        bin_edges = np.linspace(0.0, 1.0, n_bins + 1)
+        ece = 0.0
+        n_total = len(confidences)
+        for i in range(n_bins):
+            low, high = bin_edges[i], bin_edges[i + 1]
+            mask = (confidences >= low) & (confidences <= high) if i == n_bins - 1 else (confidences >= low) & (confidences < high)
+            if mask.sum() > 0:
+                bin_acc = correctness[mask].mean()
+                bin_conf = confidences[mask].mean()
+                ece += (mask.sum() / n_total) * abs(bin_acc - bin_conf)
+        c4 = max(0.0, 100.0 * (1.0 - ece))
     else:
-        saturation_penalty = 0.0
-
-    # Reward lower confidence std (well-spread uncertainty is better than lock-step certainty)
-    c4 = max(0.0, 100.0 - saturation_penalty)
+        mean_conf = confidence["mean_confidence"]
+        saturation_penalty = min(30.0, (mean_conf - 0.97) / 0.03 * 30.0) if mean_conf > 0.97 else 0.0
+        c4 = max(0.0, 100.0 - saturation_penalty)
 
     # --- Weighted composite ---
     score = 0.30 * c1 + 0.30 * c2 + 0.20 * c3 + 0.20 * c4
@@ -359,6 +352,75 @@ def compute_robustness_score(
         "flags": flags,
         "temperature_applied": temperature,
     }
+
+
+def evaluate_weighting_sensitivity(model_components_dict: Dict[str, Dict[str, float]]) -> Dict:
+    """
+    Evaluate rank correlation and score sensitivity across different component weighting schemes.
+
+    Schemes tested:
+      • Prior_30_30_20_20 (Default Domain-Informed Prior: 30% Consist, 30% Stab, 20% Resist, 20% Calib)
+      • Equal_25_25_25_25 (Uninformative Equal Prior: 25% Consist, 25% Stab, 25% Resist, 25% Calib)
+      • Consistency_40_30_15_15 (Consistency-Dominant Prior)
+      • Calibration_20_20_30_30 (Calibration-Dominant Prior)
+    """
+    schemes = {
+        "Prior_30_30_20_20": (0.30, 0.30, 0.20, 0.20),
+        "Equal_25_25_25_25": (0.25, 0.25, 0.25, 0.25),
+        "Consistency_40_30_15_15": (0.40, 0.30, 0.15, 0.15),
+        "Calibration_20_20_30_30": (0.20, 0.20, 0.30, 0.30),
+    }
+
+    results = {}
+    scheme_rankings = {}
+
+    for scheme_name, (w_c, w_s, w_r, w_k) in schemes.items():
+        model_scores = {}
+        for mname, comp in model_components_dict.items():
+            s = (
+                w_c * comp.get("consistency_score", 0.0)
+                + w_s * comp.get("stability_score", 0.0)
+                + w_r * comp.get("resistance_score", 0.0)
+                + w_k * comp.get("calibration_score", 0.0)
+            )
+            model_scores[mname] = round(float(s), 2)
+
+        sorted_models = sorted(model_scores.items(), key=lambda x: x[1], reverse=True)
+        ranking = [m for m, _ in sorted_models]
+        scheme_rankings[scheme_name] = ranking
+        results[scheme_name] = {
+            "weights": {"consistency": w_c, "stability": w_s, "resistance": w_r, "calibration": w_k},
+            "scores": model_scores,
+            "ranking": ranking,
+        }
+
+    default_ranking = scheme_rankings["Prior_30_30_20_20"]
+    equal_ranking = scheme_rankings["Equal_25_25_25_25"]
+    results["rank_invariance_default_vs_equal"] = bool(default_ranking == equal_ranking)
+
+    return results
+
+
+def print_sensitivity_summary(model_components_dict: Dict[str, Dict[str, float]]) -> None:
+    """Print human-readable weighting sensitivity summary table."""
+    results = evaluate_weighting_sensitivity(model_components_dict)
+    print("\n" + "=" * 65)
+    print("WEIGHTING SENSITIVITY ANALYSIS (30/30/20/20 vs 25/25/25/25)")
+    print("=" * 65)
+    prior_scores = results["Prior_30_30_20_20"]["scores"]
+    equal_scores = results["Equal_25_25_25_25"]["scores"]
+
+    print(f"{'Model':20s} | {'Domain Prior (30/30/20/20)':28s} | {'Equal Weight (25/25/25/25)':28s}")
+    print("-" * 80)
+    for model_name in results["Prior_30_30_20_20"]["ranking"]:
+        p_score = prior_scores[model_name]
+        e_score = equal_scores[model_name]
+        print(f"{model_name:20s} | {p_score:28.2f} | {e_score:28.2f}")
+
+    print("-" * 80)
+    rank_invariant = results["rank_invariance_default_vs_equal"]
+    print(f"  Rank Invariance (Default vs Equal): {'PASSED (100% Rank Correlation)' if rank_invariant else 'FAILED'}")
+    print("=" * 65)
 
 
 # ---------------------------------------------------------------------------

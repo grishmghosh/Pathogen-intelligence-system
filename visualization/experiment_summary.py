@@ -103,6 +103,7 @@ def generate_experiment_summary(
                 continue
 
             scores = model_report.get("robustness_score", {})
+            comps = scores.get("components", {})
             consistency = model_report.get("consistency_analysis", {})
             confidence = model_report.get("confidence_analysis", {})
             sensitivity = model_report.get("sensitivity_analysis", {})
@@ -111,9 +112,10 @@ def generate_experiment_summary(
             stats = {
                 "robustness_score": robustness_score,
                 "interpretation": scores.get("interpretation", "Unknown"),
-                "consistency_score": scores.get("consistency_score", 0),
-                "stability_score": scores.get("stability_score", 0),
-                "resistance_score": scores.get("resistance_score", 0),
+                "consistency_score": comps.get("consistency_score", scores.get("consistency_score", 0)),
+                "stability_score": comps.get("stability_score", scores.get("stability_score", 0)),
+                "resistance_score": comps.get("resistance_score", scores.get("resistance_score", 0)),
+                "calibration_score": comps.get("calibration_score", scores.get("calibration_score", 0)),
                 "consistency_rate": consistency.get("consistency_rate", 0),
                 "original_confidence": confidence.get("original_confidence", 0),
                 "mean_confidence": confidence.get("mean_confidence", 0),

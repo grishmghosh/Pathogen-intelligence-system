@@ -195,15 +195,20 @@ def plot_severity_vs_instability_heatmap(
     pivot = pivot.reindex(ordered + remaining)
 
     fig, ax = plt.subplots(figsize=(max(8, len(pivot.columns) * 3), max(6, len(pivot) * 0.8)))
+
+    # Use diverging colourmap so negative values (conf. increased) show distinct colour
+    abs_max = pivot.abs().max().max()
     sns.heatmap(
         pivot,
         annot=True,
         fmt=".4f",
-        cmap="YlOrRd",
-        vmin=0,
+        cmap="RdYlGn_r",
+        center=0,
+        vmin=-abs_max,
+        vmax=abs_max,
         linewidths=0.5,
         linecolor="white",
-        cbar_kws={"label": "Confidence Drop"},
+        cbar_kws={"label": "Confidence Change (positive = drop)"},
         ax=ax,
     )
     ax.set_xlabel("Model")
@@ -328,25 +333,32 @@ def _ensure_flip_column(df):
         return df
     if "prediction_changed" in df.columns:
         return df
-    # Derive from comparing predictions to original per model
+    # Derive from comparing predictions to original per model/sample
     if "perturbation" in df.columns and "prediction" in df.columns and "model" in df.columns:
         df = df.copy()
-        original_preds = (
-            df[df["perturbation"] == "original"]
-            .set_index("model")["prediction"]
-            .to_dict()
-        )
-        if original_preds:
+        if "sample_id" in df.columns:
+            orig_df = df[df["perturbation"] == "original"].drop_duplicates(subset=["model", "sample_id"])
+            original_preds = orig_df.set_index(["model", "sample_id"])["prediction"].to_dict()
+            df["prediction_changed"] = df.apply(
+                lambda row: row["prediction"] != original_preds.get((row["model"], row["sample_id"])),
+                axis=1,
+            )
+        else:
+            original_preds = (
+                df[df["perturbation"] == "original"]
+                .set_index("model")["prediction"]
+                .to_dict()
+            )
             df["prediction_changed"] = df.apply(
                 lambda row: row["prediction"] != original_preds.get(row["model"]),
                 axis=1,
             )
-            return df
+        return df
     return df
 
 
 def _compute_confidence_drop(df):
-    """Add 'confidence_drop' column relative to original confidence per model."""
+    """Add 'confidence_drop' column relative to original confidence per model/sample."""
     if df is None or df.empty:
         return df
     if "confidence_drop" in df.columns:
@@ -355,16 +367,21 @@ def _compute_confidence_drop(df):
         return df
 
     df = df.copy()
-    original_confs = (
-        df[df["perturbation"] == "original"]
-        .set_index("model")["confidence"]
-        .to_dict()
-    )
-    if original_confs:
+    if "sample_id" in df.columns:
+        orig_df = df[df["perturbation"] == "original"].drop_duplicates(subset=["model", "sample_id"])
+        original_confs = orig_df.set_index(["model", "sample_id"])["confidence"].to_dict()
+        df["confidence_drop"] = df.apply(
+            lambda row: original_confs.get((row["model"], row["sample_id"]), row["confidence"]) - row["confidence"],
+            axis=1,
+        )
+    else:
+        original_confs = (
+            df[df["perturbation"] == "original"]
+            .set_index("model")["confidence"]
+            .to_dict()
+        )
         df["confidence_drop"] = df.apply(
             lambda row: original_confs.get(row["model"], 0) - row["confidence"],
             axis=1,
         )
-    else:
-        df["confidence_drop"] = 0.0
     return df

@@ -14,17 +14,20 @@ The **Intelligence Layer** is the analytical core of the Pathogen Intelligence S
 │ (RGB/HEIC)   │     │    Engine    │     │   Variants   │
 └──────────────┘     └──────────────┘     └──────────────┘
                                                  │
-                                                 ▼
-┌──────────────┐                         ┌──────────────┐
-│ Trained CNN  │────────────────────────►│ Tensor Batch │
-│ Checkpoints  │                         │  Inference   │
-└──────────────┘                         └──────────────┘
                                                  │
-                                                 ▼
-┌──────────────┐                         ┌──────────────┐
+┌──────────────┐                        ┌──────────────┐
+│ 4 Trained    │                        │ Tensor Batch │
+│ Checkpoints  │────────────────────────►│  Inference   │
+│ (EffNet-B0,  │                        │ (4 parallel  │
+│  ResNet-50,  │                        │  model runs) │
+│  Swin-T,     │                        └──────────────┘
+│  ConvNeXt-T) │                               │
+└──────────────┘                               │
+                                                 │
+┌──────────────┐                        ┌──────────────┐
 │ Diagnostic   │◄────────────────────────│  Robustness  │
-│ Reports      │                         │   Analyzer   │
-└──────────────┘                         └──────────────┘
+│ Reports      │                        │   Analyzer   │
+└──────────────┘                        └──────────────┘
 ```
 
 ---
@@ -39,12 +42,18 @@ The **Intelligence Layer** is the analytical core of the Pathogen Intelligence S
 ### Primary Functions
 
 #### `load_model(model_name, checkpoint_dir=None, device=None)`
-Loads PyTorch model checkpoints and corresponding temperature parameters:
+Loads PyTorch model checkpoints and corresponding temperature parameters. Supported model names: `"efficientnet_b0"`, `"resnet50"`, `"swin_t"`, `"convnext_tiny"`:
 
 ```python
 from inference.batch_inference import load_model
 
-model, temperature = load_model("efficientnet_b0", checkpoint_dir="checkpoints", device="cuda")
+# CNN models
+model, temperature = load_model("efficientnet_b0", checkpoint_dir="checkpoints", device="cpu")
+model, temperature = load_model("resnet50", checkpoint_dir="checkpoints", device="cpu")
+
+# Vision Transformer & Hybrid CNN
+model, temperature = load_model("swin_t", checkpoint_dir="checkpoints", device="cpu")
+model, temperature = load_model("convnext_tiny", checkpoint_dir="checkpoints", device="cpu")
 ```
 
 #### `predict_batch(model, perturbations_dict, temperature=1.0, device=None)`

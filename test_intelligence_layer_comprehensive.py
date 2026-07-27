@@ -142,7 +142,9 @@ print(f"\n[2.1] Device detection: {device}")
 
 checkpoint_paths = {
     "efficientnet_b0": "checkpoints/efficientnet_b0_best.pth",
-    "resnet50": "checkpoints/resnet50_best.pth"
+    "resnet50": "checkpoints/resnet50_best.pth",
+    "swin_t": "checkpoints/swin_t_best.pth",
+    "convnext_tiny": "checkpoints/convnext_tiny_best.pth",
 }
 
 loaded_models = {}

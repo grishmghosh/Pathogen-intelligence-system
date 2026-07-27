@@ -1,0 +1,114 @@
+{
+  "seeds": [
+    42,
+    100,
+    2024,
+    777,
+    999
+  ],
+  "best_model": "swin_t",
+  "model_analysis": {
+    "efficientnet_b0": {
+      "scores": [
+        64.44444444444444,
+        64.44444444444444,
+        64.44444444444444,
+        64.44444444444444,
+        64.44444444444444
+      ],
+      "descriptive": {
+        "mean": 64.4444,
+        "std": 0.0,
+        "median": 64.4444,
+        "ci_lower": 64.4444,
+        "ci_upper": 64.4444,
+        "n_samples": 5
+      },
+      "comparison_vs_best": {
+        "t_statistic": 26.6662,
+        "p_value_ttest": 1.2e-05,
+        "is_significant_ttest": true,
+        "wilcoxon_stat": 0.0,
+        "p_value_wilcoxon": 0.0625,
+        "is_significant_wilcoxon": false,
+        "cohens_d": 16.8652,
+        "interpretation": "Large"
+      }
+    },
+    "resnet50": {
+      "scores": [
+        58.88888888888889,
+        58.88888888888889,
+        58.88888888888889,
+        58.88888888888889,
+        58.88888888888889
+      ],
+      "descriptive": {
+        "mean": 58.8889,
+        "std": 0.0,
+        "median": 58.8889,
+        "ci_lower": 58.8889,
+        "ci_upper": 58.8889,
+        "n_samples": 5
+      },
+      "comparison_vs_best": {
+        "t_statistic": 32.1628,
+        "p_value_ttest": 6e-06,
+        "is_significant_ttest": true,
+        "wilcoxon_stat": 0.0,
+        "p_value_wilcoxon": 0.0625,
+        "is_significant_wilcoxon": false,
+        "cohens_d": 20.3415,
+        "interpretation": "Large"
+      }
+    },
+    "swin_t": {
+      "scores": [
+        88.46492273896197,
+        94.33784459063092,
+        90.94308736263227,
+        92.81921997648205,
+        90.41867863447564
+      ],
+      "descriptive": {
+        "mean": 91.3968,
+        "std": 2.2601,
+        "median": 90.9431,
+        "ci_lower": 88.5905,
+        "ci_upper": 94.203,
+        "n_samples": 5
+      },
+      "comparison_vs_best": {
+        "is_baseline": true
+      }
+    },
+    "convnext_tiny": {
+      "scores": [
+        87.58837065183161,
+        91.73273322234198,
+        55.36932811625235,
+        91.96340448335411,
+        96.06023769010936
+      ],
+      "descriptive": {
+        "mean": 84.5428,
+        "std": 16.5815,
+        "median": 91.7327,
+        "ci_lower": 63.9542,
+        "ci_upper": 105.1314,
+        "n_samples": 5
+      },
+      "comparison_vs_best": {
+        "t_statistic": 0.9367,
+        "p_value_ttest": 0.401929,
+        "is_significant_ttest": false,
+        "wilcoxon_stat": 4.0,
+        "p_value_wilcoxon": 0.4375,
+        "is_significant_wilcoxon": false,
+        "cohens_d": 0.5792,
+        "interpretation": "Medium"
+      }
+    }
+  },
+  "markdown_table": "| Model Architecture | Robustness Score (Mean ± SD) | 95% Confidence Interval | p-value (vs Best) | Effect Size (Cohen's d) |\n| :--- | :--- | :--- | :--- | :--- |\n| `swin_t` | **91.40 ± 2.26** | [88.59, 94.20] | — *(Baseline)* | — |\n| `convnext_tiny` | **84.54 ± 16.58** | [63.95, 105.13] | p = 0.4019 (ns) | 0.58 (Medium) |\n| `efficientnet_b0` | **64.44 ± 0.00** | [64.44, 64.44] | p = 0.0000 (***) | 16.87 (Large) |\n| `resnet50` | **58.89 ± 0.00** | [58.89, 58.89] | p = 0.0000 (***) | 20.34 (Large) |"
+}

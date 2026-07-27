@@ -12,7 +12,7 @@ available.
 import os
 import sys
 from pathlib import Path
-from typing import Dict, Optional, Tuple
+from typing import Dict, Optional, Tuple, Union
 
 import numpy as np
 import torch
@@ -124,22 +124,24 @@ def _is_git_lfs_pointer(path: Path) -> bool:
 
 
 def _build_pretrained_model(model_name: str) -> nn.Module:
-    from torchvision import models as tvm
-
     num_classes = len(CLASS_NAMES)
     if model_name == "efficientnet_b0":
-        model = tvm.efficientnet_b0(weights="DEFAULT")
-        in_feat = int(model.classifier[1].in_features)
-        model.classifier = nn.Sequential(
-            nn.Dropout(p=0.4, inplace=True),
-            nn.Linear(in_feat, num_classes),
-        )
-        return model
+        from models.efficientnet_setup import build_efficientnet_b0
+        return build_efficientnet_b0(num_classes=num_classes)
 
-    model = tvm.resnet50(weights="DEFAULT")
-    in_feat = int(model.fc.in_features)
-    setattr(model, "fc", nn.Sequential(nn.Dropout(p=0.5), nn.Linear(in_feat, num_classes)))
-    return model
+    if model_name == "swin_t":
+        from models.swin_setup import build_swin_t
+        return build_swin_t(num_classes=num_classes)
+
+    if model_name == "convnext_tiny":
+        from models.convnext_setup import build_convnext_tiny
+        return build_convnext_tiny(num_classes=num_classes)
+
+    if model_name == "resnet50":
+        from models.resnet_setup import build_resnet50
+        return build_resnet50(num_classes=num_classes)
+
+    raise ValueError(f"Unknown model name: {model_name}")
 
 
 def load_model(model_name: str, checkpoint_dir: Optional[str] = None, device: Optional[str] = None) -> Tuple[Optional[nn.Module], Optional[float]]:
@@ -153,6 +155,12 @@ def load_model(model_name: str, checkpoint_dir: Optional[str] = None, device: Op
     elif model_name == "resnet50":
         checkpoint = checkpoint_dir_path / "resnet50_best.pth"
         temperature_file = checkpoint_dir_path / "resnet50_temperature.pth"
+    elif model_name == "swin_t":
+        checkpoint = checkpoint_dir_path / "swin_t_best.pth"
+        temperature_file = checkpoint_dir_path / "swin_t_temperature.pth"
+    elif model_name == "convnext_tiny":
+        checkpoint = checkpoint_dir_path / "convnext_tiny_best.pth"
+        temperature_file = checkpoint_dir_path / "convnext_tiny_temperature.pth"
     else:
         print(f"[ERROR] Unknown model: {model_name}")
         return None, None
@@ -358,7 +366,8 @@ def run_batch_inference(image_path: str, checkpoint_dir: Optional[str] = None, d
     perturbations = generate_perturbations(image_path)
     results = {}
 
-    for model_name in ["efficientnet_b0", "resnet50"]:
+    model_list = ["efficientnet_b0", "resnet50", "swin_t", "convnext_tiny"]
+    for model_name in model_list:
         print(f"\nLoading {model_name}...")
         model, temperature = load_model(model_name, checkpoint_dir=checkpoint_dir_path, device=str(resolved_device))
 

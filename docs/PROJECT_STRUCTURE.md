@@ -6,10 +6,14 @@
 PATHOGEN-INTELLIGENCE-SYSTEM/
 │
 ├── checkpoints/                        # Trained PyTorch state dicts (*.pth) & temperature locks
-│   ├── efficientnet_b0_best.pth       # EfficientNet-B0 weights (16 MB)
-│   ├── resnet50_best.pth              # ResNet-50 weights (91 MB)
-│   ├── efficientnet_b0_temperature.pth # Temperature calibration parameter
-│   └── resnet50_temperature.pth       # Temperature calibration parameter
+│   ├── efficientnet_b0_best.pth       # EfficientNet-B0 weights (~16 MB)
+│   ├── resnet50_best.pth              # ResNet-50 weights (~91 MB)
+│   ├── swin_t_best.pth                # Swin-T weights (~108 MB)
+│   ├── convnext_tiny_best.pth         # ConvNeXt-Tiny weights (~110 MB)
+│   ├── efficientnet_b0_temperature.pth # Temperature calibration parameter (T=0.8336)
+│   ├── resnet50_temperature.pth       # Temperature calibration parameter (T=0.8329)
+│   ├── swin_t_temperature.pth         # Temperature calibration parameter (T=0.8520)
+│   └── convnext_tiny_temperature.pth  # Temperature calibration parameter (T=0.8415)
 │
 ├── configs/                            # Configuration modules
 │   ├── __init__.py
@@ -27,7 +31,9 @@ PATHOGEN-INTELLIGENCE-SYSTEM/
 ├── models/                             # Neural network architectures
 │   ├── __init__.py
 │   ├── efficientnet_setup.py          # EfficientNet-B0 with ImageNet pretrained backbone
-│   └── resnet_setup.py                # ResNet-50 with ImageNet pretrained backbone
+│   ├── resnet_setup.py                # ResNet-50 with ImageNet pretrained backbone
+│   ├── swin_setup.py                  # Swin-T (Swin Transformer Tiny) with ImageNet pretrained backbone
+│   └── convnext_setup.py              # ConvNeXt-Tiny with ImageNet pretrained backbone
 │
 ├── perturbations/                      # Clinical corruption engine
 │   ├── __init__.py
@@ -73,7 +79,9 @@ PATHOGEN-INTELLIGENCE-SYSTEM/
 ├── training/                           # Model training pipelines
 │   ├── __init__.py
 │   ├── train_efficientnet.py          # Training loop for EfficientNet-B0
-│   └── train_resnet.py                # Training loop for ResNet-50
+│   ├── train_resnet.py                # Training loop for ResNet-50
+│   ├── train_swin.py                  # Training loop for Swin-T
+│   └── train_convnext.py              # Training loop for ConvNeXt-Tiny
 │
 ├── docs/                               # System documentation & architectural guides
 │   ├── INTEGRATION_LAYER_GUIDE.md     # Intelligence layer technical guide
@@ -98,8 +106,10 @@ PATHOGEN-INTELLIGENCE-SYSTEM/
 
 ### 2. Model Architectures & Training (`models/`, `training/`)
 - **`models/efficientnet_setup.py`**: Constructs EfficientNet-B0 with a custom 4-class linear head.
-- **`models/resnet_setup.py`**: Constructs ResNet-50 with a custom 4-class linear head.
-- **`training/`**: Model training scripts featuring label smoothing, AdamW optimizer, cosine annealing learning rate schedules, and early stopping.
+- **`models/resnet_setup.py`**: Constructs ResNet-50 with a custom 4-class `nn.Sequential(Dropout, Linear)` head.
+- **`models/swin_setup.py`**: Constructs Swin-T (Swin Transformer Tiny, ~28M params) with a custom 4-class linear head. Uses hierarchical shifted-window self-attention to capture global morphological patterns.
+- **`models/convnext_setup.py`**: Constructs ConvNeXt-Tiny (~28.6M params) with a custom 4-class linear head in the `model.classifier[2]` slot.
+- **`training/`**: Training scripts for all four models featuring label smoothing, AdamW optimizer, cosine annealing learning rate schedules, and early stopping.
 
 ### 3. Perturbation Engine (`perturbations/`, `configs/`)
 - **`configs/perturbation_config.py`**: Defines transformation bounds for 10 clinical corruptions.

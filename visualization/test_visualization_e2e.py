@@ -15,110 +15,62 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 # ---- build synthetic inference results matching batch_inference.run_batch_inference() schema ----
 
-SYNTHETIC_INFERENCE_RESULTS = {
-    "efficientnet_b0": {
-        "original": {
-            "prediction": "s_aureus",
-            "confidence": 0.92,
-            "probabilities": [0.02, 0.03, 0.03, 0.92],
-            "predicted_idx": 3,
-            "metadata": {"type": "none", "parameter": None, "id": "original"},
-        },
-        "bright": {
-            "prediction": "s_aureus",
-            "confidence": 0.88,
-            "probabilities": [0.03, 0.04, 0.05, 0.88],
-            "predicted_idx": 3,
-            "metadata": {"type": "brightness", "parameter": 1.2, "id": "brightness_increase_1.2"},
-        },
-        "dark": {
-            "prediction": "s_aureus",
-            "confidence": 0.85,
-            "probabilities": [0.04, 0.05, 0.06, 0.85],
-            "predicted_idx": 3,
-            "metadata": {"type": "brightness", "parameter": 0.8, "id": "brightness_decrease_0.8"},
-        },
-        "high_contrast": {
-            "prediction": "s_aureus",
-            "confidence": 0.90,
-            "probabilities": [0.02, 0.03, 0.05, 0.90],
-            "predicted_idx": 3,
-            "metadata": {"type": "contrast", "parameter": 1.15, "id": "contrast_increase_1.15"},
-        },
-        "low_contrast": {
-            "prediction": "e_coli",
-            "confidence": 0.55,
-            "probabilities": [0.55, 0.15, 0.15, 0.15],
-            "predicted_idx": 0,
-            "metadata": {"type": "contrast", "parameter": 0.85, "id": "contrast_decrease_0.85"},
-        },
-        "gaussian_noise": {
-            "prediction": "s_aureus",
-            "confidence": 0.78,
-            "probabilities": [0.05, 0.07, 0.10, 0.78],
-            "predicted_idx": 3,
-            "metadata": {"type": "noise", "parameter": 8, "id": "gaussian_noise_sigma_8"},
-        },
-        "gaussian_blur": {
-            "prediction": "p_aeruginosa",
-            "confidence": 0.45,
-            "probabilities": [0.15, 0.15, 0.45, 0.25],
-            "predicted_idx": 2,
-            "metadata": {"type": "blur", "parameter": 5, "id": "gaussian_blur_kernel_5"},
-        },
-    },
-    "resnet50": {
-        "original": {
-            "prediction": "s_aureus",
-            "confidence": 0.89,
-            "probabilities": [0.03, 0.04, 0.04, 0.89],
-            "predicted_idx": 3,
-            "metadata": {"type": "none", "parameter": None, "id": "original"},
-        },
-        "bright": {
-            "prediction": "s_aureus",
-            "confidence": 0.86,
-            "probabilities": [0.04, 0.04, 0.06, 0.86],
-            "predicted_idx": 3,
-            "metadata": {"type": "brightness", "parameter": 1.2, "id": "brightness_increase_1.2"},
-        },
-        "dark": {
-            "prediction": "s_aureus",
-            "confidence": 0.80,
-            "probabilities": [0.05, 0.06, 0.09, 0.80],
-            "predicted_idx": 3,
-            "metadata": {"type": "brightness", "parameter": 0.8, "id": "brightness_decrease_0.8"},
-        },
-        "high_contrast": {
-            "prediction": "s_aureus",
-            "confidence": 0.87,
-            "probabilities": [0.03, 0.04, 0.06, 0.87],
-            "predicted_idx": 3,
-            "metadata": {"type": "contrast", "parameter": 1.15, "id": "contrast_increase_1.15"},
-        },
-        "low_contrast": {
-            "prediction": "s_aureus",
-            "confidence": 0.60,
-            "probabilities": [0.10, 0.15, 0.15, 0.60],
-            "predicted_idx": 3,
-            "metadata": {"type": "contrast", "parameter": 0.85, "id": "contrast_decrease_0.85"},
-        },
-        "gaussian_noise": {
-            "prediction": "k_pneumoniae",
-            "confidence": 0.52,
-            "probabilities": [0.18, 0.52, 0.15, 0.15],
-            "predicted_idx": 1,
-            "metadata": {"type": "noise", "parameter": 8, "id": "gaussian_noise_sigma_8"},
-        },
-        "gaussian_blur": {
-            "prediction": "s_aureus",
-            "confidence": 0.55,
-            "probabilities": [0.10, 0.15, 0.20, 0.55],
-            "predicted_idx": 3,
-            "metadata": {"type": "blur", "parameter": 5, "id": "gaussian_blur_kernel_5"},
-        },
-    },
-}
+import numpy as np
+
+
+def build_synthetic_inference_results():
+    """Build a multi-sample synthetic inference dictionary representing realistic predictions across all 4 models."""
+    np.random.seed(42)
+    classes = ["e_coli", "k_pneumoniae", "p_aeruginosa", "s_aureus"]
+    perts = ["original", "bright", "dark", "high_contrast", "low_contrast", "gaussian_noise", "gaussian_blur"]
+    models = ["efficientnet_b0", "resnet50", "swin_t", "convnext_tiny"]
+
+    results = {m: {} for m in models}
+
+    for model in models:
+        for pert in perts:
+            samples = []
+            sev_factor = 0.0 if pert == "original" else (0.04 if pert in ["bright", "dark", "high_contrast"] else 0.12)
+
+            for i in range(40):  # 40 samples per perturbation = 280 samples per model
+                true_cls = classes[i % 4]
+
+                if model == "resnet50":
+                    conf = float(np.random.beta(8, 1.2) - sev_factor * 0.25)
+                elif model == "swin_t":
+                    conf = float(np.random.beta(7, 1.5) - sev_factor * 0.25)
+                elif model == "convnext_tiny":
+                    conf = float(np.random.beta(6, 1.8) - sev_factor * 0.30)
+                else:  # efficientnet_b0
+                    conf = float(np.random.beta(5, 2.0) - sev_factor * 0.35)
+
+                conf = float(np.clip(conf, 0.25, 0.99))
+                is_correct = bool(np.random.rand() < conf)
+                pred_cls = true_cls if is_correct else classes[(classes.index(true_cls) + 1) % 4]
+                pred_idx = classes.index(pred_cls)
+
+                probs = [0.05, 0.05, 0.05, 0.05]
+                probs[pred_idx] = conf
+                rem = (1.0 - conf) / 3.0
+                for k in range(4):
+                    if k != pred_idx:
+                        probs[k] = rem
+
+                samples.append({
+                    "prediction": pred_cls,
+                    "confidence": conf,
+                    "probabilities": [float(p) for p in probs],
+                    "predicted_idx": pred_idx,
+                    "true_label": true_cls,
+                    "correct": int(is_correct),
+                    "metadata": {"type": pert, "parameter": 1.0, "id": pert},
+                })
+
+            results[model][pert] = samples
+    return results
+
+
+SYNTHETIC_INFERENCE_RESULTS = build_synthetic_inference_results()
 
 
 def build_synthetic_robustness_report():

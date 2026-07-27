@@ -10,6 +10,7 @@ from pathlib import Path
 import cv2
 import matplotlib.pyplot as plt
 import numpy as np
+import torch
 from PIL import Image
 
 # Add parent directory to path for imports
@@ -143,8 +144,12 @@ def apply_jpeg_compression(image, quality=45):
     return cv2.cvtColor(decoded_bgr, cv2.COLOR_BGR2RGB)
 
 
-def generate_perturbations(image_path):
-    """Generate all enabled perturbations from a single input image."""
+def generate_perturbations(image_path, seed=None):
+    """Generate all enabled perturbations from a single input image with optional seed control."""
+    if seed is not None:
+        np.random.seed(seed)
+        torch.manual_seed(seed)
+
     original = load_image(image_path)
 
     perturbations = {
