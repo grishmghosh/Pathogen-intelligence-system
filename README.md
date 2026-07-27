@@ -46,7 +46,7 @@ Input Image ──► Perturbation Engine ──► Tensor Batch Inference ─�
 
 ```text
 PATHOGEN-INTELLIGENCE-SYSTEM/
-├── checkpoints/         # Model weight binaries (*.pth) & temperature calibration locks
+├── checkpoints/         # Local model weight binaries (*.pth) & temperature locks (git-ignored)
 ├── configs/             # Perturbation parameters & system constants
 ├── docs/                # System documentation & architectural guides
 ├── experiments/         # Benchmarking scripts & statistical evaluation
@@ -89,7 +89,24 @@ uv sync
 
 ---
 
-### 2. Run Pipeline Test (Single Image Execution)
+### 2. Model Training & Checkpoint Setup
+
+> **Note**: Pre-trained model weights (`*.pth`) are excluded from Git version control via `.gitignore`. You can train the models and generate temperature calibration parameters locally:
+
+```bash
+# Train network backbones (saves weights to checkpoints/)
+uv run python training/train_efficientnet.py
+uv run python training/train_resnet.py
+uv run python training/train_swin.py
+uv run python training/train_convnext.py
+
+# Calibrate temperature scaling parameters (T) across models
+uv run python generate_resnet_temp.py
+```
+
+---
+
+### 3. Run Pipeline Test (Single Image Execution)
 
 Test batch inference, temperature scaling, and robustness scoring on any input image:
 
@@ -104,7 +121,7 @@ uv run python test_intelligence_pipeline.py --demo
 
 ---
 
-### 3. Run Comprehensive 10-Phase Test Suite
+### 4. Run Comprehensive 10-Phase Test Suite
 
 Verify all pipeline modules (checkpoints, perturbations, inference, metadata, robustness scoring, error handling):
 
@@ -114,7 +131,7 @@ uv run python test_intelligence_layer_comprehensive.py --image "/path/to/image.p
 
 ---
 
-### 4. Run Dataset Evaluation & Plot Generation
+### 5. Run Dataset Evaluation & Plot Generation
 
 Evaluate models on an entire dataset directory and generate figures in `results/evaluation/`:
 
@@ -124,9 +141,12 @@ uv run python run_full_eval.py --dataset-root dataset_split --output-dir results
 
 ---
 
-### 5. Run Specific Analytical Modules
+### 6. Run Statistical Significance & Analytical Benchmarks
 
 ```bash
+# Run multi-seed robustness benchmark and statistical significance tests
+uv run python experiments/run_statistical_benchmark.py --image "/path/to/image.png"
+
 # Test inter-model disagreement & false consensus detection
 uv run python test_step4_consensus_reliability.py
 

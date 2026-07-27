@@ -5,7 +5,7 @@
 ```text
 PATHOGEN-INTELLIGENCE-SYSTEM/
 │
-├── checkpoints/                        # Trained PyTorch state dicts (*.pth) & temperature locks
+├── checkpoints/                        # Local PyTorch state dicts (*.pth) & temperature locks (git-ignored)
 │   ├── efficientnet_b0_best.pth       # EfficientNet-B0 weights (~16 MB)
 │   ├── resnet50_best.pth              # ResNet-50 weights (~91 MB)
 │   ├── swin_t_best.pth                # Swin-T weights (~108 MB)
