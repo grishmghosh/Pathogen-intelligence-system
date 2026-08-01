@@ -1,7 +1,7 @@
 {
-  "image_path": "C:\\Pathogen-intelligence-system\\results\\reports\\synthetic_pathogen_demo.png",
+  "image_path": "C:\\Pathogen-intelligence-system\\results\\quick_runtime_check_utf8\\synthetic_pathogen_demo.png",
   "checkpoint_dir": null,
-  "device": "auto",
+  "device": "cuda",
   "robustness_report": {
     "efficientnet_b0": {
       "model_name": "efficientnet_b0",
