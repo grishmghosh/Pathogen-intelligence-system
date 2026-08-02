@@ -34,6 +34,8 @@ def _load_temperature(model_name: str, checkpoint_dir: str = "checkpoints") -> f
     name_map = {
         "efficientnet_b0": "efficientnet_b0_temperature.pth",
         "resnet50":        "resnet50_temperature.pth",
+        "swin_t":          "swin_t_temperature.pth",
+        "convnext_tiny":   "convnext_tiny_temperature.pth",
     }
     fname = name_map.get(model_name)
     if fname is None:
@@ -446,13 +448,15 @@ def generate_robustness_report(inference_results: Dict) -> Dict:
             report[model_name] = {"error": model_results["error"]}
             continue
 
-        # Load per-model temperature
+        # Load per-model temperature (for reporting only — see below)
         temperature = _load_temperature(model_name)
 
+        # Probabilities from inference/batch_inference.py are ALREADY temperature-
+        # calibrated, so the analyzer must not re-apply T (doing so yields T^2).
         consistency = analyze_prediction_consistency(model_results)
-        confidence  = analyze_confidence_stability(model_results, temperature=temperature)
+        confidence  = analyze_confidence_stability(model_results, temperature=1.0)
         sensitivity = analyze_perturbation_sensitivity(model_results)
-        score       = compute_robustness_score(model_results, temperature=temperature)
+        score       = compute_robustness_score(model_results, temperature=1.0)
 
         model_report = {
             "model_name":         model_name,

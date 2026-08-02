@@ -202,7 +202,7 @@ def generate_perturbations(image_path, seed=None):
     if "gaussian_noise" in ENABLED_PERTURBATIONS:
         param = config["gaussian_noise_sigma"]
         perturbations["gaussian_noise"] = {
-            "image": add_gaussian_noise(original, param),
+            "image": add_gaussian_noise(original, param, seed=seed),
             "type": "noise",
             "parameter": param,
             "id": f"gaussian_noise_sigma_{param}",

@@ -79,6 +79,7 @@ def _load_temperature(temperature_file: str) -> Union[float, np.ndarray]:
     except Exception as exc:
         print(f"  [WARN] Could not load temperature: {exc}. Using T=1.0.")
         return 1.0
+    return temp
 
 
 def _load_image_array(image_path: str) -> np.ndarray:

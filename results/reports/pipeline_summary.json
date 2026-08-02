@@ -22,19 +22,19 @@
         "saturation_note": null
       },
       "confidence_analysis": {
-        "original_confidence": 0.4983037546707299,
-        "mean_confidence": 0.5552169131646202,
-        "std_confidence": 0.16948892557663955,
-        "min_confidence": 0.3482475495288947,
-        "max_confidence": 0.9411630725287082,
-        "confidence_drop": 0.1500562051418352,
-        "max_confidence_drop": 0.1500562051418352,
-        "confidence_above_chance": 0.3052169131646202,
+        "original_confidence": 0.49830377101898193,
+        "mean_confidence": 0.5552169144153595,
+        "std_confidence": 0.16948892449424985,
+        "min_confidence": 0.34824755787849426,
+        "max_confidence": 0.9411630630493164,
+        "confidence_drop": 0.15005621314048767,
+        "max_confidence_drop": 0.15005621314048767,
+        "confidence_above_chance": 0.3052169144153595,
         "most_damaging_perturbation": {
           "id": "jpeg_compression",
-          "confidence": 0.9411630725287082,
-          "impact": -0.44285931785797833,
-          "relative_impact": 0.8887336563430307
+          "confidence": 0.9411630630493164,
+          "impact": -0.4428592920303345,
+          "relative_impact": 0.8887335753545091
         },
         "is_saturated": false,
         "saturation_warning": null,
@@ -42,57 +42,57 @@
         "perturbation_impacts": [
           {
             "id": "jpeg_compression",
-            "confidence": 0.9411630725287082,
-            "impact": -0.44285931785797833,
-            "relative_impact": 0.8887336563430307
+            "confidence": 0.9411630630493164,
+            "impact": -0.4428592920303345,
+            "relative_impact": 0.8887335753545091
           },
           {
             "id": "high_contrast",
-            "confidence": 0.7172688485997458,
-            "impact": -0.21896509392901592,
-            "relative_impact": 0.43942091922165843
+            "confidence": 0.7172688841819763,
+            "impact": -0.21896511316299438,
+            "relative_impact": 0.4394209434041255
           },
           {
             "id": "bright",
-            "confidence": 0.6846049874339556,
-            "impact": -0.1863012327632257,
-            "relative_impact": 0.373870818786686
+            "confidence": 0.6846050024032593,
+            "impact": -0.18630123138427734,
+            "relative_impact": 0.37387080375352116
           },
           {
             "id": "dark",
-            "confidence": 0.3482475495288947,
-            "impact": 0.1500562051418352,
-            "relative_impact": 0.3011340045811809
+            "confidence": 0.34824755787849426,
+            "impact": 0.15005621314048767,
+            "relative_impact": 0.3011340107533956
           },
           {
             "id": "low_contrast",
-            "confidence": 0.37774303881316706,
-            "impact": 0.12056071585756284,
-            "relative_impact": 0.24194221843105954
+            "confidence": 0.37774306535720825,
+            "impact": 0.12056070566177368,
+            "relative_impact": 0.2419421900324755
           },
           {
             "id": "gaussian_noise",
-            "confidence": 0.5452799759607685,
-            "impact": -0.04697622129003859,
-            "relative_impact": 0.09427226034264909
+            "confidence": 0.5452799201011658,
+            "impact": -0.04697614908218384,
+            "relative_impact": 0.0942721123424819
           },
           {
             "id": "stain_shift",
-            "confidence": 0.469845314110846,
-            "impact": 0.02845844055988389,
-            "relative_impact": 0.05711062839309471
+            "confidence": 0.46984532475471497,
+            "impact": 0.028458446264266968,
+            "relative_impact": 0.05711063796702212
           },
           {
             "id": "defocus_blur",
-            "confidence": 0.4698941683458176,
-            "impact": 0.028409586324912306,
-            "relative_impact": 0.05701258731972599
+            "confidence": 0.4698941707611084,
+            "impact": 0.028409600257873535,
+            "relative_impact": 0.05701261341004647
           },
           {
             "id": "gaussian_blur",
-            "confidence": 0.49981842165356916,
-            "impact": -0.0015146669828392523,
-            "relative_impact": 0.0030396459361220684
+            "confidence": 0.4998183846473694,
+            "impact": -0.0015146136283874512,
+            "relative_impact": 0.003039538764256622
           }
         ]
       },
@@ -103,8 +103,8 @@
             "perturbation_type": "blur",
             "parameter": 7,
             "prediction": "s_aureus",
-            "confidence": 0.4317798316478729,
-            "confidence_delta": 0.024014711380004883,
+            "confidence": 0.4698941707611084,
+            "confidence_delta": 0.028409600257873535,
             "prediction_flipped": true,
             "severity": "critical"
           },
@@ -113,8 +113,8 @@
             "perturbation_type": "compression",
             "parameter": 45,
             "prediction": "p_aeruginosa",
-            "confidence": 0.8940252065658569,
-            "confidence_delta": 0.4382306635379791,
+            "confidence": 0.9411630630493164,
+            "confidence_delta": 0.4428592920303345,
             "prediction_flipped": false,
             "severity": "moderate"
           },
@@ -123,8 +123,8 @@
             "perturbation_type": "contrast",
             "parameter": 1.15,
             "prediction": "p_aeruginosa",
-            "confidence": 0.6467233896255493,
-            "confidence_delta": 0.1909288465976715,
+            "confidence": 0.7172688841819763,
+            "confidence_delta": 0.21896511316299438,
             "prediction_flipped": false,
             "severity": "moderate"
           },
@@ -133,8 +133,8 @@
             "perturbation_type": "brightness",
             "parameter": 1.2,
             "prediction": "p_aeruginosa",
-            "confidence": 0.6168993711471558,
-            "confidence_delta": 0.16110482811927795,
+            "confidence": 0.6846050024032593,
+            "confidence_delta": 0.18630123138427734,
             "prediction_flipped": false,
             "severity": "moderate"
           },
@@ -143,8 +143,8 @@
             "perturbation_type": "brightness",
             "parameter": 0.8,
             "prediction": "p_aeruginosa",
-            "confidence": 0.3328695297241211,
-            "confidence_delta": 0.12292501330375671,
+            "confidence": 0.34824755787849426,
+            "confidence_delta": 0.15005621314048767,
             "prediction_flipped": false,
             "severity": "moderate"
           },
@@ -153,8 +153,8 @@
             "perturbation_type": "contrast",
             "parameter": 0.85,
             "prediction": "p_aeruginosa",
-            "confidence": 0.3571755290031433,
-            "confidence_delta": 0.0986190140247345,
+            "confidence": 0.37774306535720825,
+            "confidence_delta": 0.12056070566177368,
             "prediction_flipped": false,
             "severity": "moderate"
           },
@@ -163,8 +163,8 @@
             "perturbation_type": "noise",
             "parameter": 8,
             "prediction": "p_aeruginosa",
-            "confidence": 0.49499061703681946,
-            "confidence_delta": 0.03919607400894165,
+            "confidence": 0.5452799201011658,
+            "confidence_delta": 0.04697614908218384,
             "prediction_flipped": false,
             "severity": "low"
           },
@@ -173,8 +173,8 @@
             "perturbation_type": "stain",
             "parameter": 12,
             "prediction": "p_aeruginosa",
-            "confidence": 0.43206334114074707,
-            "confidence_delta": 0.023731201887130737,
+            "confidence": 0.46984532475471497,
+            "confidence_delta": 0.028458446264266968,
             "prediction_flipped": false,
             "severity": "low"
           },
@@ -183,8 +183,8 @@
             "perturbation_type": "blur",
             "parameter": 5,
             "prediction": "p_aeruginosa",
-            "confidence": 0.46110567450523376,
-            "confidence_delta": 0.005311131477355957,
+            "confidence": 0.4998183846473694,
+            "confidence_delta": 0.0015146136283874512,
             "prediction_flipped": false,
             "severity": "low"
           }
@@ -199,32 +199,32 @@
           "perturbation_type": "blur",
           "parameter": 7,
           "prediction": "s_aureus",
-          "confidence": 0.4317798316478729,
-          "confidence_delta": 0.024014711380004883,
+          "confidence": 0.4698941707611084,
+          "confidence_delta": 0.028409600257873535,
           "prediction_flipped": true,
           "severity": "critical"
         },
         "most_damaging_perturbation": {
           "name": "defocus_blur",
-          "impact_score": 0.024014711380004883
+          "impact_score": 0.028409600257873535
         },
         "least_sensitive": {
           "perturbation_id": "gaussian_blur",
           "perturbation_type": "blur",
           "parameter": 5,
           "prediction": "p_aeruginosa",
-          "confidence": 0.46110567450523376,
-          "confidence_delta": 0.005311131477355957,
+          "confidence": 0.4998183846473694,
+          "confidence_delta": 0.0015146136283874512,
           "prediction_flipped": false,
           "severity": "low"
         }
       },
       "robustness_score": {
-        "robustness_score": 81.73277502619646,
+        "robustness_score": 81.7327751073757,
         "interpretation": "Good robustness",
         "components": {
           "consistency_score": 88.88888888888889,
-          "stability_score": 57.62776860584011,
+          "stability_score": 57.627768876437536,
           "resistance_score": 88.88888888888889,
           "calibration_score": 100.0
         },
@@ -237,7 +237,7 @@
         "flags": [
           "1 prediction flip(s) detected across perturbations"
         ],
-        "temperature_applied": 0.8336054086685181
+        "temperature_applied": 1.0
       },
       "diagnosis": [
         "ℹ 1 prediction flip(s) detected across perturbations"
@@ -262,19 +262,19 @@
         "saturation_note": null
       },
       "confidence_analysis": {
-        "original_confidence": 0.6356886641653583,
-        "mean_confidence": 0.6280455201123062,
-        "std_confidence": 0.10041979779192514,
-        "min_confidence": 0.3694131969421647,
-        "max_confidence": 0.77646210953482,
-        "confidence_drop": 0.2662754672231936,
-        "max_confidence_drop": 0.2662754672231936,
-        "confidence_above_chance": 0.3780455201123062,
+        "original_confidence": 0.6356887221336365,
+        "mean_confidence": 0.6280455172061921,
+        "std_confidence": 0.10041979841087155,
+        "min_confidence": 0.36941319704055786,
+        "max_confidence": 0.7764621376991272,
+        "confidence_drop": 0.2662755250930786,
+        "max_confidence_drop": 0.2662755250930786,
+        "confidence_above_chance": 0.37804551720619206,
         "most_damaging_perturbation": {
           "id": "defocus_blur",
-          "confidence": 0.3694131969421647,
-          "impact": 0.2662754672231936,
-          "relative_impact": 0.4188771677607402
+          "confidence": 0.36941319704055786,
+          "impact": 0.2662755250930786,
+          "relative_impact": 0.418877220598388
         },
         "is_saturated": false,
         "saturation_warning": null,
@@ -282,57 +282,57 @@
         "perturbation_impacts": [
           {
             "id": "defocus_blur",
-            "confidence": 0.3694131969421647,
-            "impact": 0.2662754672231936,
-            "relative_impact": 0.4188771677607402
+            "confidence": 0.36941319704055786,
+            "impact": 0.2662755250930786,
+            "relative_impact": 0.418877220598388
           },
           {
             "id": "gaussian_blur",
-            "confidence": 0.77646210953482,
-            "impact": -0.14077344536946168,
-            "relative_impact": 0.22145029997395554
+            "confidence": 0.7764621376991272,
+            "impact": -0.14077341556549072,
+            "relative_impact": 0.22145023289542787
           },
           {
             "id": "dark",
-            "confidence": 0.5645803966980469,
-            "impact": 0.07110826746731136,
-            "relative_impact": 0.11186020999867058
+            "confidence": 0.5645803809165955,
+            "impact": 0.07110834121704102,
+            "relative_impact": 0.11186031581364503
           },
           {
             "id": "bright",
-            "confidence": 0.679245652127256,
-            "impact": -0.043556987961897664,
-            "relative_impact": 0.06851937185176456
+            "confidence": 0.67924565076828,
+            "impact": -0.043556928634643555,
+            "relative_impact": 0.06851927227597862
           },
           {
             "id": "high_contrast",
-            "confidence": 0.6713193197969722,
-            "impact": -0.03563065563161394,
-            "relative_impact": 0.05605048137580998
+            "confidence": 0.671319305896759,
+            "impact": -0.03563058376312256,
+            "relative_impact": 0.05605036320847641
           },
           {
             "id": "jpeg_compression",
-            "confidence": 0.6683093983420251,
-            "impact": -0.03262073417666678,
-            "relative_impact": 0.05131558263587554
+            "confidence": 0.6683093309402466,
+            "impact": -0.03262060880661011,
+            "relative_impact": 0.051315380737166044
           },
           {
             "id": "low_contrast",
-            "confidence": 0.6092072405243241,
-            "impact": 0.02648142364103423,
-            "relative_impact": 0.041657850979305425
+            "confidence": 0.609207272529602,
+            "impact": 0.026481449604034424,
+            "relative_impact": 0.04165788802285438
           },
           {
             "id": "gaussian_noise",
-            "confidence": 0.6605274763090155,
-            "impact": -0.02483881214365724,
-            "relative_impact": 0.039073863581113116
+            "confidence": 0.6605274677276611,
+            "impact": -0.024838745594024658,
+            "relative_impact": 0.03907375532895325
           },
           {
             "id": "stain_shift",
-            "confidence": 0.6457017466830789,
-            "impact": -0.010013082517720595,
-            "relative_impact": 0.01575155116359908
+            "confidence": 0.6457017064094543,
+            "impact": -0.010012984275817871,
+            "relative_impact": 0.01575139518318041
           }
         ]
       },
@@ -343,8 +343,8 @@
             "perturbation_type": "blur",
             "parameter": 7,
             "prediction": "s_aureus",
-            "confidence": 0.35247692465782166,
-            "confidence_delta": 0.21837404370307922,
+            "confidence": 0.36941319704055786,
+            "confidence_delta": 0.2662755250930786,
             "prediction_flipped": true,
             "severity": "critical"
           },
@@ -353,8 +353,8 @@
             "perturbation_type": "blur",
             "parameter": 5,
             "prediction": "p_aeruginosa",
-            "confidence": 0.70638507604599,
-            "confidence_delta": 0.1355341076850891,
+            "confidence": 0.7764621376991272,
+            "confidence_delta": 0.14077341556549072,
             "prediction_flipped": false,
             "severity": "moderate"
           },
@@ -363,28 +363,18 @@
             "perturbation_type": "brightness",
             "parameter": 0.8,
             "prediction": "p_aeruginosa",
-            "confidence": 0.5094395279884338,
-            "confidence_delta": 0.06141144037246704,
+            "confidence": 0.5645803809165955,
+            "confidence_delta": 0.07110834121704102,
             "prediction_flipped": false,
             "severity": "moderate"
-          },
-          {
-            "perturbation_id": "jpeg_compression",
-            "perturbation_type": "compression",
-            "parameter": 45,
-            "prediction": "p_aeruginosa",
-            "confidence": 0.6130073070526123,
-            "confidence_delta": 0.042156338691711426,
-            "prediction_flipped": false,
-            "severity": "low"
           },
           {
             "perturbation_id": "bright",
             "perturbation_type": "brightness",
             "parameter": 1.2,
             "prediction": "p_aeruginosa",
-            "confidence": 0.6107566952705383,
-            "confidence_delta": 0.03990572690963745,
+            "confidence": 0.67924565076828,
+            "confidence_delta": 0.043556928634643555,
             "prediction_flipped": false,
             "severity": "low"
           },
@@ -393,8 +383,18 @@
             "perturbation_type": "contrast",
             "parameter": 1.15,
             "prediction": "p_aeruginosa",
-            "confidence": 0.6022376418113708,
-            "confidence_delta": 0.03138667345046997,
+            "confidence": 0.671319305896759,
+            "confidence_delta": 0.03563058376312256,
+            "prediction_flipped": false,
+            "severity": "low"
+          },
+          {
+            "perturbation_id": "jpeg_compression",
+            "perturbation_type": "compression",
+            "parameter": 45,
+            "prediction": "p_aeruginosa",
+            "confidence": 0.6683093309402466,
+            "confidence_delta": 0.03262060880661011,
             "prediction_flipped": false,
             "severity": "low"
           },
@@ -403,8 +403,8 @@
             "perturbation_type": "contrast",
             "parameter": 0.85,
             "prediction": "p_aeruginosa",
-            "confidence": 0.5477905869483948,
-            "confidence_delta": 0.023060381412506104,
+            "confidence": 0.609207272529602,
+            "confidence_delta": 0.026481449604034424,
             "prediction_flipped": false,
             "severity": "low"
           },
@@ -413,8 +413,8 @@
             "perturbation_type": "noise",
             "parameter": 8,
             "prediction": "p_aeruginosa",
-            "confidence": 0.5927439332008362,
-            "confidence_delta": 0.021892964839935303,
+            "confidence": 0.6605274677276611,
+            "confidence_delta": 0.024838745594024658,
             "prediction_flipped": false,
             "severity": "low"
           },
@@ -423,8 +423,8 @@
             "perturbation_type": "stain",
             "parameter": 12,
             "prediction": "p_aeruginosa",
-            "confidence": 0.5792490243911743,
-            "confidence_delta": 0.008398056030273438,
+            "confidence": 0.6457017064094543,
+            "confidence_delta": 0.010012984275817871,
             "prediction_flipped": false,
             "severity": "low"
           }
@@ -439,32 +439,32 @@
           "perturbation_type": "blur",
           "parameter": 7,
           "prediction": "s_aureus",
-          "confidence": 0.35247692465782166,
-          "confidence_delta": 0.21837404370307922,
+          "confidence": 0.36941319704055786,
+          "confidence_delta": 0.2662755250930786,
           "prediction_flipped": true,
           "severity": "critical"
         },
         "most_damaging_perturbation": {
           "name": "defocus_blur",
-          "impact_score": 0.21837404370307922
+          "impact_score": 0.2662755250930786
         },
         "least_sensitive": {
           "perturbation_id": "stain_shift",
           "perturbation_type": "stain",
           "parameter": 12,
           "prediction": "p_aeruginosa",
-          "confidence": 0.5792490243911743,
-          "confidence_delta": 0.008398056030273438,
+          "confidence": 0.6457017064094543,
+          "confidence_delta": 0.010012984275817871,
           "prediction_flipped": false,
           "severity": "low"
         }
       },
       "robustness_score": {
-        "robustness_score": 86.91295961005005,
+        "robustness_score": 86.91295956362907,
         "interpretation": "Good robustness",
         "components": {
           "consistency_score": 88.88888888888889,
-          "stability_score": 74.89505055201872,
+          "stability_score": 74.89505039728212,
           "resistance_score": 88.88888888888889,
           "calibration_score": 100.0
         },
@@ -477,7 +477,7 @@
         "flags": [
           "1 prediction flip(s) detected across perturbations"
         ],
-        "temperature_applied": 0.8328734636306763
+        "temperature_applied": 1.0
       },
       "diagnosis": [
         "ℹ 1 prediction flip(s) detected across perturbations"
@@ -485,7 +485,7 @@
     },
     "swin_t": {
       "model_name": "swin_t",
-      "temperature_used": 1.0,
+      "temperature_used": 0.852,
       "consistency_analysis": {
         "original_prediction": "p_aeruginosa",
         "total_perturbations": 9,
@@ -506,19 +506,19 @@
         "saturation_note": null
       },
       "confidence_analysis": {
-        "original_confidence": 0.9182683229446411,
-        "mean_confidence": 0.9186598479747772,
-        "std_confidence": 0.0033828852628742536,
-        "min_confidence": 0.9128720760345459,
-        "max_confidence": 0.9243280291557312,
-        "confidence_drop": 0.005396246910095215,
-        "max_confidence_drop": 0.005396246910095215,
-        "confidence_above_chance": 0.6686598479747772,
+        "original_confidence": 0.9538962841033936,
+        "mean_confidence": 0.954148530960083,
+        "std_confidence": 0.0023241780973969734,
+        "min_confidence": 0.95014488697052,
+        "max_confidence": 0.9580178260803223,
+        "confidence_drop": 0.003751397132873535,
+        "max_confidence_drop": 0.003751397132873535,
+        "confidence_above_chance": 0.704148530960083,
         "most_damaging_perturbation": {
           "id": "defocus_blur",
-          "confidence": 0.9243280291557312,
-          "impact": -0.006059706211090088,
-          "relative_impact": 0.006599058314086486
+          "confidence": 0.9580178260803223,
+          "impact": -0.004121541976928711,
+          "relative_impact": 0.004320744346753293
         },
         "is_saturated": false,
         "saturation_warning": null,
@@ -526,57 +526,57 @@
         "perturbation_impacts": [
           {
             "id": "defocus_blur",
-            "confidence": 0.9243280291557312,
-            "impact": -0.006059706211090088,
-            "relative_impact": 0.006599058314086486
+            "confidence": 0.9580178260803223,
+            "impact": -0.004121541976928711,
+            "relative_impact": 0.004320744346753293
           },
           {
             "id": "gaussian_blur",
-            "confidence": 0.9242851734161377,
-            "impact": -0.006016850471496582,
-            "relative_impact": 0.006552388143154226
+            "confidence": 0.9579938650131226,
+            "impact": -0.004097580909729004,
+            "relative_impact": 0.004295625193236274
           },
           {
             "id": "jpeg_compression",
-            "confidence": 0.9128720760345459,
-            "impact": 0.005396246910095215,
-            "relative_impact": 0.005876546947400835
+            "confidence": 0.95014488697052,
+            "impact": 0.003751397132873535,
+            "relative_impact": 0.00393270966182621
           },
           {
             "id": "dark",
-            "confidence": 0.9146814942359924,
-            "impact": 0.0035868287086486816,
-            "relative_impact": 0.0039060791045766236
+            "confidence": 0.9513874053955078,
+            "impact": 0.002508878707885742,
+            "relative_impact": 0.0026301378354188065
           },
           {
             "id": "bright",
-            "confidence": 0.9191318154335022,
-            "impact": -0.000863492488861084,
-            "relative_impact": 0.0009403487709257947
+            "confidence": 0.9544934630393982,
+            "impact": -0.0005971789360046387,
+            "relative_impact": 0.000626041788773663
           },
           {
             "id": "gaussian_noise",
-            "confidence": 0.9178372025489807,
-            "impact": 0.0004311203956604004,
-            "relative_impact": 0.0004694928322017169
+            "confidence": 0.9535961747169495,
+            "impact": 0.0003001093864440918,
+            "relative_impact": 0.0003146142735278364
           },
           {
             "id": "stain_shift",
-            "confidence": 0.9185518026351929,
-            "impact": -0.0002834796905517578,
-            "relative_impact": 0.0003087111723975343
+            "confidence": 0.9540905952453613,
+            "impact": -0.00019431114196777344,
+            "relative_impact": 0.00020370258822259118
           },
           {
             "id": "low_contrast",
-            "confidence": 0.9184749722480774,
-            "impact": -0.0002066493034362793,
-            "relative_impact": 0.00022504239585833714
+            "confidence": 0.9540385603904724,
+            "impact": -0.00014227628707885742,
+            "relative_impact": 0.00014915278468936356
           },
           {
             "id": "high_contrast",
-            "confidence": 0.9181675910949707,
-            "impact": 0.00010073184967041016,
-            "relative_impact": 0.00010969762013284966
+            "confidence": 0.9538262486457825,
+            "impact": 7.003545761108398e-05,
+            "relative_impact": 7.342041139924682e-05
           }
         ]
       },
@@ -587,8 +587,8 @@
             "perturbation_type": "blur",
             "parameter": 7,
             "prediction": "s_aureus",
-            "confidence": 0.9243280291557312,
-            "confidence_delta": 0.006059706211090088,
+            "confidence": 0.9580178260803223,
+            "confidence_delta": 0.004121541976928711,
             "prediction_flipped": true,
             "severity": "critical"
           },
@@ -597,8 +597,8 @@
             "perturbation_type": "blur",
             "parameter": 5,
             "prediction": "s_aureus",
-            "confidence": 0.9242851734161377,
-            "confidence_delta": 0.006016850471496582,
+            "confidence": 0.9579938650131226,
+            "confidence_delta": 0.004097580909729004,
             "prediction_flipped": true,
             "severity": "critical"
           },
@@ -607,8 +607,8 @@
             "perturbation_type": "compression",
             "parameter": 45,
             "prediction": "p_aeruginosa",
-            "confidence": 0.9128720760345459,
-            "confidence_delta": 0.005396246910095215,
+            "confidence": 0.95014488697052,
+            "confidence_delta": 0.003751397132873535,
             "prediction_flipped": false,
             "severity": "low"
           },
@@ -617,8 +617,8 @@
             "perturbation_type": "brightness",
             "parameter": 0.8,
             "prediction": "p_aeruginosa",
-            "confidence": 0.9146814942359924,
-            "confidence_delta": 0.0035868287086486816,
+            "confidence": 0.9513874053955078,
+            "confidence_delta": 0.002508878707885742,
             "prediction_flipped": false,
             "severity": "low"
           },
@@ -627,8 +627,8 @@
             "perturbation_type": "brightness",
             "parameter": 1.2,
             "prediction": "p_aeruginosa",
-            "confidence": 0.9191318154335022,
-            "confidence_delta": 0.000863492488861084,
+            "confidence": 0.9544934630393982,
+            "confidence_delta": 0.0005971789360046387,
             "prediction_flipped": false,
             "severity": "low"
           },
@@ -637,8 +637,8 @@
             "perturbation_type": "noise",
             "parameter": 8,
             "prediction": "p_aeruginosa",
-            "confidence": 0.9178372025489807,
-            "confidence_delta": 0.0004311203956604004,
+            "confidence": 0.9535961747169495,
+            "confidence_delta": 0.0003001093864440918,
             "prediction_flipped": false,
             "severity": "low"
           },
@@ -647,8 +647,8 @@
             "perturbation_type": "stain",
             "parameter": 12,
             "prediction": "p_aeruginosa",
-            "confidence": 0.9185518026351929,
-            "confidence_delta": 0.0002834796905517578,
+            "confidence": 0.9540905952453613,
+            "confidence_delta": 0.00019431114196777344,
             "prediction_flipped": false,
             "severity": "low"
           },
@@ -657,8 +657,8 @@
             "perturbation_type": "contrast",
             "parameter": 0.85,
             "prediction": "p_aeruginosa",
-            "confidence": 0.9184749722480774,
-            "confidence_delta": 0.0002066493034362793,
+            "confidence": 0.9540385603904724,
+            "confidence_delta": 0.00014227628707885742,
             "prediction_flipped": false,
             "severity": "low"
           },
@@ -667,8 +667,8 @@
             "perturbation_type": "contrast",
             "parameter": 1.15,
             "prediction": "p_aeruginosa",
-            "confidence": 0.9181675910949707,
-            "confidence_delta": 0.00010073184967041016,
+            "confidence": 0.9538262486457825,
+            "confidence_delta": 7.003545761108398e-05,
             "prediction_flipped": false,
             "severity": "low"
           }
@@ -684,32 +684,32 @@
           "perturbation_type": "blur",
           "parameter": 7,
           "prediction": "s_aureus",
-          "confidence": 0.9243280291557312,
-          "confidence_delta": 0.006059706211090088,
+          "confidence": 0.9580178260803223,
+          "confidence_delta": 0.004121541976928711,
           "prediction_flipped": true,
           "severity": "critical"
         },
         "most_damaging_perturbation": {
           "name": "defocus_blur",
-          "impact_score": 0.006059706211090088
+          "impact_score": 0.004121541976928711
         },
         "least_sensitive": {
           "perturbation_id": "high_contrast",
           "perturbation_type": "contrast",
           "parameter": 1.15,
           "prediction": "p_aeruginosa",
-          "confidence": 0.9181675910949707,
-          "confidence_delta": 0.00010073184967041016,
+          "confidence": 0.9538262486457825,
+          "confidence_delta": 7.003545761108398e-05,
           "prediction_flipped": false,
           "severity": "low"
         }
       },
       "robustness_score": {
-        "robustness_score": 88.63517249417332,
+        "robustness_score": 88.71457553158412,
         "interpretation": "Good robustness",
         "components": {
           "consistency_score": 77.77777777777779,
-          "stability_score": 99.15427868428144,
+          "stability_score": 99.41895547565076,
           "resistance_score": 77.77777777777779,
           "calibration_score": 100.0
         },
@@ -730,7 +730,7 @@
     },
     "convnext_tiny": {
       "model_name": "convnext_tiny",
-      "temperature_used": 1.0,
+      "temperature_used": 0.8415,
       "consistency_analysis": {
         "original_prediction": "s_aureus",
         "total_perturbations": 9,
@@ -747,19 +747,19 @@
         "saturation_note": null
       },
       "confidence_analysis": {
-        "original_confidence": 0.5028956532478333,
-        "mean_confidence": 0.6264547199010849,
-        "std_confidence": 0.1782394910453377,
-        "min_confidence": 0.47478222846984863,
-        "max_confidence": 0.9222973585128784,
-        "confidence_drop": 0.02811342477798462,
-        "max_confidence_drop": 0.02811342477798462,
-        "confidence_above_chance": 0.3764547199010849,
+        "original_confidence": 0.5452922582626343,
+        "mean_confidence": 0.6701087415218353,
+        "std_confidence": 0.17889677158314052,
+        "min_confidence": 0.5109716057777405,
+        "max_confidence": 0.9586687088012695,
+        "confidence_drop": 0.0343206524848938,
+        "max_confidence_drop": 0.0343206524848938,
+        "confidence_above_chance": 0.4201087415218353,
         "most_damaging_perturbation": {
           "id": "defocus_blur",
-          "confidence": 0.9222973585128784,
-          "impact": -0.41940170526504517,
-          "relative_impact": 0.8339736137237177
+          "confidence": 0.9586687088012695,
+          "impact": -0.41337645053863525,
+          "relative_impact": 0.7580823755974486
         },
         "is_saturated": false,
         "saturation_warning": null,
@@ -767,57 +767,57 @@
         "perturbation_impacts": [
           {
             "id": "defocus_blur",
-            "confidence": 0.9222973585128784,
-            "impact": -0.41940170526504517,
-            "relative_impact": 0.8339736137237177
+            "confidence": 0.9586687088012695,
+            "impact": -0.41337645053863525,
+            "relative_impact": 0.7580823755974486
           },
           {
             "id": "gaussian_blur",
-            "confidence": 0.9048188328742981,
-            "impact": -0.40192317962646484,
-            "relative_impact": 0.7992178437628931
+            "confidence": 0.9463039636611938,
+            "impact": -0.40101170539855957,
+            "relative_impact": 0.7354069296274816
           },
           {
             "id": "jpeg_compression",
-            "confidence": 0.8541509509086609,
-            "impact": -0.35125529766082764,
-            "relative_impact": 0.6984655671456453
+            "confidence": 0.9072483777999878,
+            "impact": -0.3619561195373535,
+            "relative_impact": 0.6637837124088073
           },
           {
             "id": "dark",
-            "confidence": 0.5954375863075256,
-            "impact": -0.09254193305969238,
-            "relative_impact": 0.18401816055086592
+            "confidence": 0.6532889008522034,
+            "impact": -0.10799664258956909,
+            "relative_impact": 0.1980527706988894
           },
           {
             "id": "bright",
-            "confidence": 0.47478222846984863,
-            "impact": 0.02811342477798462,
-            "relative_impact": 0.055903097583804275
+            "confidence": 0.5109716057777405,
+            "impact": 0.0343206524848938,
+            "relative_impact": 0.06293992251832707
           },
           {
             "id": "low_contrast",
-            "confidence": 0.5122494697570801,
-            "impact": -0.009353816509246826,
-            "relative_impact": 0.01859991520872651
+            "confidence": 0.556463897228241,
+            "impact": -0.01117163896560669,
+            "relative_impact": 0.020487433658421733
           },
           {
             "id": "stain_shift",
-            "confidence": 0.49530187249183655,
-            "impact": 0.007593780755996704,
-            "relative_impact": 0.015100112134503565
+            "confidence": 0.5351448655128479,
+            "impact": 0.010147392749786377,
+            "relative_impact": 0.01860909007239012
           },
           {
             "id": "high_contrast",
-            "confidence": 0.49702346324920654,
-            "impact": 0.005872189998626709,
-            "relative_impact": 0.011676756322514525
+            "confidence": 0.538547694683075,
+            "impact": 0.006744563579559326,
+            "relative_impact": 0.012368713249383559
           },
           {
             "id": "gaussian_noise",
-            "confidence": 0.5055897831916809,
-            "impact": -0.0026941299438476562,
-            "relative_impact": 0.005357234500732412
+            "confidence": 0.5491571426391602,
+            "impact": -0.003864884376525879,
+            "relative_impact": 0.00708773014463814
           }
         ]
       },
@@ -828,8 +828,8 @@
             "perturbation_type": "compression",
             "parameter": 45,
             "prediction": "p_aeruginosa",
-            "confidence": 0.8541509509086609,
-            "confidence_delta": 0.35125529766082764,
+            "confidence": 0.9072483777999878,
+            "confidence_delta": 0.3619561195373535,
             "prediction_flipped": true,
             "severity": "critical"
           },
@@ -838,8 +838,8 @@
             "perturbation_type": "blur",
             "parameter": 7,
             "prediction": "s_aureus",
-            "confidence": 0.9222973585128784,
-            "confidence_delta": 0.41940170526504517,
+            "confidence": 0.9586687088012695,
+            "confidence_delta": 0.41337645053863525,
             "prediction_flipped": false,
             "severity": "moderate"
           },
@@ -848,8 +848,8 @@
             "perturbation_type": "blur",
             "parameter": 5,
             "prediction": "s_aureus",
-            "confidence": 0.9048188328742981,
-            "confidence_delta": 0.40192317962646484,
+            "confidence": 0.9463039636611938,
+            "confidence_delta": 0.40101170539855957,
             "prediction_flipped": false,
             "severity": "moderate"
           },
@@ -858,8 +858,8 @@
             "perturbation_type": "brightness",
             "parameter": 0.8,
             "prediction": "s_aureus",
-            "confidence": 0.5954375863075256,
-            "confidence_delta": 0.09254193305969238,
+            "confidence": 0.6532889008522034,
+            "confidence_delta": 0.10799664258956909,
             "prediction_flipped": false,
             "severity": "moderate"
           },
@@ -868,8 +868,8 @@
             "perturbation_type": "brightness",
             "parameter": 1.2,
             "prediction": "s_aureus",
-            "confidence": 0.47478222846984863,
-            "confidence_delta": 0.02811342477798462,
+            "confidence": 0.5109716057777405,
+            "confidence_delta": 0.0343206524848938,
             "prediction_flipped": false,
             "severity": "low"
           },
@@ -878,8 +878,8 @@
             "perturbation_type": "contrast",
             "parameter": 0.85,
             "prediction": "s_aureus",
-            "confidence": 0.5122494697570801,
-            "confidence_delta": 0.009353816509246826,
+            "confidence": 0.556463897228241,
+            "confidence_delta": 0.01117163896560669,
             "prediction_flipped": false,
             "severity": "low"
           },
@@ -888,8 +888,8 @@
             "perturbation_type": "stain",
             "parameter": 12,
             "prediction": "s_aureus",
-            "confidence": 0.49530187249183655,
-            "confidence_delta": 0.007593780755996704,
+            "confidence": 0.5351448655128479,
+            "confidence_delta": 0.010147392749786377,
             "prediction_flipped": false,
             "severity": "low"
           },
@@ -898,8 +898,8 @@
             "perturbation_type": "contrast",
             "parameter": 1.15,
             "prediction": "s_aureus",
-            "confidence": 0.49702346324920654,
-            "confidence_delta": 0.005872189998626709,
+            "confidence": 0.538547694683075,
+            "confidence_delta": 0.006744563579559326,
             "prediction_flipped": false,
             "severity": "low"
           },
@@ -908,8 +908,8 @@
             "perturbation_type": "noise",
             "parameter": 8,
             "prediction": "s_aureus",
-            "confidence": 0.5055897831916809,
-            "confidence_delta": 0.0026941299438476562,
+            "confidence": 0.5491571426391602,
+            "confidence_delta": 0.003864884376525879,
             "prediction_flipped": false,
             "severity": "low"
           }
@@ -924,32 +924,32 @@
           "perturbation_type": "compression",
           "parameter": 45,
           "prediction": "p_aeruginosa",
-          "confidence": 0.8541509509086609,
-          "confidence_delta": 0.35125529766082764,
+          "confidence": 0.9072483777999878,
+          "confidence_delta": 0.3619561195373535,
           "prediction_flipped": true,
           "severity": "critical"
         },
         "most_damaging_perturbation": {
           "name": "jpeg_compression",
-          "impact_score": 0.35125529766082764
+          "impact_score": 0.3619561195373535
         },
         "least_sensitive": {
           "perturbation_id": "gaussian_noise",
           "perturbation_type": "noise",
           "parameter": 8,
           "prediction": "s_aureus",
-          "confidence": 0.5055897831916809,
-          "confidence_delta": 0.0026941299438476562,
+          "confidence": 0.5491571426391602,
+          "confidence_delta": 0.003864884376525879,
           "prediction_flipped": false,
           "severity": "low"
         }
       },
       "robustness_score": {
-        "robustness_score": 81.0764826160441,
+        "robustness_score": 81.0271865757089,
         "interpretation": "Good robustness",
         "components": {
           "consistency_score": 88.88888888888889,
-          "stability_score": 55.44012723866557,
+          "stability_score": 55.27580710421487,
           "resistance_score": 88.88888888888889,
           "calibration_score": 100.0
         },
@@ -973,48 +973,48 @@
       "ranking": [
         {
           "model": "swin_t",
-          "score": 88.63517249417332
+          "score": 88.71457553158412
         },
         {
           "model": "resnet50",
-          "score": 86.91295961005005
+          "score": 86.91295956362907
         },
         {
           "model": "efficientnet_b0",
-          "score": 81.73277502619646
+          "score": 81.7327751073757
         },
         {
           "model": "convnext_tiny",
-          "score": 81.0764826160441
+          "score": 81.0271865757089
         }
       ],
       "model_rankings": [
         [
           "swin_t",
           {
-            "robustness_score": 88.63517249417332
+            "robustness_score": 88.71457553158412
           }
         ],
         [
           "resnet50",
           {
-            "robustness_score": 86.91295961005005
+            "robustness_score": 86.91295956362907
           }
         ],
         [
           "efficientnet_b0",
           {
-            "robustness_score": 81.73277502619646
+            "robustness_score": 81.7327751073757
           }
         ],
         [
           "convnext_tiny",
           {
-            "robustness_score": 81.0764826160441
+            "robustness_score": 81.0271865757089
           }
         ]
       ],
-      "score_gap": 7.558689878129215,
+      "score_gap": 7.687388955875221,
       "note": "Scores now include a calibration penalty for overconfident models. A model that always outputs 0.999 confidence is penalised even if consistency is 100%."
     }
   }
