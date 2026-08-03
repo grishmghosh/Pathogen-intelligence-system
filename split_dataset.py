@@ -44,7 +44,7 @@ IMAGE_EXTENSIONS = {".jpg", ".jpeg", ".png", ".JPG", ".HEIC", ".heic"}
 CLASS_NAME_MAP = {
     "e.coli on BH":                 "e_coli",
     "Klebsiella on BH":             "k_pneumoniae",
-    "Pseudomonas aeruginosa on BH": "p_aeruginosa",
+    "Pseudomonas aeruginosa":       "p_aeruginosa",
     "Staph On BH":                  "s_aureus",
 }
 
@@ -188,6 +188,10 @@ def split_dataset(input_root: str, output_root: str, seed: int) -> None:
 
         # Auto-discover all Plate* folders anywhere under this class dir
         plates = find_plate_dirs(class_src_dir)
+
+        # Canonical dataset is BH/BHI medium only — exclude McConkey plates
+        # (present for P. aeruginosa only; source spells it "McCacConkey").
+        plates = [p for p in plates if "conkey" not in os.path.basename(p).lower()]
 
         if not plates:
             print(f"[WARN] No Plate folders found under: {class_src_dir}")
