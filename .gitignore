@@ -23,6 +23,7 @@ env/
 # Project Datasets
 data/
 dataset_split/
+dataset_split_canonical/
 
 # Model Checkpoints & Binary Weights
 *.pth
